@@ -200,3 +200,44 @@ export function formatCurrency(amount: number): string {
 export function formatPercentage(decimal: number): string {
   return `${(safeNumber(decimal) * 100).toFixed(1)}%`
 }
+
+// Calculate gross annual income from active financial items
+export function calculateGrossAnnualIncome(
+  items: Array<{ amount: number; active: boolean; frequency?: string }>
+): number {
+  return items
+    .filter((item) => item.active)
+    .reduce((sum, item) => {
+      if (item.frequency === "monthly") return sum + item.amount * 12
+      return sum + item.amount // annual by default
+    }, 0)
+}
+
+// Calculate estimated annual take-home income (after taxes)
+export function calculateEstimatedAnnualTakeHomeIncome(grossAnnualIncome: number): number {
+  return safeNumber(grossAnnualIncome) * 0.7
+}
+
+// Calculate affordability analysis from user inputs
+export function calculateAffordability(input: {
+  annualIncome: number
+  monthlyExpenses: number
+  fixedDebts: number
+  downPaymentSources: number
+  interestRate: number
+  loanTerm: number
+  housingPercentage: number
+}): AffordabilityAnalysis {
+  return calculateMaxAffordablePrice(
+    input.annualIncome,
+    input.monthlyExpenses,
+    input.fixedDebts,
+    input.downPaymentSources,
+    input.interestRate,
+    input.loanTerm,
+    0.015,
+    1800,
+    input.housingPercentage / 100,
+    0.43,
+  )
+}
