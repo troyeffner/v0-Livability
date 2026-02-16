@@ -7,8 +7,8 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'Mortgage & Move Planner',
+  description: 'Plan your home purchase with confidence using real-time affordability calculations',
   generator: 'v0.app',
   icons: {
     icon: [
