@@ -1,4 +1,8 @@
-// Core real estate calculation functions
+// Core real estate calculation functions - delegates to finance-core for consistent math
+import { DEFAULTS, piti, pmt, rateMonthlyFromPercent, safeNumber, solvePriceWithDynamicDownPayment } from "./finance-core"
+
+export { safeNumber } from "./finance-core"
+
 export interface MortgageCalculation {
   monthlyPayment: number
   totalInterest: number
@@ -20,170 +24,182 @@ export interface AffordabilityAnalysis {
   opportunities: string[]
 }
 
-// Safe number utility
-export function safeNumber(value: any, defaultValue = 0): number {
-  const num = Number(value)
-  return isNaN(num) || !isFinite(num) ? defaultValue : num
-}
-
-// Calculate monthly mortgage payment (P&I only)
-export function calculateMonthlyPayment(loanAmount: number, interestRate: number, loanTermYears: number): number {
+// Calculate monthly mortgage payment (P&I only) - delegates to finance-core pmt
+export function calculateMonthlyPayment(loanAmount: number, interestRatePercent: number, loanTermYears: number): number {
   const principal = safeNumber(loanAmount)
-  const rate = safeNumber(interestRate) / 100 / 12
-  const payments = safeNumber(loanTermYears) * 12
-
-  if (principal <= 0 || payments <= 0) return 0
-  if (rate === 0) return principal / payments
-
-  return (principal * rate) / (1 - Math.pow(1 + rate, -payments))
+  const r = rateMonthlyFromPercent(safeNumber(interestRatePercent))
+  const n = safeNumber(loanTermYears) * 12
+  return pmt(principal, r, n)
 }
 
-// Calculate total monthly housing payment (PITI)
+// Calculate total monthly housing payment (PITI) - delegates to finance-core piti
 export function calculateTotalMonthlyPayment(
   purchasePrice: number,
   downPayment: number,
-  interestRate: number,
+  interestRatePercent: number,
   loanTermYears: number,
-  propertyTaxRate: number,
-  annualInsurance: number,
-  monthlyHOA = 0,
-  pmiRate = 0,
+  propertyTaxRatePercent = DEFAULTS.propertyTaxRatePercent,
+  annualInsurance = DEFAULTS.annualInsurance,
+  monthlyHOA = DEFAULTS.monthlyHOA,
+  pmiAnnualRatePercent = DEFAULTS.pmiAnnualRatePercent,
 ): MortgageCalculation {
-  const loanAmount = Math.max(0, safeNumber(purchasePrice) - safeNumber(downPayment))
-  const principalAndInterest = calculateMonthlyPayment(loanAmount, interestRate, loanTermYears)
-  const propertyTax = (safeNumber(purchasePrice) * safeNumber(propertyTaxRate)) / 12
-  const insurance = safeNumber(annualInsurance) / 12
-  const pmi =
-    loanAmount > 0 && safeNumber(downPayment) / safeNumber(purchasePrice) < 0.2
-      ? (loanAmount * safeNumber(pmiRate)) / 12
-      : 0
+  const price = safeNumber(purchasePrice)
+  const dpPercent = price > 0 ? (safeNumber(downPayment) / price) * 100 : 0
+  const res = piti({
+    purchasePrice: price,
+    downPaymentPercent: dpPercent,
+    interestRatePercent,
+    termYears: loanTermYears,
+    propertyTaxRatePercent,
+    annualInsurance,
+    monthlyHOA,
+    pmiAnnualRatePercent,
+  })
 
-  const monthlyPayment = principalAndInterest + propertyTax + insurance + safeNumber(monthlyHOA) + pmi
-  const totalPayments = principalAndInterest * loanTermYears * 12
-  const totalInterest = totalPayments - loanAmount
+  const totalPayments = res.principalAndInterest * loanTermYears * 12
+  const loanAmount = res.loanAmount
+  const totalInterest = Math.max(0, totalPayments - loanAmount)
 
   return {
-    monthlyPayment,
+    monthlyPayment: res.monthly,
     totalInterest,
     totalPayments,
-    principalAndInterest,
-    propertyTax,
-    insurance,
-    pmi: pmi > 0 ? pmi : undefined,
+    principalAndInterest: res.principalAndInterest,
+    propertyTax: res.propertyTax,
+    insurance: res.insurance,
+    pmi: res.pmi && res.pmi > 0 ? res.pmi : undefined,
   }
 }
 
-// Calculate maximum affordable home price
+// Calculate maximum affordable home price - uses binary search via finance-core
 export function calculateMaxAffordablePrice(
   annualIncome: number,
   monthlyExpenses: number,
   fixedDebts: number,
   downPaymentSources: number,
-  interestRate: number,
+  interestRatePercent: number,
   loanTermYears: number,
-  propertyTaxRate = 0.015,
-  annualInsurance = 1800,
+  propertyTaxRatePercent = DEFAULTS.propertyTaxRatePercent,
+  annualInsurance = DEFAULTS.annualInsurance,
   housingRatio = 0.28,
   dtiRatio = 0.43,
+  dpCapPercent = 20,
 ): AffordabilityAnalysis {
   const grossMonthlyIncome = safeNumber(annualIncome) / 12
-  const takeHomeIncome = grossMonthlyIncome * 0.7 // Rough estimate
+  const takeHomeIncome = grossMonthlyIncome * 0.7
 
-  // Calculate maximum monthly payment using both ratios
   const maxPaymentFromHousingRatio = grossMonthlyIncome * safeNumber(housingRatio)
   const maxPaymentFromDTI = grossMonthlyIncome * safeNumber(dtiRatio) - safeNumber(fixedDebts)
-  const maxMonthlyPayment = Math.min(maxPaymentFromHousingRatio, maxPaymentFromDTI)
-
-  // Calculate available budget after expenses
   const availableBudget = takeHomeIncome - safeNumber(monthlyExpenses) - safeNumber(fixedDebts)
-  const conservativeMaxPayment = Math.min(maxMonthlyPayment, availableBudget)
 
-  // Iteratively solve for maximum purchase price
-  let maxPrice = 0
-  let estimate = 300000 // Starting estimate
+  const maxMonthlyPayment = Math.max(0, Math.min(maxPaymentFromHousingRatio, Math.min(maxPaymentFromDTI, availableBudget)))
 
-  for (let i = 0; i < 50; i++) {
-    const downPayment = Math.min(safeNumber(downPaymentSources), estimate * 0.2)
-    const calculation = calculateTotalMonthlyPayment(
-      estimate,
-      downPayment,
-      interestRate,
-      loanTermYears,
-      propertyTaxRate,
-      annualInsurance,
-    )
-
-    if (calculation.monthlyPayment <= conservativeMaxPayment) {
-      maxPrice = estimate
-      estimate *= 1.1 // Increase estimate
-    } else {
-      estimate *= 0.95 // Decrease estimate
-    }
-
-    // Check for convergence
-    if (Math.abs(calculation.monthlyPayment - conservativeMaxPayment) < 50) {
-      maxPrice = estimate
-      break
-    }
-  }
-
-  // Calculate final metrics
-  const requiredDownPayment = maxPrice * 0.2
-  const finalCalculation = calculateTotalMonthlyPayment(
-    maxPrice,
-    Math.min(downPaymentSources, requiredDownPayment),
-    interestRate,
-    loanTermYears,
-    propertyTaxRate,
+  // Solve for price with dynamic down payment capped at dpCapPercent
+  const maxPrice = solvePriceWithDynamicDownPayment({
+    targetMonthly: maxMonthlyPayment,
+    availableDownPayment: safeNumber(downPaymentSources),
+    dpCapPercent,
+    interestRatePercent,
+    termYears: loanTermYears,
+    propertyTaxRatePercent,
     annualInsurance,
-  )
+  })
 
-  const finalDTI = ((safeNumber(fixedDebts) + finalCalculation.monthlyPayment) / grossMonthlyIncome) * 100
-  const remainingBudget =
-    takeHomeIncome - finalCalculation.monthlyPayment - safeNumber(monthlyExpenses) - safeNumber(fixedDebts)
+  const dpUsed = Math.min(safeNumber(downPaymentSources), maxPrice * (dpCapPercent / 100))
+  const comp = piti({
+    purchasePrice: maxPrice,
+    downPaymentPercent: maxPrice > 0 ? (dpUsed / maxPrice) * 100 : 0,
+    interestRatePercent,
+    termYears: loanTermYears,
+    propertyTaxRatePercent,
+    annualInsurance,
+  })
 
-  // Determine constraints and opportunities
+  const finalMonthly = comp.monthly
+  const finalDTI = grossMonthlyIncome > 0 ? ((safeNumber(fixedDebts) + finalMonthly) / grossMonthlyIncome) * 100 : 1000
+  const remainingBudget = takeHomeIncome - finalMonthly - safeNumber(monthlyExpenses) - safeNumber(fixedDebts)
+
   const constraints: string[] = []
   const opportunities: string[] = []
 
-  if (maxPrice <= 0) {
-    constraints.push("Current expenses exceed income - reduce expenses to afford a home")
-  }
-
-  if (safeNumber(downPaymentSources) < requiredDownPayment) {
-    constraints.push(
-      `Need ${((requiredDownPayment - safeNumber(downPaymentSources)) / 1000).toFixed(0)}k more for down payment`,
-    )
-  }
-
-  if (finalDTI > 40) {
-    constraints.push(`High DTI ratio: ${finalDTI.toFixed(1)}% (lenders prefer <43%)`)
-  }
-
-  if (remainingBudget < 500) {
-    constraints.push("Tight budget - consider increasing income or reducing expenses")
+  if (maxPrice <= 0) constraints.push("Current expenses exceed income - reduce expenses to afford a home")
+  if (finalDTI > 40) constraints.push(`High DTI ratio: ${finalDTI.toFixed(1)}% (lenders prefer <43%)`)
+  if (remainingBudget < 500) constraints.push("Tight budget - consider increasing income or reducing expenses")
+  if (safeNumber(downPaymentSources) < maxPrice * (dpCapPercent / 100)) {
+    const gap = maxPrice * (dpCapPercent / 100) - safeNumber(downPaymentSources)
+    if (gap > 0) constraints.push(`Need ${(gap / 1000).toFixed(0)}k more for down payment`)
   }
 
   if (remainingBudget > 1000) {
-    opportunities.push(
-      `Strong budget position - could afford ${((remainingBudget * 200) / 1000).toFixed(0)}k more house`,
-    )
+    opportunities.push(`Strong budget position - could afford ${(((remainingBudget * 200) / 1000) | 0)}k more house`)
   }
-
-  if (safeNumber(downPaymentSources) > requiredDownPayment * 1.1) {
+  if (safeNumber(downPaymentSources) > maxPrice * (dpCapPercent / 100) * 1.1) {
     opportunities.push("Excess down payment available - consider higher price range or lower monthly payment")
   }
 
   return {
     maxPurchasePrice: Math.max(0, maxPrice),
-    maxMonthlyPayment: Math.max(0, conservativeMaxPayment),
-    requiredDownPayment: Math.max(0, requiredDownPayment),
+    maxMonthlyPayment,
+    requiredDownPayment: Math.max(0, maxPrice * (dpCapPercent / 100)),
     dtiRatio: finalDTI,
     remainingBudget,
     canAfford: maxPrice > 0 && remainingBudget >= 0,
     constraints,
     opportunities,
   }
+}
+
+// Wrapper expected by RealEstatePlannerPage (keeps existing import intact)
+export function calculateAffordability(input: {
+  annualIncome: number
+  monthlyExpenses: number
+  fixedDebts: number
+  downPaymentSources: number
+  interestRate: number
+  loanTerm: number
+  housingPercentage: number
+}) {
+  return calculateMaxAffordablePrice(
+    input.annualIncome,
+    input.monthlyExpenses,
+    input.fixedDebts,
+    input.downPaymentSources,
+    input.interestRate,
+    input.loanTerm,
+    DEFAULTS.propertyTaxRatePercent,
+    DEFAULTS.annualInsurance,
+    Math.max(0, Math.min(1, (input.housingPercentage || 30) / 100)),
+    0.43,
+    20,
+  )
+}
+
+// Calculate gross annual income from active financial items
+export function calculateGrossAnnualIncome(
+  items: Array<{ amount: number; active: boolean; frequency?: string }>
+): number {
+  return items
+    .filter((item) => item.active)
+    .reduce((sum, item) => {
+      if (item.frequency === "monthly") return sum + item.amount * 12
+      return sum + item.amount
+    }, 0)
+}
+
+// Calculate estimated annual take-home income (after taxes)
+// Returns an object to match the destructuring in use-memoized-calculations
+export function calculateEstimatedAnnualTakeHomeIncome(grossAnnualIncome: number): {
+  annualTakeHome: number
+  taxes: number
+  healthcare: number
+  retirement: number
+} {
+  const gross = safeNumber(grossAnnualIncome)
+  const taxes = gross * 0.22
+  const healthcare = gross * 0.04
+  const retirement = gross * 0.04
+  const annualTakeHome = gross - taxes - healthcare - retirement
+  return { annualTakeHome, taxes, healthcare, retirement }
 }
 
 // Format currency for display
@@ -199,45 +215,4 @@ export function formatCurrency(amount: number): string {
 // Format percentage for display
 export function formatPercentage(decimal: number): string {
   return `${(safeNumber(decimal) * 100).toFixed(1)}%`
-}
-
-// Calculate gross annual income from active financial items
-export function calculateGrossAnnualIncome(
-  items: Array<{ amount: number; active: boolean; frequency?: string }>
-): number {
-  return items
-    .filter((item) => item.active)
-    .reduce((sum, item) => {
-      if (item.frequency === "monthly") return sum + item.amount * 12
-      return sum + item.amount // annual by default
-    }, 0)
-}
-
-// Calculate estimated annual take-home income (after taxes)
-export function calculateEstimatedAnnualTakeHomeIncome(grossAnnualIncome: number): number {
-  return safeNumber(grossAnnualIncome) * 0.7
-}
-
-// Calculate affordability analysis from user inputs
-export function calculateAffordability(input: {
-  annualIncome: number
-  monthlyExpenses: number
-  fixedDebts: number
-  downPaymentSources: number
-  interestRate: number
-  loanTerm: number
-  housingPercentage: number
-}): AffordabilityAnalysis {
-  return calculateMaxAffordablePrice(
-    input.annualIncome,
-    input.monthlyExpenses,
-    input.fixedDebts,
-    input.downPaymentSources,
-    input.interestRate,
-    input.loanTerm,
-    0.015,
-    1800,
-    input.housingPercentage / 100,
-    0.43,
-  )
 }

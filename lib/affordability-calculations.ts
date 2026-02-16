@@ -1,3 +1,4 @@
+import { piti, safeNumber, DEFAULTS } from "./finance-core"
 import type { Property, Scenario, PropertyAffordability } from "./property-types"
 
 export const formatCurrency = (amount: number): string => {
@@ -6,58 +7,61 @@ export const formatCurrency = (amount: number): string => {
     currency: "USD",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(amount)
+  }).format(safeNumber(amount))
 }
 
 export const calculatePropertyAffordability = (property: Property, scenario: Scenario): PropertyAffordability => {
   const { financialInputs } = scenario
 
-  // Calculate monthly income
-  const grossMonthlyIncome = financialInputs.annualIncome / 12
-  const takeHomeIncome = grossMonthlyIncome * 0.7 // Rough estimate
+  const grossMonthlyIncome = safeNumber(financialInputs.annualIncome) / 12
+  const takeHomeIncome = grossMonthlyIncome * 0.7
 
-  // Calculate maximum monthly payment (28% of gross income rule)
   const maxMonthlyPayment = grossMonthlyIncome * 0.28
 
-  // Calculate mortgage payment for this property
-  const downPaymentAmount = property.price * 0.2 // 20% down
-  const loanAmount = property.price - downPaymentAmount
-  const monthlyInterestRate = financialInputs.interestRate / 100 / 12
-  const numberOfPayments = financialInputs.loanTerm * 12
+  // Use finance-core PITI for consistent math and 0% rate handling
+  const downPaymentAmount = property.price * 0.2
+  const dpPercent = property.price > 0 ? (downPaymentAmount / property.price) * 100 : 0
 
-  const monthlyPrincipalInterest =
-    (loanAmount * monthlyInterestRate) / (1 - Math.pow(1 + monthlyInterestRate, -numberOfPayments))
+  // property.propertyTaxRate is stored as a decimal (0.015 = 1.5%), convert to percent for finance-core
+  const propertyTaxRatePercent = safeNumber(property.propertyTaxRate) * 100 || DEFAULTS.propertyTaxRatePercent
 
-  const monthlyPropertyTax = (property.price * property.propertyTaxRate) / 12
-  const monthlyInsurance = 1800 / 12 // Estimate
-  const monthlyHOA = property.monthlyHOA || 0
+  const calc = piti({
+    purchasePrice: property.price,
+    downPaymentPercent: dpPercent,
+    interestRatePercent: safeNumber(financialInputs.interestRate),
+    termYears: safeNumber(financialInputs.loanTerm),
+    propertyTaxRatePercent,
+    annualInsurance: DEFAULTS.annualInsurance,
+    monthlyHOA: safeNumber((property as any).monthlyHOA) || 0,
+  })
 
-  const totalMonthlyPayment = monthlyPrincipalInterest + monthlyPropertyTax + monthlyInsurance + monthlyHOA
+  const totalMonthlyPayment = calc.monthly
 
-  // Calculate DTI ratio
-  const totalMonthlyDebts = financialInputs.fixedDebts + totalMonthlyPayment
-  const dtiRatio = (totalMonthlyDebts / grossMonthlyIncome) * 100
+  const totalMonthlyDebts = safeNumber(financialInputs.fixedDebts) + totalMonthlyPayment
+  const dtiRatio = grossMonthlyIncome > 0 ? (totalMonthlyDebts / grossMonthlyIncome) * 100 : 1000
 
-  // Calculate remaining budget
   const remainingBudget =
-    takeHomeIncome - totalMonthlyPayment - financialInputs.monthlyExpenses - financialInputs.fixedDebts
+    takeHomeIncome -
+    totalMonthlyPayment -
+    safeNumber(financialInputs.monthlyExpenses) -
+    safeNumber(financialInputs.fixedDebts)
 
-  // Determine affordability
   const canAfford =
     totalMonthlyPayment <= maxMonthlyPayment &&
     dtiRatio <= 43 &&
-    financialInputs.downPaymentSources >= downPaymentAmount &&
+    safeNumber(financialInputs.downPaymentSources) >= downPaymentAmount &&
     remainingBudget >= 0
 
-  // Calculate affordability score (0-100)
-  const paymentScore = Math.max(0, 100 - (totalMonthlyPayment / maxMonthlyPayment) * 100)
+  const paymentScore = Math.max(0, 100 - (totalMonthlyPayment / Math.max(1, maxMonthlyPayment)) * 100)
   const dtiScore = Math.max(0, 100 - (dtiRatio / 43) * 100)
-  const downPaymentScore = Math.min(100, (financialInputs.downPaymentSources / downPaymentAmount) * 100)
+  const downPaymentScore = Math.min(
+    100,
+    (safeNumber(financialInputs.downPaymentSources) / Math.max(1, downPaymentAmount)) * 100,
+  )
   const budgetScore = Math.max(0, Math.min(100, (remainingBudget / 1000) * 100))
 
   const affordabilityScore = (paymentScore + dtiScore + downPaymentScore + budgetScore) / 4
 
-  // Generate recommendations and constraints
   const recommendations: string[] = []
   const constraints: string[] = []
 
@@ -70,9 +74,9 @@ export const calculatePropertyAffordability = (property: Property, scenario: Sce
     if (dtiRatio > 43) {
       constraints.push(`DTI ratio ${dtiRatio.toFixed(1)}% exceeds 43% limit`)
     }
-    if (financialInputs.downPaymentSources < downPaymentAmount) {
+    if (safeNumber(financialInputs.downPaymentSources) < downPaymentAmount) {
       constraints.push(
-        `Need ${formatCurrency(downPaymentAmount - financialInputs.downPaymentSources)} more for down payment`,
+        `Need ${formatCurrency(Math.max(0, downPaymentAmount - safeNumber(financialInputs.downPaymentSources)))} more for down payment`,
       )
     }
     if (remainingBudget < 0) {
