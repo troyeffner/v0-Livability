@@ -1,0 +1,1206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Navigating a Change — Steadiness Under Pressure</title>
+  <style>
+    :root{
+      --bg:#eaf7f1;
+      --panel: rgba(255,255,255,.82);
+      --panel2: rgba(255,255,255,.72);
+      --text:#0f2320;
+      --muted:#3f645c;
+      --accent:#2bbfa7;
+
+      /* Band palette (coordinated with mint base) */
+      --band-fragile:#e05a6f;
+      --band-reactive:#f08c57;
+      --band-managing:#f2c76b;
+      --band-stable:#2bbfa7;
+      --band-resilient:#1f9f7b;
+      --band-fragile-soft: rgba(224,90,111,.28);
+      --band-reactive-soft: rgba(240,140,87,.28);
+      --band-managing-soft: rgba(242,199,107,.30);
+      --band-stable-soft: rgba(43,191,167,.26);
+      --band-resilient-soft: rgba(31,159,123,.30);
+
+      /* soft background glows (set per band via [data-band]) */
+      --glow1: rgba(43,191,167,.20);
+      --glow2: rgba(31,159,123,.14);
+
+      --shadow: 0 10px 24px rgba(15,35,32,.12);
+      --radius: 16px;
+    }
+
+    *{ box-sizing: border-box; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans";
+      background:
+        radial-gradient(1200px 820px at 18% -12%, var(--glow1) 0%, rgba(0,0,0,0) 58%),
+        radial-gradient(1050px 760px at 105% 0%, var(--glow2) 0%, rgba(0,0,0,0) 56%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    header{
+      padding: 20px 18px 6px 18px;
+      max-width: 1220px;
+      margin: 0 auto;
+    }
+    header h1{
+      margin:0 0 6px 0;
+      font-size: 20px;
+      letter-spacing: .2px;
+      font-weight: 760;
+    }
+    header p{
+      margin: 0 0 12px 0;
+      color: var(--muted);
+      line-height: 1.45;
+      max-width: 980px;
+      font-size: 13.5px;
+    }
+
+    
+    .headerRow{
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .headerActions{ position: relative; margin-top: 2px; }
+    .iconbtn{
+      width: 38px; height: 34px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius: 12px;
+      font-size: 18px;
+      line-height: 1;
+      padding: 0;
+    }
+        .menu{
+      position:absolute;
+      right:0;
+      top: 44px;
+      width: 260px;
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(15,35,32,.14);
+      border-radius: 14px;
+      padding: 10px;
+      box-shadow: var(--shadow);
+      display:none;
+      backdrop-filter: blur(10px);
+    }
+    .menu.open{ display:block; }
+        .menuTitle{
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--text);
+      margin-bottom: 8px;
+      letter-spacing: .2px;
+    }
+        .menuRow{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      background: rgba(15,35,32,.04);
+      border: 1px solid rgba(15,35,32,.12);
+      border-radius: 12px;
+      padding: 10px;
+    }
+        .menuLabel{
+      font-size: 12.5px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+        .menuHelp{
+      font-size: 11.5px;
+      color: var(--muted);
+      line-height: 1.25;
+    }
+        .menuHint{
+      margin-top: 8px;
+      font-size: 11.5px;
+      color: var(--muted);
+      line-height: 1.25;
+    }
+    
+
+    .layout{
+      display: grid;
+      grid-template-columns: 440px 1fr;
+      gap: 14px;
+      padding: 12px 18px 20px 18px;
+      max-width: 1220px;
+      margin: 0 auto;
+    }
+    @media (max-width: 1020px){
+      .layout{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      background: var(--panel);
+      border: 1px solid rgba(15,35,32,.10);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .controls{ padding: 14px; }
+
+    .section-title{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap:10px;
+      margin: 4px 0 10px 0;
+    }
+    .section-title h2{
+      margin:0;
+      font-size: 14px;
+      font-weight: 760;
+      letter-spacing:.15px;
+    }
+        .pill{
+      background: rgba(255,255,255,.78);
+      border: 1px solid rgba(15,35,32,.14);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .pill.accent{
+      background: var(--bandSoft);
+      border-color: rgba(15,35,32,.16);
+      box-shadow: 0 6px 16px rgba(15,35,32,.10);
+    }
+    .pill.band{
+      background: var(--bandSoft);
+      border-color: rgba(15,35,32,.16);
+    }
+
+    .row{
+      background: rgba(15,35,32,.04);
+      border: 1px solid rgba(15,35,32,.10);
+      border-radius: 14px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .row-top{
+      display:flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+    .label{ font-weight: 720; font-size: 13px; }
+    .value{ font-variant-numeric: tabular-nums; color: var(--muted); font-size: 12px; }
+    input[type="range"]{ width:100%; -webkit-appearance:none; appearance:none; height:10px; border-radius:999px; background: rgba(15,35,32,.18); outline:none; }
+    input[type="range"]::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:18px; height:18px; border-radius:999px; background: var(--accent); border: 2px solid rgba(255,255,255,.85); box-shadow: 0 6px 14px rgba(15,35,32,.18); }
+    input[type="range"]::-moz-range-thumb{ width:18px; height:18px; border-radius:999px; background: var(--accent); border: 2px solid rgba(255,255,255,.85); box-shadow: 0 6px 14px rgba(15,35,32,.18); }
+    input[type="range"]::-moz-range-track{ height:10px; border-radius:999px; background: rgba(15,35,32,.18); }
+    .hint{ margin-top: 6px; color: var(--muted); font-size: 12px; line-height: 1.35; }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .toggle{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap:10px;
+      padding: 10px;
+      background: rgba(15,35,32,.04);
+      border: 1px solid rgba(15,35,32,.10);
+      border-radius: 14px;
+    }
+    .toggle label{ font-size: 12.5px; color: var(--text); font-weight: 720; }
+    .toggle small{ display:block; color: var(--muted); font-weight: 500; margin-top: 2px; line-height: 1.25; }
+
+    .switch{
+      position: relative;
+      width: 44px;
+      height: 26px;
+      display: inline-block;
+      cursor: pointer;
+      user-select: none;
+      flex: 0 0 auto;
+    }
+    .switch input{
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+    .slider{
+      position:absolute;
+      inset:0;
+      background: rgba(15,35,32,.10);
+      border: 1px solid rgba(15,35,32,.14);
+      border-radius: 999px;
+      transition: .18s ease;
+    }
+    .slider::after{
+      content:"";
+      position:absolute;
+      width: 20px; height: 20px;
+      left: 3px; top: 2px;
+      background: rgba(255,255,255,.88);
+      border-radius: 999px;
+      transition: .18s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,.35);
+    }
+    .switch input:checked + .slider{
+      background: rgba(73,209,122,.22);
+      border-color: rgba(73,209,122,.30);
+    }
+    .switch input:checked + .slider::after{
+      transform: translateX(18px);
+      background: rgba(211,255,226,.95);
+    }
+    .switch input:focus-visible + .slider{
+      outline: 2px solid rgba(122,162,255,.55);
+      outline-offset: 2px;
+    }
+
+    .btnrow{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+        button{
+      background: rgba(43,191,167,.18);
+      border: 1px solid rgba(43,191,167,.30);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 12px;
+      cursor:pointer;
+      font-weight: 760;
+      font-size: 12px;
+      transition: .15s ease;
+    }
+    button:hover{ transform: translateY(-1px); }
+    button.secondary{
+      background: rgba(255,255,255,.72);
+      border-color: rgba(15,35,32,.14);
+      color: var(--text);
+    }
+    button.danger{
+      background: rgba(224,90,111,.14);
+      border-color: rgba(224,90,111,.26);
+      color: #3a0f17;
+    }
+
+        .smallprint{
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 11.5px;
+      line-height: 1.35;
+    }
+
+    /* Right column */
+    .viz{
+      padding: 12px;
+      display:flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Primary KPI at top */
+        .primaryKPI{
+      margin: 10px 10px 0 10px;
+      padding: 14px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.92) 0%, rgba(255,255,255,.80) 100%);
+      border: 1px solid rgba(15,35,32,.12);
+    }
+    .pkTop{
+      display:flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .pkTitle{
+      font-weight: 900;
+      font-size: 15px;
+      letter-spacing: .1px;
+    }
+        .pkValue{
+      font-weight: 920;
+      font-size: 24px;
+      font-variant-numeric: tabular-nums;
+      color: var(--text);
+    }
+    .pkStatusRow{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .pkStatusLeft{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+        .pkStatus{
+      font-weight: 860;
+      font-size: 13px;
+      color: var(--text);
+    }
+        .pkSub{
+      color: var(--muted);
+      font-size: 12.8px;
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+    .pkMiniRow{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+        .mini{
+      flex: 1 1 180px;
+      background: rgba(255,255,255,.78);
+      border: 1px solid rgba(15,35,32,.12);
+      border-radius: 14px;
+      padding: 10px 12px;
+    }
+    .mini .k{ color: var(--muted); font-size: 12px; margin-bottom: 4px; }
+    .mini .v{ font-size: 14px; font-weight: 860; }
+
+    /* Bands */
+    .bandsWrap{
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.78);
+      border: 1px solid rgba(15,35,32,.12);
+    }
+    .bandsTop{
+      display:flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .bandsTop .t{
+      font-weight: 900;
+      font-size: 12.8px;
+      color: var(--text);
+    }
+    .bandsTop .m{
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .bandBar{
+      position: relative;
+      height: 16px;
+      border-radius: 999px;
+      overflow:hidden;
+      border: 1px solid rgba(15,35,32,.14);
+      background: rgba(15,35,32,.04);
+      display:flex;
+    }
+    .seg{ height:100%; }
+    .seg.fragile{ background: var(--band-fragile-soft); width: 20%; }
+    .seg.reactive{ background: var(--band-reactive-soft); width: 20%; }
+    .seg.managing{ background: var(--band-managing-soft); width: 20%; }
+    .seg.stable{ background: var(--band-stable-soft); width: 20%; }
+    .seg.resilient{ background: var(--band-resilient-soft); width: 20%; }
+
+    .bandMarker{
+      position:absolute;
+      top:-6px;
+      width: 0;
+      height: 28px;
+      left: 0%;
+      pointer-events:none;
+    }
+    .bandMarker::before{
+      content:"";
+      position:absolute;
+      top: 0px;
+      left: -1px;
+      width: 2px;
+      height: 28px;
+      background: var(--bandColor);
+      border-radius: 2px;
+      box-shadow: 0 8px 18px rgba(15,35,32,.22);
+    }
+    .bandMarker::after{
+      content:"";
+      position:absolute;
+      top: -2px;
+      left: -6px;
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.98);
+      border: 2px solid var(--bandColor);
+      box-shadow: 0 10px 18px rgba(15,35,32,.18);
+    }
+
+    .bandLabels{
+      display:grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+      font-size: 11.5px;
+      color: var(--muted);
+    }
+    .bandLabels .b{
+      background: rgba(15,35,32,.03);
+      border: 1px solid rgba(15,35,32,.12);
+      border-radius: 12px;
+      padding: 8px 8px;
+      line-height: 1.25;
+      min-height: 44px;
+    }
+    .bandLabels .b strong{
+      display:block;
+      color: var(--text);
+      font-size: 11.8px;
+      margin-bottom: 2px;
+    }
+    .bandLabels .b .r{
+      font-variant-numeric: tabular-nums;
+      opacity:.95;
+    }
+    .bandLabels .active{
+      border-color: rgba(15,35,32,.18);
+      background: var(--bandSoft);
+      box-shadow: 0 10px 18px rgba(15,35,32,.10);
+    }
+    .calNote{
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(15,35,32,.03);
+      border: 1px solid rgba(15,35,32,.12);
+      color: var(--muted);
+      font-size: 12.2px;
+      line-height: 1.4;
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .calNote strong{ color: var(--text); }
+
+    .linkbtn{
+      background: rgba(255,255,255,.70);
+      border: 1px solid rgba(15,35,32,.16);
+      color: var(--text);
+      padding: 7px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 760;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .linkbtn:hover{ transform: none; background: rgba(15,35,32,.06); }
+    .drawer{
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.78);
+      border: 1px solid rgba(15,35,32,.12);
+      display:none;
+    }
+    .drawer.open{ display:block; }
+    .drawer .dhead{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap:10px;
+      margin-bottom: 8px;
+    }
+    .drawer .dhead .t{
+      font-weight: 900;
+      color: var(--text);
+      font-size: 13px;
+    }
+    .drawer .dbody{
+      padding: 2px;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+    .drawer .band{
+      padding: 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(15,35,32,.12);
+      background: rgba(15,35,32,.03);
+      margin-bottom: 10px;
+    }
+    .drawer .band .btop{
+      display:flex; align-items: baseline; justify-content: space-between; gap:10px;
+      margin-bottom: 6px;
+    }
+    .drawer .band .name{ font-weight: 900; color: var(--text); }
+    .drawer .band .range{ font-variant-numeric: tabular-nums; color: var(--muted); font-weight: 800; }
+    .drawer .band ul{ margin: 6px 0 0 0; padding-left: 18px; }
+    .drawer .band li{ margin: 3px 0; }
+    .stage{
+      position: relative;
+      background: rgba(255,255,255,.66);
+      border: 1px solid rgba(15,35,32,.10);
+      border-radius: 16px;
+      padding: 14px;
+      overflow: hidden;
+      margin: 0 10px;
+    }
+
+    .dash{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 980px){
+      .dash{ grid-template-columns: 1fr; }
+    }
+
+    .cardish{
+      background: rgba(255,255,255,.84);
+      border: 1px solid rgba(15,35,32,.12);
+      border-radius: 16px;
+      padding: 12px;
+      box-shadow: 0 10px 22px rgba(15,35,32,.06);
+    }
+
+    .mtop{
+      display:flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .mname{ font-weight: 860; font-size: 13px; color: var(--text); }
+    .mval{ color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+    .bar{
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(15,35,32,.06);
+      border: 1px solid rgba(15,35,32,.12);
+      overflow:hidden;
+    }
+    .fill{
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      transition: width .22s ease, background-color .22s ease;
+      background: var(--meterColor, var(--bandColor));
+    }
+
+    .msub{
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.35;
+    }
+
+    .breakdown{
+      display:flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .item{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: rgba(15,35,32,.03);
+      border: 1px solid rgba(15,35,32,.10);
+    }
+    .item .left{
+      display:flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .item .t{ font-size: 12.5px; font-weight: 780; color: var(--text); }
+    .item .d{ font-size: 11.5px; color: var(--muted); line-height: 1.25; }
+    .item .n{ font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+    
+    .pattern{
+      margin: 0 10px 10px 10px;
+      background: linear-gradient(180deg, rgba(255,255,255,.86) 0%, rgba(255,255,255,.74) 100%);
+      border: 1px solid rgba(15,35,32,.12);
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: 0 10px 22px rgba(15,35,32,.08);
+      position: relative;
+      overflow: hidden;
+    }
+    .pattern::before{
+      content:"";
+      position:absolute;
+      left:0; top:0; bottom:0;
+      width: 10px;
+      background: linear-gradient(180deg, var(--bandSoft) 0%, rgba(255,255,255,0) 100%);
+      border-right: 1px solid rgba(15,35,32,.06);
+    }
+    .pattern-top{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap:10px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+      padding-left: 4px;
+    }
+    .pattern-top .title{
+      font-weight: 880;
+      font-size: 13px;
+      letter-spacing:.1px;
+      color: var(--text);
+    }
+    .pattern p{
+      margin: 0;
+      color: var(--muted);
+      font-size: 12.75px;
+      line-height: 1.5;
+      padding-left: 4px;
+    }
+    .chips{
+      display:flex; flex-wrap: wrap; gap: 8px;
+      margin-top: 10px;
+      padding-left: 4px;
+    }
+    .chip{
+      background: rgba(255,255,255,.70);
+      border: 1px solid rgba(15,35,32,.10);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: rgba(15,35,32,.78);
+      white-space: nowrap;
+    }
+    /* Emphasis chips that harmonize with the current band */
+    .chip.isAccent{
+      background: var(--bandSoft);
+      border-color: rgba(15,35,32,.14);
+      color: rgba(15,35,32,.88);
+    }
+
+    .try{
+      margin-top: 12px;
+      background: rgba(255,255,255,.82);
+      border: 1px solid rgba(15,35,32,.12);
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin-left: 4px;
+    }
+    .try .h{
+      font-weight: 880;
+      font-size: 12.5px;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+    .try ul{
+      margin: 0;
+      padding-left: 18px;
+      color: rgba(15,35,32,.78);
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+  
+    /* Sketch / conceptual fidelity */
+    body.sketch{
+      --bg:#f7f5ef;
+      --panel:#ffffff;
+      --panel2:#ffffff;
+      --text:#1b1e28;
+      --muted:#4a5568;
+      --line:#cbd5e1;
+      --accent:#1b1e28;
+      --glow1:#f7f5ef;
+      --glow2:#f7f5ef;
+      --chip:#f1f5f9;
+      --shadow:none;
+    }
+    body.sketch header p{ color: var(--muted); }
+    body.sketch .card{
+      background: #ffffff;
+      border: 2px dashed rgba(27,30,40,.35);
+      box-shadow:none;
+    }
+    body.sketch .row, body.sketch .toggle, body.sketch .stage, body.sketch .notes{
+      background: rgba(255,255,255,.70);
+      border: 1px solid rgba(15,35,32,.10);
+      box-shadow:none;
+    }
+    body.sketch .pill{
+      background: rgba(27,30,40,.06);
+      border-color: rgba(27,30,40,.22);
+      color: rgba(27,30,40,.92);
+    }
+    body.sketch .slider{
+      background: rgba(27,30,40,.12);
+      border-color: rgba(27,30,40,.20);
+    }
+    body.sketch .switch input:checked + .slider{
+      background: rgba(27,30,40,.18);
+      border-color: rgba(27,30,40,.28);
+    }
+    body.sketch svg .wire2{ stroke: rgba(27,30,40,.45); }
+    body.sketch svg .wire{ stroke: rgba(27,30,40,.28); }
+    body.sketch svg .arm{ stroke: rgba(27,30,40,.40); }
+    
+    /* Mode selector */
+    .modeBar{
+      margin-top: 10px;
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .modePrompt{
+      color: var(--muted);
+      font-size: 12.5px;
+      font-weight: 650;
+      letter-spacing:.1px;
+      padding-top: 6px;
+    }
+    .modeButtons{
+      display:flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+        .modeBtn{
+      background: rgba(255,255,255,.74);
+      border: 1px solid rgba(15,35,32,.14);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-weight: 760;
+      font-size: 12px;
+      cursor:pointer;
+      transition: .12s ease;
+    }
+    .modeBtn:hover{ transform: translateY(-1px); }
+    .modeBtn[aria-checked="true"]{
+      background: var(--bandSoft);
+      border-color: rgba(15,35,32,.16);
+      color: var(--text);
+      box-shadow: 0 8px 18px rgba(15,35,32,.10);
+    }
+
+    /* Emotional palette states (set by JS via data-band on <html>) */
+    html[data-band="resilient"]{ --accent:var(--band-resilient); --bandColor:var(--band-resilient); --bandSoft:var(--band-resilient-soft); --glow1:rgba(31,159,123,.20); --glow2:rgba(43,191,167,.12); }
+    html[data-band="stable"]{ --accent:var(--band-stable); --bandColor:var(--band-stable); --bandSoft:var(--band-stable-soft); --glow1:rgba(43,191,167,.18); --glow2:rgba(31,159,123,.10); }
+    html[data-band="managing"]{ --accent:var(--band-managing); --bandColor:var(--band-managing); --bandSoft:var(--band-managing-soft); --glow1:rgba(242,199,107,.18); --glow2:rgba(43,191,167,.08); }
+    html[data-band="reactive"]{ --accent:var(--band-reactive); --bandColor:var(--band-reactive); --bandSoft:var(--band-reactive-soft); --glow1:rgba(240,140,87,.18); --glow2:rgba(224,90,111,.10); }
+    html[data-band="fragile"]{ --accent:var(--band-fragile); --bandColor:var(--band-fragile); --bandSoft:var(--band-fragile-soft); --glow1:rgba(224,90,111,.18); --glow2:rgba(240,140,87,.10); }
+
+  
+    @media print{
+      :root{ --bg:#ffffff; --panel:#ffffff; --panel2:#ffffff; }
+      body{ background:#ffffff !important; }
+      .headerActions, #fidelityMenu, .modebar, .controls .btnrow, .controls .smallprint, .toggleGrid, .menuHint { display:none !important; }
+      .layout{ grid-template-columns: 1fr !important; }
+      .card{ box-shadow:none !important; border: 1px solid rgba(0,0,0,.12) !important; }
+      .stage, .bandWrap, .balanceCard, .patternCard{ break-inside: avoid; }
+      a, button, input{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="headerRow"><h1>Navigating a Change — Decision Rehearsal</h1>
+  <div class="headerActions">
+      <button class="iconbtn secondary" id="btnMenu" aria-label="Open options">⋯</button>
+      <div class="menu" id="fidelityMenu" aria-hidden="true">
+        <div class="menuTitle">Options</div>
+        <div class="menuRow">
+          <div>
+            <div class="menuLabel">Sketch view</div>
+            <div class="menuHelp">Use for conceptual interviews.</div>
+          </div>
+          <label class="switch" aria-label="Toggle sketch view">
+            <input id="t_sketch" type="checkbox" />
+            <span class="slider"></span>
+          </label>
+        </div>
+        
+        <div class="menuRow" style="margin-top:10px;">
+          <div>
+            <div class="menuLabel">Save as PDF</div>
+            <div class="menuHelp">Opens your browser print dialog.</div>
+          </div>
+          <button class="secondary" id="btnPrint" type="button">Print</button>
+        </div>
+
+        <div class="menuHint">Tip: Press <strong>Shift</strong> + <strong>F</strong> to toggle.</div>
+      </div>
+    </div>
+  </div>
+  <p>
+    <strong>What this is:</strong> a rehearsal map for decision pressure.<br/>
+    <strong>What this isn’t:</strong> financial advice or a prediction engine.
+  </p>
+
+  <div class="modeBar" role="radiogroup" aria-label="Where are you right now?">
+    <div class="modePrompt">Where are you right now?</div>
+    <div class="modeButtons">
+      <button class="modeBtn" id="mode_clarify" type="button" role="radio" aria-checked="true">Clarifying the change</button>
+      <button class="modeBtn" id="mode_location" type="button" role="radio" aria-checked="false">Testing a location</button>
+      <button class="modeBtn" id="mode_offer" type="button" role="radio" aria-checked="false">Preparing an offer</button>
+    </div>
+  </div>
+
+</header>
+
+<div class="layout">
+  <!-- Controls -->
+  <section class="card">
+    <div class="controls">
+      <div class="section-title">
+        <h2>Your sliders</h2>
+        <div class="pill accent">Rehearsal mode</div>
+      </div>
+
+      <div class="row">
+        <div class="row-top">
+          <div class="label" id="lbl_buffer">Safety Net (Financial Cushion)</div>
+          <div class="value"><span id="v_buffer">70</span>/100</div>
+        </div>
+        <input id="buffer" type="range" min="0" max="100" value="70" />
+        <div class="hint" id="hint_buffer">How “covered” you are if anything changes: savings, time flexibility, room in the budget.</div>
+      </div>
+
+      <div class="row">
+        <div class="row-top">
+          <div class="label" id="lbl_lifestyle">Home Fit (daily life)</div>
+          <div class="value"><span id="v_lifestyle">55</span>/100</div>
+        </div>
+        <input id="lifestyle" type="range" min="0" max="100" value="55" />
+        <div class="hint" id="hint_lifestyle">How well this home supports your daily life. (Temptation is tracked separately below.)</div>
+      </div>
+
+      <div class="row">
+        <div class="row-top">
+          <div class="label" id="lbl_risk">Surprises</div>
+          <div class="value"><span id="v_risk">35</span>/100</div>
+        </div>
+        <input id="risk" type="range" min="0" max="100" value="35" />
+        <div class="hint" id="hint_risk">How likely it is that something unexpected pops up (repairs, taxes/insurance shifts, unknowns).</div>
+      </div>
+
+      <div class="row">
+        <div class="row-top">
+          <div class="label" id="lbl_finance">Monthly Stretch (cashflow)</div>
+          <div class="value"><span id="v_finance">40</span>/100</div>
+        </div>
+        <input id="finance" type="range" min="0" max="100" value="40" />
+        <div class="hint" id="hint_finance">How tight the monthly payment feels. Higher stretch usually increases pressure.</div>
+      </div>
+
+      <div class="row">
+        <div class="row-top">
+          <div class="label" id="lbl_deal">Deal Safeguards (protections)</div>
+          <div class="value"><span id="v_deal">45</span>/100</div>
+        </div>
+        <input id="deal" type="range" min="0" max="100" value="45" />
+        <div class="hint" id="hint_deal">Terms that protect you: inspections, credits, repairs, fair price, and risk being shared (not dumped on you).</div>
+      </div>
+
+      <div class="row">
+        <div class="row-top">
+          <div class="label" id="lbl_attach">Emotional Pull</div>
+          <div class="value"><span id="v_attach">55</span>/100</div>
+        </div>
+        <input id="attach" type="range" min="0" max="100" value="55" />
+        <div class="hint" id="hint_attach">How “already mine” it feels. High pull can make it harder to slow down or negotiate.</div>
+      </div>
+
+      <div class="row">
+        <div class="row-top">
+          <div class="label" id="lbl_lev">Your Options</div>
+          <div class="value"><span id="v_lev">50</span>/100</div>
+        </div>
+        <input id="lev" type="range" min="0" max="100" value="50" />
+        <div class="hint" id="hint_lev">How strong your position is: backups, flexibility, seller urgency, and your ability to say “no.”</div>
+      </div>
+
+      <div class="section-title" style="margin-top:14px;">
+        <h2 id="stressTitle">Pressure switches</h2>
+        <div class="pill" id="stressPill">Off</div>
+      </div>
+
+      <div class="grid2" id="switchesGrid">
+        <div class="toggle" id="toggle_compete">
+          <div>
+            <label id="lbl_t_compete">Bidding war vibe</label>
+            <small id="sub_t_compete">Scarcity / competition energy.</small>
+          </div>
+          <label class="switch" aria-label="Toggle bidding war vibe">
+            <input id="t_compete" type="checkbox" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle" id="toggle_timeline">
+          <div>
+            <label id="lbl_t_timeline">Time pressure</label>
+            <small id="sub_t_timeline">Deadline / forced speed.</small>
+          </div>
+          <label class="switch" aria-label="Toggle time pressure">
+            <input id="t_timeline" type="checkbox" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle" id="toggle_identity">
+          <div>
+            <label id="lbl_t_identity">“This is my home” story</label>
+            <small id="sub_t_identity">Identity projection mode.</small>
+          </div>
+          <label class="switch" aria-label="Toggle identity projection mode">
+            <input id="t_identity" type="checkbox" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle" id="toggle_repair">
+          <div>
+            <label id="lbl_t_repair">Surprise repair</label>
+            <small id="sub_t_repair">Example: a $15k hit.</small>
+          </div>
+          <label class="switch" aria-label="Toggle surprise repair">
+            <input id="t_repair" type="checkbox" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle" id="toggle_income">
+          <div>
+            <label id="lbl_t_income">Income wobble</label>
+            <small id="sub_t_income">Temporary dip.</small>
+          </div>
+          <label class="switch" aria-label="Toggle income wobble">
+            <input id="t_income" type="checkbox" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle" id="toggle_rate">
+          <div>
+            <label id="lbl_t_rate">Rate shock</label>
+            <small id="sub_t_rate">Financing gets harder.</small>
+          </div>
+          <label class="switch" aria-label="Toggle rate shock">
+            <input id="t_rate" type="checkbox" />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="btnrow">
+        <button class="secondary" id="btnReset">Reset</button>
+        <button class="danger" id="btnMaxStress">Turn on all pressure</button>
+      </div>
+
+      <div class="smallprint">
+        This is a simplified rehearsal map. It’s here to help you think clearly under pressure — not to predict outcomes.
+      </div>
+    </div>
+  </section>
+
+  <!-- Right column -->
+  <section class="card">
+    <div class="viz">
+
+      <!-- PRIMARY KPI AT TOP -->
+      <div class="primaryKPI">
+        <div class="pkTop">
+          <div class="pkTitle" id="pkTitle">Steadiness Under Pressure</div>
+          <div class="pkValue"><span id="decisionNum">—</span>/100</div>
+        </div>
+
+        <div class="pkStatusRow">
+          <div class="pkStatusLeft">
+            <div class="pkStatus" id="statusText">—</div>
+            <div class="pill accent" id="statusPill">—</div>
+          </div>
+          <div class="pill band" id="bandPill">—</div>
+        </div>
+
+        <div class="pkSub">
+          Steadiness Under Pressure: how OK you’ll be if the deal shifts, drags, or fails.
+        </div>
+
+        <div class="bandsWrap" aria-label="Score bands visualization">
+          <div class="bandsTop">
+            <div class="t">Score bands</div>
+            <div class="m">Marker shows where you are right now.</div>
+          </div>
+
+          <div class="bandBar" role="img" aria-label="Bands: 0–30 Overloaded, 31–50 Strained, 51–70 Managing, 71–85 Steady, 86–100 Resilient">
+            <div class="seg fragile"></div>
+            <div class="seg reactive"></div>
+            <div class="seg managing"></div>
+            <div class="seg stable"></div>
+            <div class="seg resilient"></div>
+            <div class="bandMarker" id="bandMarker" style="left:0%;"></div>
+          </div>
+
+          <div class="bandLabels">
+            <div class="b" id="b0"><strong>Overloaded</strong><span class="r">0–30</span></div>
+            <div class="b" id="b1"><strong>Strained</strong><span class="r">31–50</span></div>
+            <div class="b" id="b2"><strong>Managing</strong><span class="r">51–70</span></div>
+            <div class="b" id="b3"><strong>Steady</strong><span class="r">71–85</span></div>
+            <div class="b" id="b4"><strong>Resilient</strong><span class="r">86–100</span></div>
+          </div>
+        </div>
+
+        <div class="pkMiniRow">
+          <div class="mini">
+            <div class="k">Pressure</div>
+            <div class="v"><span id="pressureNum">—</span>/100</div>
+          </div>
+          <div class="mini">
+            <div class="k">Protection</div>
+            <div class="v"><span id="protectionNum">—</span>/100</div>
+          </div>
+          <div class="mini">
+            <div class="k">Emotional Whiplash</div>
+            <div class="v"><span id="whiplashNum">—</span>/100</div>
+          </div>
+        </div>
+
+        <div class="calNote">
+          <div>
+            <strong>Calibration note:</strong> these numbers don’t measure your emotions.
+            They approximate <strong>decision pressure</strong> — how likely you are to feel steady vs. reactive if the deal changes.
+          </div>
+          <button class="linkbtn" id="btnCal">Details</button>
+        </div>
+
+        <div class="drawer" id="calDrawer" aria-label="Score calibration panel">
+          <div class="dhead">
+            <div class="t">Score calibration (quick)</div>
+            <button class="linkbtn" id="btnCalClose" aria-label="Close calibration panel">Close</button>
+          </div>
+          <div class="dbody">
+            <div class="band">
+              <div class="btop">
+                <div class="name">Overloaded — “This could knock you over.”</div>
+                <div class="range">0–19</div>
+              </div>
+              <div>High urgency + low protection. People tend to rush, concede, or avoid hard info.</div>
+              <ul><li>Best move: strengthen one protector before deciding.</li></ul>
+            </div>
+
+            <div class="band">
+              <div class="btop">
+                <div class="name">Strained — “You can still steer, but it’s hard.”</div>
+                <div class="range">20–39</div>
+              </div>
+              <div>You may feel pulled toward concessions. External pressure can take over.</div>
+              <ul><li>Best move: add one real option or one safeguard.</li></ul>
+            </div>
+
+            <div class="band">
+              <div class="btop">
+                <div class="name">Managing — “Mostly okay, but spikes are likely.”</div>
+                <div class="range">40–59</div>
+              </div>
+              <div>Usually fine, but one weak spot can flip you into urgency.</div>
+              <ul><li>Best move: stabilize your weakest link.</li></ul>
+            </div>
+
+            <div class="band">
+              <div class="btop">
+                <div class="name">Steady — “You’ll be okay either way.”</div>
+                <div class="range">60–79</div>
+              </div>
+              <div>You can negotiate without panic. Losing the deal would sting, not destabilize.</div>
+              <ul><li>Best move: protect what’s working (don’t trade away safeguards under urgency).</li></ul>
+            </div>
+
+            <div class="band" style="margin-bottom:0;">
+              <div class="btop">
+                <div class="name">Resilient — “This decision can’t break you.”</div>
+                <div class="range">80–100</div>
+              </div>
+              <div>Strong safety net + strong safeguards + real options. You can walk away cleanly.</div>
+              <ul><li>Best move: optimize for fit without losing stability.</li></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage" style="min-height:auto;">
+        <div class="dash">
+          <div class="meter cardish" id="pressureMeter" data-meter="pressure">
+            <div class="mtop">
+              <div class="mname" data-left-title>Pressure <span style="color:rgba(170,179,200,.9); font-weight:650;">(urgency + risk + pull)</span></div>
+              <div class="mval"><span id="pressureNum2">—</span>/100</div>
+            </div>
+            <div class="bar"><div class="fill" id="pressureBar"></div></div>
+            <div class="msub" id="pressureLine">—</div>
+            <div class="breakdown" id="pressureBreakdown"></div>
+          </div>
+
+          <div class="meter cardish" id="protectionMeter" data-meter="protection">
+            <div class="mtop">
+              <div class="mname" data-right-title>Protection <span style="color:rgba(170,179,200,.9); font-weight:650;">(safety + safeguards + options)</span></div>
+              <div class="mval"><span id="protectionNum2">—</span>/100</div>
+            </div>
+            <div class="bar"><div class="fill" id="protectionBar"></div></div>
+            <div class="msub" id="protectionLine">—</div>
+            <div class="breakdown" id="protectionBreakdown"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pattern" id="patternPanel">
+        <div class="pattern-top">
+          <div class="title">Active Pattern</div>
+          <div class="pill" id="patternPill">—</div>
+        </div>
+        <p id="patternSummary">—</p>
+        <div class="chips" id="patternChips"></div>
+
+        <div class="try">
+          <div class="h">Try next</div>
+          <ul id="patternTry"></ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<script src="./navigating-a-change-rehearsal.v9.js"></script>
+</body>
+</html>
