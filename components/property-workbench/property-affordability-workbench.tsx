@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MapPin, TrendingUp, Home, Target, Compass } from "lucide-react"
@@ -190,7 +191,7 @@ export default function PropertyAffordabilityWorkbench() {
               <p className="text-gray-600">Find and compare homes that fit your budget and lifestyle</p>
             </div>
             <div className="flex items-center gap-3">
-              <a
+              <Link
                 href="/navigating-a-change-rehearsal.v9.html"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -199,7 +200,7 @@ export default function PropertyAffordabilityWorkbench() {
                   <Compass size={16} />
                   Decision Rehearsal
                 </Button>
-              </a>
+              </Link>
               <Button
                 variant={viewMode === "comparison" ? "default" : "outline"}
                 onClick={() => setViewMode(viewMode === "grid" ? "comparison" : "grid")}
