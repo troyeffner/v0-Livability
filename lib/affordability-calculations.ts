@@ -163,9 +163,11 @@ export function calculateMaxAffordability(
   const maxLivabilityPayment = takeHomeIncome * (housingPercentage / 100)
   const availableForHousing = takeHomeIncome - totalMonthlyExpenses - fixedDebts
 
+  // Ceiling is income-based only (DTI constraint + housing % of take-home).
+  // Lifestyle expenses (utilities, transit, etc.) affect sustainability but do NOT cap the ceiling.
   const maxMonthlyPayment = Math.max(
     0,
-    Math.min(maxHousingPaymentFromDTI, Math.min(maxLivabilityPayment, availableForHousing)),
+    Math.min(maxHousingPaymentFromDTI, maxLivabilityPayment),
   )
 
   const interestRate = financialInputs.interestRate / 100 / 12
