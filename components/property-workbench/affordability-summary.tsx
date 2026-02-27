@@ -520,6 +520,40 @@ const displayInterestRate = (scenario.financialInputs.interestRate ?? 6.85).toFi
 const displayLoanTerm = scenario.financialInputs.loanTerm ?? 30
 const displayCreditScore = scenario.financialInputs.creditScore ?? 680
 
+// Income-based Purchase Roof — extracted from inline IIFE for reuse in relational UI
+const incomeBasedRoof = (() => {
+  const maxPayment = affordability.maxMonthlyPayment
+  const interestRate = (scenario.financialInputs.interestRate ?? 6.85) / 100 / 12
+  const numPayments = (scenario.financialInputs.loanTerm ?? 30) * 12
+  const propertyTaxRate = activePropertyTaxRate / 12
+  const insuranceRate = 1800 / 12
+
+  let purchasePrice = 0
+  let estimate = 400000
+  for (let i = 0; i < 50; i++) {
+    const propertyTax = estimate * propertyTaxRate
+    const insurance = insuranceRate
+    const availableForPI = maxPayment - propertyTax - insurance
+    if (availableForPI <= 0) { estimate *= 0.8; continue }
+    const maxLoanFromPayment =
+      availableForPI > 0 && interestRate > 0
+        ? (availableForPI * (1 - Math.pow(1 + interestRate, -numPayments))) / interestRate
+        : availableForPI * numPayments
+    const purchasePriceFromLoan = maxLoanFromPayment / (1 - downPaymentPercentage / 100)
+    if (Math.abs(purchasePriceFromLoan - estimate) < 1000) { purchasePrice = purchasePriceFromLoan; break }
+    estimate = purchasePriceFromLoan
+    purchasePrice = purchasePriceFromLoan
+  }
+  return Math.max(0, purchasePrice)
+})()
+
+// Relational ceiling — which constraint is active?
+const actualRoof = Math.min(incomeBasedRoof, affordability.maxPriceFromDownPayment)
+const isIncomeRoofLimiting = incomeBasedRoof <= affordability.maxPriceFromDownPayment
+const realRoofSubtext = isIncomeRoofLimiting
+  ? `Down payment supports ${formatCurrency(affordability.maxPriceFromDownPayment)}, but income limits you to ${formatCurrency(actualRoof)}.`
+  : `Income supports ${formatCurrency(incomeBasedRoof)}, but ${formatCurrency(affordability.availableDownPayment)} at ${downPaymentPercentage}% down caps you at ${formatCurrency(actualRoof)}.`
+
 const handleHousingPercentageChange = (newPercentage: number) => {
   onScenarioUpdate({
     ...scenario,
@@ -1694,54 +1728,18 @@ return (
 
                     {/* Live Purchase Price Calculation */}
                     <div className="mt-3 p-3 bg-white border border-border rounded-md">
-                      <p className="text-xs font-medium text-muted-foreground mb-1">Purchase Roof</p>
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="text-xs font-medium text-muted-foreground">Purchase Roof</p>
+                        <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${
+                          isIncomeRoofLimiting
+                            ? 'bg-primary/10 text-primary'
+                            : 'bg-muted text-muted-foreground'
+                        }`}>
+                          {isIncomeRoofLimiting ? 'Limiting factor' : 'Not limiting'}
+                        </span>
+                      </div>
                       <p className="text-sm font-semibold text-foreground">
-                        {formatCurrency(
-                          (() => {
-                            // Calculate what purchase price this monthly payment can afford
-                            const maxPayment = affordability.maxMonthlyPayment
-                            const interestRate = (scenario.financialInputs.interestRate ?? 6.85) / 100 / 12
-                            const numPayments = (scenario.financialInputs.loanTerm ?? 30) * 12
-                            const propertyTaxRate = activePropertyTaxRate / 12
-                            const insuranceRate = 1800 / 12 // $1800 annually
-
-                            // Iteratively solve for purchase price that fits the monthly payment
-                            let purchasePrice = 0
-                            let estimate = 400000 // Starting estimate
-
-                            for (let i = 0; i < 50; i++) {
-                              const propertyTax = estimate * propertyTaxRate
-                              const insurance = insuranceRate
-                              const availableForPI = maxPayment - propertyTax - insurance
-
-                              if (availableForPI <= 0) {
-                                estimate *= 0.8
-                                continue
-                              }
-
-                              // Calculate loan amount from P&I payment
-                              const maxLoanFromPayment =
-                                availableForPI > 0 && interestRate > 0
-                                  ? (availableForPI * (1 - Math.pow(1 + interestRate, -numPayments))) / interestRate
-                                  : availableForPI * numPayments
-
-                              // Calculate purchase price from loan amount using down payment percentage
-                              const purchasePriceFromLoan = maxLoanFromPayment / (1 - downPaymentPercentage / 100)
-
-                              // Check for convergence
-                              if (Math.abs(purchasePriceFromLoan - estimate) < 1000) {
-                                purchasePrice = purchasePriceFromLoan
-                                break
-                              }
-
-                              // Adjust estimate for next iteration
-                              estimate = purchasePriceFromLoan
-                              purchasePrice = purchasePriceFromLoan
-                            }
-
-                            return Math.max(0, purchasePrice)
-                          })(),
-                        )}
+                        {formatCurrency(incomeBasedRoof)}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
                         {formatCurrency(affordability.maxMonthlyPayment)}/mo · {downPaymentPercentage}% down · {displayInterestRate}%
@@ -1786,7 +1784,16 @@ return (
 
                     {/* Down Payment Purchase Roof - Always Show */}
                     <div className="mb-3 p-3 bg-white border border-border rounded-md">
-                      <p className="text-xs font-medium text-muted-foreground mb-1">Purchase Roof</p>
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="text-xs font-medium text-muted-foreground">Purchase Roof</p>
+                        <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${
+                          !isIncomeRoofLimiting
+                            ? 'bg-primary/10 text-primary'
+                            : 'bg-muted text-muted-foreground'
+                        }`}>
+                          {!isIncomeRoofLimiting ? 'Limiting factor' : 'Not limiting'}
+                        </span>
+                      </div>
                       <p className="text-sm font-semibold text-foreground">
                         {formatCurrency(affordability.maxPriceFromDownPayment)}
                       </p>
@@ -1959,6 +1966,15 @@ return (
                   <div>{renderMortgageDetailsGroup()}</div>
                 </div>
               </div>
+            </div>
+
+            {/* Real Purchase Roof — synthesis of both ceilings */}
+            <div className="rounded-md bg-muted/40 px-3 py-2.5">
+              <div className="flex items-baseline justify-between">
+                <span className="text-xs font-medium text-foreground">Real Purchase Roof</span>
+                <span className="text-sm font-semibold text-foreground">{formatCurrency(actualRoof)}</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{realRoofSubtext}</p>
             </div>
           </CardContent>
         </CollapsibleContent>
