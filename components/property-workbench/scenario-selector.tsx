@@ -77,25 +77,25 @@ export default function ScenarioSelector({
           return (
             <div
               key={scenario.id}
-              className={`relative group rounded-lg border-2 p-3 min-w-[180px] transition-all ${
+              className={`relative group rounded-xl border-2 p-3 min-w-[180px] transition-all ${
                 isActive
-                  ? "border-blue-400 bg-blue-50 cursor-default"
-                  : "border-gray-200 bg-white hover:border-gray-300 cursor-pointer"
+                  ? "border-primary bg-primary/8 cursor-default"
+                  : "border-border bg-card hover:border-primary/40 cursor-pointer"
               }`}
               onClick={() => !isActive && onScenarioChange(scenario.id)}
             >
               {/* Header row */}
               <div className="flex items-center gap-2 mb-1 pr-12">
-                <Icon size={14} className={isActive ? "text-blue-600" : "text-gray-400"} />
+                <Icon size={14} className={isActive ? "text-primary" : "text-muted-foreground"} />
                 <span
                   className={`font-semibold text-sm leading-tight ${
-                    isActive ? "text-blue-900" : "text-gray-700"
+                    isActive ? "text-foreground" : "text-muted-foreground"
                   }`}
                 >
                   {scenario.name}
                 </span>
                 {isActive && (
-                  <Badge className="ml-auto text-xs bg-blue-100 text-blue-700 border-0 h-4 px-1.5 font-medium">
+                  <Badge className="ml-auto text-xs bg-primary/15 text-primary border-0 h-4 px-1.5 font-medium">
                     active
                   </Badge>
                 )}
@@ -113,12 +113,12 @@ export default function ScenarioSelector({
 
               {/* Save actions — only on active card */}
               {isActive && (
-                <div className="flex gap-1 mt-2 pt-2 border-t border-blue-200">
+                <div className="flex gap-1 mt-2 pt-2 border-t border-primary/20">
                   <Button
                     onClick={(e) => { e.stopPropagation(); onSaveScenario() }}
                     size="sm"
                     variant="ghost"
-                    className="h-6 text-xs px-2 text-blue-700 hover:bg-blue-100"
+                    className="h-6 text-xs px-2 text-primary hover:bg-primary/10"
                   >
                     <Save size={11} className="mr-1" />
                     Save
@@ -127,7 +127,7 @@ export default function ScenarioSelector({
                     onClick={(e) => { e.stopPropagation(); onSaveAsNewScenario() }}
                     size="sm"
                     variant="ghost"
-                    className="h-6 text-xs px-2 text-gray-500 hover:bg-gray-100"
+                    className="h-6 text-xs px-2 text-muted-foreground hover:bg-muted"
                   >
                     <Copy size={11} className="mr-1" />
                     Duplicate

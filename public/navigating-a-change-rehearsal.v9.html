@@ -4,6 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Navigating a Change — Steadiness Under Pressure</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
     :root{
       --bg:#eaf7f1;
@@ -36,7 +39,7 @@
     *{ box-sizing: border-box; }
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans";
+      font-family: 'Geist', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans";
       background:
         radial-gradient(1200px 820px at 18% -12%, var(--glow1) 0%, rgba(0,0,0,0) 58%),
         radial-gradient(1050px 760px at 105% 0%, var(--glow2) 0%, rgba(0,0,0,0) 56%),
@@ -424,11 +427,11 @@
       display:flex;
     }
     .seg{ height:100%; }
-    .seg.fragile { background: var(--band-fragile-soft);  width: 30%; } /* 0–30   */
-    .seg.reactive{ background: var(--band-reactive-soft); width: 20%; } /* 31–50  */
-    .seg.managing{ background: var(--band-managing-soft); width: 20%; } /* 51–70  */
-    .seg.stable  { background: var(--band-stable-soft);   width: 15%; } /* 71–85  */
-    .seg.resilient{background: var(--band-resilient-soft);width: 15%; } /* 86–100 */
+    .seg.fragile{ background: var(--band-fragile-soft); width: 20%; }
+    .seg.reactive{ background: var(--band-reactive-soft); width: 20%; }
+    .seg.managing{ background: var(--band-managing-soft); width: 20%; }
+    .seg.stable{ background: var(--band-stable-soft); width: 20%; }
+    .seg.resilient{ background: var(--band-resilient-soft); width: 20%; }
 
     .bandMarker{
       position:absolute;
@@ -628,22 +631,6 @@
       gap: 6px;
       margin-top: 10px;
     }
-    .bdRow{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      padding: 4px 0;
-      border-bottom: 1px solid rgba(15,35,32,.07);
-      font-size: 12px;
-    }
-    .bdRow:last-child{ border-bottom: none; }
-    .bdName{ color: var(--muted); flex: 1; }
-    .bdVal{
-      font-variant-numeric: tabular-nums;
-      font-weight: 760;
-      color: var(--text);
-      margin-left: 10px;
-    }
     .item{
       display:flex;
       align-items:center;
@@ -839,7 +826,7 @@
     @media print{
       :root{ --bg:#ffffff; --panel:#ffffff; --panel2:#ffffff; }
       body{ background:#ffffff !important; }
-      .headerActions, #fidelityMenu, .modeBar, .controls .btnrow, .controls .smallprint, .toggleGrid, .menuHint { display:none !important; }
+      .headerActions, #fidelityMenu, .modebar, .controls .btnrow, .controls .smallprint, .toggleGrid, .menuHint { display:none !important; }
       .layout{ grid-template-columns: 1fr !important; }
       .card{ box-shadow:none !important; border: 1px solid rgba(0,0,0,.12) !important; }
       .stage, .bandWrap, .balanceCard, .patternCard{ break-inside: avoid; }
@@ -1127,46 +1114,46 @@
             <button class="linkbtn" id="btnCalClose" aria-label="Close calibration panel">Close</button>
           </div>
           <div class="dbody">
-            <div class=”band”>
-              <div class=”btop”>
-                <div class=”name”>Fragile — “This could knock you over.”</div>
-                <div class=”range”>0–30</div>
+            <div class="band">
+              <div class="btop">
+                <div class="name">Overloaded — “This could knock you over.”</div>
+                <div class="range">0–19</div>
               </div>
               <div>High urgency + low protection. People tend to rush, concede, or avoid hard info.</div>
               <ul><li>Best move: strengthen one protector before deciding.</li></ul>
             </div>
 
-            <div class=”band”>
-              <div class=”btop”>
-                <div class=”name”>Reactive — “You can still steer, but it’s hard.”</div>
-                <div class=”range”>31–50</div>
+            <div class="band">
+              <div class="btop">
+                <div class="name">Strained — “You can still steer, but it’s hard.”</div>
+                <div class="range">20–39</div>
               </div>
               <div>You may feel pulled toward concessions. External pressure can take over.</div>
               <ul><li>Best move: add one real option or one safeguard.</li></ul>
             </div>
 
-            <div class=”band”>
-              <div class=”btop”>
-                <div class=”name”>Managing — “Mostly okay, but spikes are likely.”</div>
-                <div class=”range”>51–70</div>
+            <div class="band">
+              <div class="btop">
+                <div class="name">Managing — “Mostly okay, but spikes are likely.”</div>
+                <div class="range">40–59</div>
               </div>
               <div>Usually fine, but one weak spot can flip you into urgency.</div>
               <ul><li>Best move: stabilize your weakest link.</li></ul>
             </div>
 
-            <div class=”band”>
-              <div class=”btop”>
-                <div class=”name”>Stable — “You’ll be okay either way.”</div>
-                <div class=”range”>71–85</div>
+            <div class="band">
+              <div class="btop">
+                <div class="name">Steady — “You’ll be okay either way.”</div>
+                <div class="range">60–79</div>
               </div>
               <div>You can negotiate without panic. Losing the deal would sting, not destabilize.</div>
               <ul><li>Best move: protect what’s working (don’t trade away safeguards under urgency).</li></ul>
             </div>
 
-            <div class=”band” style=”margin-bottom:0;”>
-              <div class=”btop”>
-                <div class=”name”>Resilient — “This decision can’t break you.”</div>
-                <div class=”range”>86–100</div>
+            <div class="band" style="margin-bottom:0;">
+              <div class="btop">
+                <div class="name">Resilient — “This decision can’t break you.”</div>
+                <div class="range">80–100</div>
               </div>
               <div>Strong safety net + strong safeguards + real options. You can walk away cleanly.</div>
               <ul><li>Best move: optimize for fit without losing stability.</li></ul>

@@ -859,7 +859,7 @@ const renderQuickAdd = (type: FinancialItem["type"], timing: "current" | "future
   const currentItem = { label: "", amount: "", ...(quickAddItems[key] ?? {}) }
 
   return (
-    <div className="flex items-center gap-2 p-2 bg-gray-50 rounded border-2 border-dashed border-gray-300">
+    <div className="flex items-center gap-2 p-2 bg-muted rounded border-2 border-dashed border-gray-300">
       <Input
         ref={(el) => (quickAddRefs.current[`${key}-label`] = el)}
         placeholder="Item name..."
@@ -924,13 +924,13 @@ const renderItemGroup = (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-gray-900">{title}</h3>
+          <h3 className="font-semibold text-foreground">{title}</h3>
           {type === "expense" && (
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setIsExpenseIdeasOpen(true)}
-              className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600"
+              className="h-6 w-6 p-0 text-muted-foreground/70 hover:text-muted-foreground"
               title="View expense ideas"
             >
               <Info size={14} />
@@ -947,20 +947,20 @@ const renderItemGroup = (
           <div
             key={item.id}
             className={`flex items-center justify-between p-2 rounded-lg border transition-all ${
-              item.active ? "bg-white border-gray-200" : "bg-gray-50 border-gray-100"
+              item.active ? "bg-white border-border" : "bg-muted border-border/60"
             } ${item.frequency === "annual" ? "border-l-4 border-l-orange-300" : ""}`}
           >
             <div className="flex items-center gap-3 flex-1">
               <Switch checked={item.active} onCheckedChange={() => handleToggle(item.id)} />
               <div className="flex-1">
                 <p
-                  className={`text-sm font-medium ${item.active ? "text-gray-900" : "text-gray-500"} flex items-center gap-2`}
+                  className={`text-sm font-medium ${item.active ? "text-foreground" : "text-muted-foreground"} flex items-center gap-2`}
                 >
                   {item.label}
                   {item.frequency === "annual" && <Calendar size={12} className="text-orange-500" />}
                 </p>
                 <p
-                  className={`text-xs ${item.active ? "text-gray-600" : "text-gray-400"} ${item.frequency === "annual" ? "text-orange-600" : ""}`}
+                  className={`text-xs ${item.active ? "text-muted-foreground" : "text-muted-foreground/70"} ${item.frequency === "annual" ? "text-orange-600" : ""}`}
                 >
                   {formatCurrency(item.amount)}
                   {item.frequency === "monthly" && "/mo"}
@@ -1009,27 +1009,27 @@ const renderItemGroup = (
           const hasNetItems = activeIncomeItems.some((i) => i.incomeEntry === "net")
 
           return (
-            <div className="mt-3 pt-3 border-t border-gray-200 bg-gray-50 rounded-lg p-3 space-y-1 text-sm">
-              <div className="flex justify-between text-gray-600">
+            <div className="mt-3 pt-3 border-t border-border bg-muted rounded-lg p-3 space-y-1 text-sm">
+              <div className="flex justify-between text-muted-foreground">
                 <span>Total Gross Income</span>
                 <span className="font-medium">{formatCurrency(totalGrossMonthly)}/mo</span>
               </div>
               {totalWithholdingsMonthly > 0 && (
-                <div className="flex justify-between text-gray-400">
+                <div className="flex justify-between text-muted-foreground/70">
                   <span>(-) Withholdings (~{effectiveWithholdingPct}%)</span>
                   <span>-{formatCurrency(totalWithholdingsMonthly)}/mo</span>
                 </div>
               )}
-              <div className="flex justify-between font-semibold text-green-700 pt-1 border-t border-gray-200">
+              <div className="flex justify-between font-semibold text-green-700 pt-1 border-t border-border">
                 <span>= Net Take-Home</span>
                 <span>{formatCurrency(totalNetMonthly)}/mo</span>
               </div>
-              <div className="flex justify-between text-blue-600 font-medium">
+              <div className="flex justify-between text-primary font-medium">
                 <span>× {housingPercentage}% Housing Target</span>
                 <span>= {formatCurrency(housingTarget)}/mo</span>
               </div>
               {hasNetItems && (
-                <p className="text-xs text-gray-400 italic pt-1">
+                <p className="text-xs text-muted-foreground/70 italic pt-1">
                   One or more sources entered as net — withholding row reflects gross items only.
                 </p>
               )}
@@ -1046,7 +1046,7 @@ const renderItemGroup = (
 
 const getAffordabilityLevel = (price: number) => {
   if (price >= 600000) return { level: "High", color: "text-green-600 bg-green-50", icon: TrendingUp }
-  if (price >= 400000) return { level: "Moderate", color: "text-blue-600 bg-blue-50", icon: Home }
+  if (price >= 400000) return { level: "Moderate", color: "text-primary bg-primary/8", icon: Home }
   if (price >= 200000) return { level: "Starter", color: "text-yellow-600 bg-yellow-50", icon: Home }
   return { level: "Limited", color: "text-red-600 bg-red-50", icon: AlertTriangle }
 }
@@ -1108,7 +1108,7 @@ const renderMortgageDetailsGroup = () => {
   // Radio circle indicator (replaces Switch readOnly)
   const RadioCircle = ({ active }: { active: boolean }) => (
     <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${
-      active ? "border-purple-500 bg-purple-500" : "border-gray-400"
+      active ? "border-primary bg-primary/80" : "border-gray-400"
     }`}>
       {active && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
     </div>
@@ -1117,8 +1117,8 @@ const renderMortgageDetailsGroup = () => {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-gray-900">Mortgage Details</h3>
-        <Badge variant="outline" className="text-purple-600 bg-purple-50">
+        <h3 className="font-semibold text-foreground">Mortgage Details</h3>
+        <Badge variant="outline" className="text-primary bg-primary/8">
           {displayLoanTerm}yr • {downPaymentPercentage}% down • {displayInterestRate}%
         </Badge>
       </div>
@@ -1126,7 +1126,7 @@ const renderMortgageDetailsGroup = () => {
       <div className="space-y-3">
         {/* 1. Loan Term */}
         <div className="space-y-2">
-          <p className="text-xs font-medium text-gray-600">Loan Term</p>
+          <p className="text-xs font-medium text-muted-foreground">Loan Term</p>
           <div className="flex flex-wrap gap-2">
             {[
               { id: "term-15", label: "15 Year Term", value: 15 },
@@ -1138,12 +1138,12 @@ const renderMortgageDetailsGroup = () => {
                 <div
                   key={item.id}
                   className={`flex items-center gap-2 p-2 rounded-lg border transition-all cursor-pointer ${
-                    isActive ? "bg-purple-50 border-purple-200" : "bg-gray-50 border-gray-100 hover:bg-gray-100"
+                    isActive ? "bg-primary/8 border-primary/25" : "bg-muted border-border/60 hover:bg-gray-100"
                   }`}
                   onClick={() => handleMortgageToggle({ type: "term", value: item.value })}
                 >
                   <RadioCircle active={isActive} />
-                  <span className={`text-sm font-medium ${isActive ? "text-purple-900" : "text-gray-500"}`}>
+                  <span className={`text-sm font-medium ${isActive ? "text-primary" : "text-muted-foreground"}`}>
                     {item.label}
                   </span>
                 </div>
@@ -1154,7 +1154,7 @@ const renderMortgageDetailsGroup = () => {
 
         {/* 2. Down Payment % */}
         <div className="space-y-2">
-          <p className="text-xs font-medium text-gray-600">Down Payment %</p>
+          <p className="text-xs font-medium text-muted-foreground">Down Payment %</p>
           <div className="flex flex-wrap gap-2">
             {[10, 15, 20, 25].map((percentage) => {
               const isActive = downPaymentPercentage === percentage
@@ -1162,12 +1162,12 @@ const renderMortgageDetailsGroup = () => {
                 <div
                   key={`dp-${percentage}`}
                   className={`flex items-center gap-2 p-2 rounded-lg border transition-all cursor-pointer ${
-                    isActive ? "bg-purple-50 border-purple-200" : "bg-gray-50 border-gray-100 hover:bg-gray-100"
+                    isActive ? "bg-primary/8 border-primary/25" : "bg-muted border-border/60 hover:bg-gray-100"
                   }`}
                   onClick={() => handleDownPaymentPercentageChange(percentage)}
                 >
                   <RadioCircle active={isActive} />
-                  <span className={`text-sm font-medium ${isActive ? "text-purple-900" : "text-gray-500"}`}>
+                  <span className={`text-sm font-medium ${isActive ? "text-primary" : "text-muted-foreground"}`}>
                     {percentage}%
                   </span>
                 </div>
@@ -1178,7 +1178,7 @@ const renderMortgageDetailsGroup = () => {
 
         {/* 3. Credit Score Tier */}
         <div className="space-y-2">
-          <p className="text-xs font-medium text-gray-600">Credit Score</p>
+          <p className="text-xs font-medium text-muted-foreground">Credit Score</p>
           <div className="flex flex-wrap gap-2">
             {CREDIT_TIERS.map((tier) => {
               const isActive = activeTier.score === tier.score
@@ -1186,16 +1186,16 @@ const renderMortgageDetailsGroup = () => {
                 <div
                   key={tier.score}
                   className={`flex items-center gap-2 p-2 rounded-lg border transition-all cursor-pointer ${
-                    isActive ? "bg-purple-50 border-purple-200" : "bg-gray-50 border-gray-100 hover:bg-gray-100"
+                    isActive ? "bg-primary/8 border-primary/25" : "bg-muted border-border/60 hover:bg-gray-100"
                   }`}
                   onClick={() => handleCreditScoreChange(tier.score)}
                 >
                   <RadioCircle active={isActive} />
                   <div>
-                    <span className={`text-sm font-medium ${isActive ? "text-purple-900" : "text-gray-500"}`}>
+                    <span className={`text-sm font-medium ${isActive ? "text-primary" : "text-muted-foreground"}`}>
                       {tier.label}
                     </span>
-                    <span className={`text-xs ml-1 ${isActive ? "text-purple-600" : "text-gray-400"}`}>
+                    <span className={`text-xs ml-1 ${isActive ? "text-primary" : "text-muted-foreground/70"}`}>
                       {tier.range}
                     </span>
                   </div>
@@ -1206,11 +1206,11 @@ const renderMortgageDetailsGroup = () => {
         </div>
 
         {/* 4. Interest Rate — derived from above, with manual nudge */}
-        <div className="space-y-2 pt-1 border-t border-gray-100">
+        <div className="space-y-2 pt-1 border-t border-border/60">
           {/* Market reference rate input */}
           <div className="flex items-center gap-2">
-            <p className="text-xs font-medium text-gray-600 flex-1">Interest Rate</p>
-            <div className="flex items-center gap-1 text-xs text-gray-500">
+            <p className="text-xs font-medium text-muted-foreground flex-1">Interest Rate</p>
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <span>Market ref:</span>
               <input
                 type="number"
@@ -1229,9 +1229,9 @@ const renderMortgageDetailsGroup = () => {
           </div>
 
           {/* Estimated rate label */}
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-muted-foreground">
             Estimated for your profile:{" "}
-            <span className="font-semibold text-purple-700">{estimatedRate.toFixed(2)}%</span>
+            <span className="font-semibold text-primary">{estimatedRate.toFixed(2)}%</span>
             <span className="ml-1">
               ({activeTier.label} • {currentLoanTerm}yr • {downPaymentPercentage}% down)
             </span>
@@ -1277,13 +1277,13 @@ const renderMortgageDetailsGroup = () => {
             >
               +
             </button>
-            <span className="text-xs text-gray-500 ml-1">% APR</span>
+            <span className="text-xs text-muted-foreground ml-1">% APR</span>
           </div>
 
           {/* Reset to estimated link — shown only when manually nudged */}
           {!rateMatchesEstimate && (
             <button
-              className="text-xs text-purple-600 hover:text-purple-800 underline"
+              className="text-xs text-primary hover:text-primary underline"
               onClick={() => handleMortgageToggle({ type: "rate", value: estimatedRate })}
             >
               ↺ Reset to estimated ({estimatedRate.toFixed(2)}%)
@@ -1292,20 +1292,20 @@ const renderMortgageDetailsGroup = () => {
         </div>
 
         {/* 5. Debt Obligations — affects DTI qualification */}
-        <div className="space-y-2 pt-2 border-t border-gray-100">
+        <div className="space-y-2 pt-2 border-t border-border/60">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium text-gray-600">Debt Obligations</p>
-            <span className="text-xs text-gray-400 italic">affects your DTI ratio</span>
+            <p className="text-xs font-medium text-muted-foreground">Debt Obligations</p>
+            <span className="text-xs text-muted-foreground/70 italic">affects your DTI ratio</span>
           </div>
           {debtItems.length === 0 ? (
-            <p className="text-xs text-gray-400 italic">No debts added yet</p>
+            <p className="text-xs text-muted-foreground/70 italic">No debts added yet</p>
           ) : (
             <div className="space-y-1">
               {debtItems.map((item) => (
                 <div
                   key={item.id}
                   className={`flex items-center justify-between p-2 rounded-lg border transition-all ${
-                    item.active ? "bg-purple-50 border-purple-200" : "bg-gray-50 border-gray-100 opacity-50"
+                    item.active ? "bg-primary/8 border-primary/25" : "bg-muted border-border/60 opacity-50"
                   }`}
                 >
                   <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -1319,17 +1319,17 @@ const renderMortgageDetailsGroup = () => {
                         updateScenarioFromItems(updated)
                       }}
                     />
-                    <span className={`text-sm font-medium truncate ${item.active ? "text-purple-900" : "text-gray-500"}`}>
+                    <span className={`text-sm font-medium truncate ${item.active ? "text-primary" : "text-muted-foreground"}`}>
                       {item.label}
                     </span>
                   </div>
                   <div className="flex items-center gap-3 ml-2 shrink-0">
                     <div className="text-right">
-                      <div className="text-xs font-semibold text-purple-700">
+                      <div className="text-xs font-semibold text-primary">
                         {formatCurrency(item.frequency === "annual" ? item.amount / 12 : item.amount)}/mo min
                       </div>
                       {item.balance != null && (
-                        <div className="text-xs text-gray-400">
+                        <div className="text-xs text-muted-foreground/70">
                           Balance: {formatCurrency(item.balance)}
                         </div>
                       )}
@@ -1359,7 +1359,7 @@ const renderMortgageDetailsGroup = () => {
             </div>
           )}
           {activeDebtTotal > 0 && (
-            <div className="text-xs text-purple-700 font-medium text-right">
+            <div className="text-xs text-primary font-medium text-right">
               Total: {formatCurrency(activeDebtTotal)}/mo in minimum payments
             </div>
           )}
@@ -1409,21 +1409,21 @@ const modalEstimatedTakeHome = (() => {
 return (
   <div className={`space-y-6 ${className}`}>
     {/* Scenario Builder - Collapsible */}
-    <Card className="border-2 border-gray-200">
+    <Card className="border-2 border-border">
       <Collapsible open={isScenarioBuilderOpen} onOpenChange={setIsScenarioBuilderOpen}>
         <CollapsibleTrigger asChild>
-          <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors">
+          <CardHeader className="cursor-pointer hover:bg-muted transition-colors">
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
-                <TrendingUp size={20} className="text-blue-600" />
-                <span className="text-lg font-semibold text-blue-900">Income and Mortgage</span>
-                <span className="text-sm text-gray-500">•</span>
-                <span className="text-sm font-medium text-blue-700">{scenario.name}</span>
+                <TrendingUp size={20} className="text-primary" />
+                <span className="text-lg font-semibold text-foreground">Income and Mortgage</span>
+                <span className="text-sm text-muted-foreground">•</span>
+                <span className="text-sm font-medium text-primary">{scenario.name}</span>
               </span>
               {isScenarioBuilderOpen ? (
-                <ChevronUp size={20} className="text-gray-400" />
+                <ChevronUp size={20} className="text-muted-foreground/70" />
               ) : (
-                <ChevronDown size={20} className="text-gray-400" />
+                <ChevronDown size={20} className="text-muted-foreground/70" />
               )}
             </CardTitle>
             {!isScenarioBuilderOpen && (
@@ -1461,41 +1461,41 @@ return (
                   </div>
 
                   {/* Monthly Payment Details */}
-                  <div className="p-3 bg-blue-50 rounded-lg">
+                  <div className="p-3 bg-primary/8 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <span className="font-semibold text-blue-800">Housing Payment</span>
+                      <div className="w-2 h-2 bg-primary/80 rounded-full"></div>
+                      <span className="font-semibold text-foreground">Housing Payment</span>
                     </div>
                     <div className="space-y-1">
                       <div className="flex justify-between">
-                        <span className="text-blue-700">Payment Ceiling:</span>
-                        <span className="font-medium text-blue-900">
+                        <span className="text-primary">Payment Ceiling:</span>
+                        <span className="font-medium text-foreground">
                           {formatCurrency(affordability.maxMonthlyPayment)}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-blue-700">Actual:</span>
-                        <span className="font-medium text-blue-900">
+                        <span className="text-primary">Actual:</span>
+                        <span className="font-medium text-foreground">
                           {formatCurrency(affordability.actualMonthlyPayment)}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-blue-700">% of Income:</span>
-                        <span className="font-medium text-blue-900">{housingPercentage}%</span>
+                        <span className="text-primary">% of Income:</span>
+                        <span className="font-medium text-foreground">{housingPercentage}%</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Down Payment & Opportunity */}
-                  <div className="p-3 bg-purple-50 rounded-lg">
+                  <div className="p-3 bg-primary/8 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                      <span className="font-semibold text-purple-800">Down Payment</span>
+                      <div className="w-2 h-2 bg-primary/80 rounded-full"></div>
+                      <span className="font-semibold text-primary">Down Payment</span>
                     </div>
                     <div className="space-y-1">
                       <div className="flex justify-between">
-                        <span className="text-purple-700">Available:</span>
-                        <span className="font-medium text-purple-900">
+                        <span className="text-primary">Available:</span>
+                        <span className="font-medium text-primary">
                           {formatCurrency(affordability.availableDownPayment)}
                         </span>
                       </div>
@@ -1503,14 +1503,14 @@ return (
                       {/* Actionable suggestions based on down payment status */}
                       {affordability.downPaymentStatus === "shortfall" && (
                         <>
-                          <div className="text-xs text-purple-700 mt-2">
+                          <div className="text-xs text-primary mt-2">
                             💡 Maximize your monthly budget to{" "}
                             {formatCurrency(affordability.maxMonthlyPayment + affordability.shortfallAmount! / 200)}
                           </div>
-                          <div className="text-xs text-purple-700">
+                          <div className="text-xs text-primary">
                             🏠 Increase home price to {formatCurrency(affordability.maxPriceFromDownPayment)}
                           </div>
-                          <div className="text-xs text-purple-700">
+                          <div className="text-xs text-primary">
                             💰 Add {formatCurrency(affordability.shortfallAmount!)} to down payment
                           </div>
                         </>
@@ -1518,13 +1518,13 @@ return (
 
                       {affordability.downPaymentStatus === "excess" && (
                         <>
-                          <div className="text-xs text-purple-700 mt-2">
+                          <div className="text-xs text-primary mt-2">
                             🎯 Use excess {formatCurrency(affordability.excessAmount!)} strategically
                           </div>
-                          <div className="text-xs text-purple-700">
+                          <div className="text-xs text-primary">
                             🏠 Buy {formatCurrency(affordability.maxPurchasePrice + affordability.excessAmount!)} home
                           </div>
-                          <div className="text-xs text-purple-700">
+                          <div className="text-xs text-primary">
                             💰 Or reduce monthly payment by{" "}
                             {formatCurrency(
                               (() => {
@@ -1543,10 +1543,10 @@ return (
                       {affordability.downPaymentStatus === "on-target" && (
                         <>
                           <div className="text-xs text-green-700 mt-2">✅ Perfect balance achieved</div>
-                          <div className="text-xs text-purple-700">
+                          <div className="text-xs text-primary">
                             🏠 Target home: {formatCurrency(affordability.maxPurchasePrice)}
                           </div>
-                          <div className="text-xs text-purple-700">
+                          <div className="text-xs text-primary">
                             💰 Monthly payment: {formatCurrency(affordability.actualMonthlyPayment)}
                           </div>
                         </>
@@ -1620,7 +1620,7 @@ return (
 
                 {/* Quick Action Hint */}
                 <div className="text-center">
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     Click to expand and adjust income, expenses, down payment, and mortgage settings
                   </p>
                 </div>
@@ -1639,13 +1639,13 @@ return (
                   <div>{renderItemGroup("income", "current", "Income Sources", "text-green-600 bg-green-50")}</div>
 
                   {/* Max Monthly Payment Control - Aligned with Income */}
-                  <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="bg-muted rounded-lg p-4">
                     <div className="flex items-center justify-between mb-3">
                       <Label htmlFor="housingPercentage" className="text-sm font-medium flex items-center gap-2">
                         <Settings size={16} />
                         Housing Payment Ceiling
                       </Label>
-                      <div className="text-sm text-gray-600 text-right">
+                      <div className="text-sm text-muted-foreground text-right">
                         <div className="font-semibold">{formatCurrency(affordability.maxMonthlyPayment)}</div>
                         <div className="text-xs">({housingPercentage}% of take-home)</div>
                       </div>
@@ -1660,7 +1660,7 @@ return (
                         min="10"
                         max="50"
                       />
-                      <span className="text-sm text-gray-500">% of take-home income</span>
+                      <span className="text-sm text-muted-foreground">% of take-home income</span>
                       <div className="flex-1">
                         <input
                           type="range"
@@ -1674,9 +1674,9 @@ return (
                     </div>
 
                     {/* Live Purchase Price Calculation */}
-                    <div className="mt-3 p-3 bg-white border border-gray-200 rounded-md">
+                    <div className="mt-3 p-3 bg-white border border-border rounded-md">
                       <p className="text-xs font-medium text-gray-700 mb-1">Purchase Power</p>
-                      <p className="text-sm font-semibold text-blue-800">
+                      <p className="text-sm font-semibold text-foreground">
                         {formatCurrency(affordability.maxMonthlyPayment)}/month ={" "}
                         {formatCurrency(
                           (() => {
@@ -1726,7 +1726,7 @@ return (
                         )}{" "}
                         home purchase
                       </p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-muted-foreground mt-1">
                         Based on {downPaymentPercentage}% down payment, {displayInterestRate}% interest rate
                       </p>
                     </div>
@@ -1744,7 +1744,7 @@ return (
                       </div>
                     )}
 
-                    <p className="text-xs text-gray-500 mt-2">
+                    <p className="text-xs text-muted-foreground mt-2">
                       Recommended: 25-30% for comfortable living, up to 35% for aggressive buying
                     </p>
                   </div>
@@ -1754,12 +1754,12 @@ return (
                 <div className="space-y-4">
                   {/* Down Payment Sources */}
                   <div>
-                    {renderItemGroup("downpayment", "current", "Down Payment Sources", "text-blue-600 bg-blue-50")}
+                    {renderItemGroup("downpayment", "current", "Down Payment Sources", "text-primary bg-primary/8")}
                   </div>
 
                   {/* Down Payment Control - With Status-Based Strategy */}
                   {/* Down Payment Control - With Purchase Power Display */}
-                  <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="bg-muted rounded-lg p-4">
                     <div className="flex items-center justify-between mb-3">
                       <Label htmlFor="downPaymentPercentage" className="text-sm font-medium flex items-center gap-2">
                         <DollarSign size={16} />
@@ -1768,13 +1768,13 @@ return (
                     </div>
 
                     {/* Down Payment Purchase Power - Always Show */}
-                    <div className="mb-3 p-3 bg-white border border-gray-200 rounded-md">
+                    <div className="mb-3 p-3 bg-white border border-border rounded-md">
                       <p className="text-xs font-medium text-gray-700 mb-1">Down Payment Power</p>
-                      <p className="text-sm font-semibold text-blue-800">
+                      <p className="text-sm font-semibold text-foreground">
                         {formatCurrency(affordability.availableDownPayment)} ÷ {downPaymentPercentage}% ={" "}
                         {formatCurrency(affordability.maxPriceFromDownPayment)} home purchase
                       </p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-muted-foreground mt-1">
                         Based on {downPaymentPercentage}% down payment requirement
                       </p>
                     </div>
@@ -1953,21 +1953,21 @@ return (
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
 
     {/* Sustainability */}
-    <Card className="border-2 border-blue-200">
+    <Card className="border-2 border-primary/25">
       <Collapsible open={isSustainabilityOpen} onOpenChange={setIsSustainabilityOpen}>
         <CollapsibleTrigger asChild>
-          <CardHeader className="pb-3 cursor-pointer hover:bg-blue-50/50 transition-colors">
+          <CardHeader className="pb-3 cursor-pointer hover:bg-primary/8/50 transition-colors">
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
-                <DollarSign size={20} className="text-blue-600" />
+                <DollarSign size={20} className="text-primary" />
                 <span className="text-lg font-semibold text-green-900">Sustainability</span>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-muted-foreground">
                   What you can carry — the full monthly and upfront cost picture.
                 </span>
               </span>
               <div className="flex items-center gap-2">
                 {!isSustainabilityOpen && (
-                  <span className="text-sm font-medium text-gray-600">
+                  <span className="text-sm font-medium text-muted-foreground">
                     {formatCurrency(affordability.maxPurchasePrice)} home · {formatCurrency(affordability.actualMonthlyPayment)}/mo
                   </span>
                 )}
@@ -1975,7 +1975,7 @@ return (
                   <AffordabilityIcon size={14} className="mr-1" />
                   {affordabilityLevel.level}
                 </Badge>
-                {isSustainabilityOpen ? <ChevronUp size={16} className="text-gray-400" /> : <ChevronDown size={16} className="text-gray-400" />}
+                {isSustainabilityOpen ? <ChevronUp size={16} className="text-muted-foreground/70" /> : <ChevronDown size={16} className="text-muted-foreground/70" />}
               </div>
             </CardTitle>
           </CardHeader>
@@ -1985,30 +1985,30 @@ return (
         {/* Maximum Home Price - Centered */}
         {/* Maximum Home Price - Equation Format */}
         <div className="text-center py-6">
-          <p className="text-sm font-medium text-blue-600 mb-4">Your Home Purchase Equation</p>
+          <p className="text-sm font-medium text-primary mb-4">Your Home Purchase Equation</p>
 
           {/* Equation Display */}
           <div className="flex items-center justify-center gap-4 mb-6 text-2xl font-bold">
             <div className="text-center">
-              <div className="text-blue-900">{formatCurrency(affordability.loanAmount)}</div>
-              <div className="text-sm font-normal text-gray-600">Loan Amount</div>
+              <div className="text-foreground">{formatCurrency(affordability.loanAmount)}</div>
+              <div className="text-sm font-normal text-muted-foreground">Loan Amount</div>
             </div>
-            <div className="text-blue-600 text-3xl">+</div>
+            <div className="text-primary text-3xl">+</div>
             <div className="text-center">
-              <div className="text-blue-900">
+              <div className="text-foreground">
                 {formatCurrency(affordability.maxPurchasePrice * (downPaymentPercentage / 100))}
               </div>
-              <div className="text-sm font-normal text-gray-600">Down Payment</div>
+              <div className="text-sm font-normal text-muted-foreground">Down Payment</div>
             </div>
-            <div className="text-blue-600 text-3xl">=</div>
+            <div className="text-primary text-3xl">=</div>
             <div className="text-center">
-              <div className="text-4xl text-blue-900">{formatCurrency(affordability.maxPurchasePrice)}</div>
-              <div className="text-sm font-normal text-gray-600">Home Purchase</div>
+              <div className="text-4xl text-foreground">{formatCurrency(affordability.maxPurchasePrice)}</div>
+              <div className="text-sm font-normal text-muted-foreground">Home Purchase</div>
             </div>
           </div>
 
-          <p className="text-sm text-blue-700 mb-4">Based on {scenario.name} scenario</p>
-          <div className="text-sm text-gray-600 mb-4">
+          <p className="text-sm text-primary mb-4">Based on {scenario.name} scenario</p>
+          <div className="text-sm text-muted-foreground mb-4">
             <p className="font-semibold">
               Actual Monthly Payment: {formatCurrency(affordability.actualMonthlyPayment)}
             </p>
@@ -2017,7 +2017,7 @@ return (
               {formatCurrency(affordability.monthlyPropertyTax)} Tax +{" "}
               {formatCurrency(affordability.monthlyInsurance)} Insurance
             </p>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-muted-foreground/70 mt-1">
               {zipInfo ? (
                 <>
                   Property tax {(zipInfo.propertyTaxRate * 100).toFixed(2)}% · School district {(zipInfo.schoolTaxRate * 100).toFixed(2)}% · Total {((zipInfo.propertyTaxRate + zipInfo.schoolTaxRate) * 100).toFixed(2)}% ({zipCode} · {zipInfo.city}, {zipInfo.state}) · Insurance est. $1,800/yr
@@ -2028,7 +2028,7 @@ return (
           </div>
 
           {/* Loan Details */}
-          <div className="flex items-center justify-center gap-8 text-sm text-gray-600">
+          <div className="flex items-center justify-center gap-8 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <span>Interest Rate:</span>
               <span className="font-semibold">{displayInterestRate}%</span>
@@ -2043,8 +2043,8 @@ return (
         {/* Monthly Budget Breakdown */}
         <div className="space-y-4">
           <div className="flex items-center gap-2 mb-4">
-            <DollarSign size={18} className="text-gray-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Monthly Budget Breakdown</h3>
+            <DollarSign size={18} className="text-muted-foreground" />
+            <h3 className="text-lg font-semibold text-foreground">Monthly Budget Breakdown</h3>
           </div>
 
           <div className="space-y-3">
@@ -2078,7 +2078,7 @@ return (
             <div className="flex justify-between items-center">
               <span className="text-gray-700">
                 (-) Fixed Debt Minimums:
-                <span className="text-xs text-gray-400 ml-1 italic">(also counted in your DTI ratio)</span>
+                <span className="text-xs text-muted-foreground/70 ml-1 italic">(also counted in your DTI ratio)</span>
               </span>
               <span className="font-semibold text-red-600">
                 {formatCurrency(scenario.financialInputs.fixedDebts)}
@@ -2103,8 +2103,8 @@ return (
               </div>
             )}
 
-            <div className="flex justify-between items-center pt-3 border-t border-gray-200">
-              <span className="text-gray-900 font-semibold">Monthly Margin:</span>
+            <div className="flex justify-between items-center pt-3 border-t border-border">
+              <span className="text-foreground font-semibold">Monthly Margin:</span>
               <span
                 className={`font-bold text-lg ${affordability.monthlyMargin >= 0 ? "text-green-600" : "text-red-600"}`}
               >
@@ -2145,26 +2145,26 @@ return (
     </Card>
 
     {/* Location Panel */}
-    <Card className="border-2 border-purple-200">
+    <Card className="border-2 border-primary/25">
       <Collapsible open={isLocationOpen} onOpenChange={setIsLocationOpen}>
         <CollapsibleTrigger asChild>
-          <CardHeader className="pb-3 cursor-pointer hover:bg-purple-50/50 transition-colors">
+          <CardHeader className="pb-3 cursor-pointer hover:bg-primary/8/50 transition-colors">
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
-                <MapPin size={20} className="text-purple-600" />
-                <span className="text-lg font-semibold text-purple-900">Location costs</span>
-                <span className="text-sm font-normal text-gray-500">ZIP code or specific home</span>
+                <MapPin size={20} className="text-primary" />
+                <span className="text-lg font-semibold text-primary">Location costs</span>
+                <span className="text-sm font-normal text-muted-foreground">ZIP code or specific home</span>
               </span>
               <div className="flex items-center gap-3">
                 {!isLocationOpen && (
                   zipInfo ? (
-                    <span className="text-sm font-medium text-gray-600">
+                    <span className="text-sm font-medium text-muted-foreground">
                       {zipCode} · {zipInfo.city}, {zipInfo.state} · {((zipInfo.propertyTaxRate + zipInfo.schoolTaxRate) * 100).toFixed(2)}% total tax
                     </span>
                   ) : zipCode.length === 5 ? (
-                    <span className="text-sm text-gray-400">{zipCode} · rate unknown</span>
+                    <span className="text-sm text-muted-foreground/70">{zipCode} · rate unknown</span>
                   ) : (
-                    <span className="text-sm text-gray-400">No location set</span>
+                    <span className="text-sm text-muted-foreground/70">No location set</span>
                   )
                 )}
                 {isLocationOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -2181,8 +2181,8 @@ return (
                 onClick={() => setLocationMode("zip")}
                 className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                   locationMode === "zip"
-                    ? "bg-purple-100 border-purple-300 text-purple-800"
-                    : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+                    ? "bg-primary/12 border-purple-300 text-primary"
+                    : "bg-white border-border text-muted-foreground hover:bg-muted"
                 }`}
               >
                 ZIP Code
@@ -2192,8 +2192,8 @@ return (
                 onClick={() => setLocationMode("home")}
                 className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                   locationMode === "home"
-                    ? "bg-purple-100 border-purple-300 text-purple-800"
-                    : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+                    ? "bg-primary/12 border-purple-300 text-primary"
+                    : "bg-white border-border text-muted-foreground hover:bg-muted"
                 }`}
               >
                 Specific Home
@@ -2213,16 +2213,16 @@ return (
                     className="mt-1 font-mono text-lg tracking-widest"
                   />
                   {zipCode.length === 5 && (
-                    <p className={`text-xs mt-1 ${zipInfo ? "text-purple-700 font-medium" : "text-gray-400"}`}>
+                    <p className={`text-xs mt-1 ${zipInfo ? "text-primary font-medium" : "text-muted-foreground/70"}`}>
                       {zipInfo
                         ? `${zipInfo.city}, ${zipInfo.state} — ${(zipInfo.propertyTaxRate * 100).toFixed(2)}% property + ${(zipInfo.schoolTaxRate * 100).toFixed(2)}% school = ${((zipInfo.propertyTaxRate + zipInfo.schoolTaxRate) * 100).toFixed(2)}% total`
                         : "ZIP not in our lookup — using 1.81% national average"}
                     </p>
                   )}
                 </div>
-                <div className="rounded-lg bg-purple-50 border border-purple-100 p-4">
-                  <p className="text-sm font-medium text-purple-800 mb-2">What ZIP code unlocks</p>
-                  <ul className="space-y-1 text-xs text-purple-600 list-disc list-inside">
+                <div className="rounded-lg bg-primary/8 border border-purple-100 p-4">
+                  <p className="text-sm font-medium text-primary mb-2">What ZIP code unlocks</p>
+                  <ul className="space-y-1 text-xs text-primary list-disc list-inside">
                     <li>Local property tax rate (active — updates Sustainability & Upfront Costs)</li>
                     <li>Area context for your Decision Rehearsal</li>
                     <li>Property search filter (coming soon)</li>
@@ -2243,7 +2243,7 @@ return (
                 <div>
                   <label className="text-sm font-medium text-gray-700">List Price</label>
                   <div className="relative mt-1">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/70 text-sm">$</span>
                     <Input
                       type="number"
                       value={homeListPrice ?? ""}
@@ -2303,21 +2303,21 @@ return (
                     onChange={(e) => setHomeNotes(e.target.value)}
                     placeholder="Inspection concerns, must-haves, agent notes..."
                     rows={3}
-                    className="mt-1 w-full rounded-md border border-gray-200 p-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-purple-300"
+                    className="mt-1 w-full rounded-md border border-border p-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-purple-300"
                   />
                 </div>
               </div>
             )}
 
             {/* One Time Upfront Costs */}
-            <div className="bg-white border border-gray-200 rounded-lg">
+            <div className="bg-white border border-border rounded-lg">
               <Collapsible defaultOpen={false}>
                 <CollapsibleTrigger asChild>
-                  <div className="p-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                  <div className="p-4 cursor-pointer hover:bg-muted transition-colors">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-base font-semibold text-gray-900">One Time Upfront Costs</h3>
+                      <h3 className="text-base font-semibold text-foreground">One Time Upfront Costs</h3>
                       <div className="flex items-center gap-3">
-                        <span className="font-bold text-purple-900">
+                        <span className="font-bold text-primary">
                           {formatCurrency(
                             affordability.maxPurchasePrice * (downPaymentPercentage / 100) +
                               affordability.maxPurchasePrice * 0.03 +
@@ -2327,30 +2327,30 @@ return (
                               2500 + 600,
                           )}
                         </span>
-                        <ChevronDown size={16} className="text-gray-400" />
+                        <ChevronDown size={16} className="text-muted-foreground/70" />
                       </div>
                     </div>
                     <div className="mt-2 grid grid-cols-3 gap-3 text-sm">
                       <div className="text-center">
-                        <div className="font-semibold text-blue-900">
+                        <div className="font-semibold text-foreground">
                           {formatCurrency(
                             affordability.maxPurchasePrice * (downPaymentPercentage / 100) +
                               affordability.maxPurchasePrice * 0.03 + 950,
                           )}
                         </div>
-                        <div className="text-xs text-gray-500">Purchase & Closing</div>
+                        <div className="text-xs text-muted-foreground">Purchase & Closing</div>
                       </div>
                       <div className="text-center">
                         <div className="font-semibold text-green-900">
                           {formatCurrency(1500 + 350 + affordability.monthlyInsurance * 12)}
                         </div>
-                        <div className="text-xs text-gray-500">Moving & Setup</div>
+                        <div className="text-xs text-muted-foreground">Moving & Setup</div>
                       </div>
                       <div className="text-center">
                         <div className="font-semibold text-orange-900">
                           {formatCurrency(affordability.maxPurchasePrice * 0.01 + 2500 + 600)}
                         </div>
-                        <div className="text-xs text-gray-500">Home Needs</div>
+                        <div className="text-xs text-muted-foreground">Home Needs</div>
                       </div>
                     </div>
                   </div>
@@ -2359,27 +2359,27 @@ return (
                   <div className="px-4 pb-4 pt-0">
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <h4 className="text-xs font-semibold text-gray-700 border-b border-gray-200 pb-1 uppercase tracking-wide">Purchase & Closing</h4>
-                        <div className="flex justify-between text-sm"><span className="text-gray-600">Down Payment:</span><span className="font-semibold">{formatCurrency(affordability.maxPurchasePrice * (downPaymentPercentage / 100))} ({downPaymentPercentage}%)</span></div>
-                        <div className="flex justify-between text-sm"><span className="text-gray-600">Closing Costs:</span><span className="font-semibold">{formatCurrency(affordability.maxPurchasePrice * 0.03)} (3%)</span></div>
-                        <div className="flex justify-between text-sm"><span className="text-gray-600">Home Inspection:</span><span className="font-semibold">$500</span></div>
-                        <div className="flex justify-between text-sm"><span className="text-gray-600">Appraisal:</span><span className="font-semibold">$450</span></div>
+                        <h4 className="text-xs font-semibold text-gray-700 border-b border-border pb-1 uppercase tracking-wide">Purchase & Closing</h4>
+                        <div className="flex justify-between text-sm"><span className="text-muted-foreground">Down Payment:</span><span className="font-semibold">{formatCurrency(affordability.maxPurchasePrice * (downPaymentPercentage / 100))} ({downPaymentPercentage}%)</span></div>
+                        <div className="flex justify-between text-sm"><span className="text-muted-foreground">Closing Costs:</span><span className="font-semibold">{formatCurrency(affordability.maxPurchasePrice * 0.03)} (3%)</span></div>
+                        <div className="flex justify-between text-sm"><span className="text-muted-foreground">Home Inspection:</span><span className="font-semibold">$500</span></div>
+                        <div className="flex justify-between text-sm"><span className="text-muted-foreground">Appraisal:</span><span className="font-semibold">$450</span></div>
                       </div>
                       <div className="space-y-2">
-                        <h4 className="text-xs font-semibold text-gray-700 border-b border-gray-200 pb-1 uppercase tracking-wide">Moving & Setup</h4>
-                        <div className="flex justify-between text-sm"><span className="text-gray-600">Moving Expenses:</span><span className="font-semibold">$1,500</span></div>
-                        <div className="flex justify-between text-sm"><span className="text-gray-600">Utility Deposits & Setup:</span><span className="font-semibold">$350</span></div>
-                        <div className="flex justify-between text-sm"><span className="text-gray-600">First Year Home Insurance:</span><span className="font-semibold">{formatCurrency(affordability.monthlyInsurance * 12)}</span></div>
+                        <h4 className="text-xs font-semibold text-gray-700 border-b border-border pb-1 uppercase tracking-wide">Moving & Setup</h4>
+                        <div className="flex justify-between text-sm"><span className="text-muted-foreground">Moving Expenses:</span><span className="font-semibold">$1,500</span></div>
+                        <div className="flex justify-between text-sm"><span className="text-muted-foreground">Utility Deposits & Setup:</span><span className="font-semibold">$350</span></div>
+                        <div className="flex justify-between text-sm"><span className="text-muted-foreground">First Year Home Insurance:</span><span className="font-semibold">{formatCurrency(affordability.monthlyInsurance * 12)}</span></div>
                       </div>
                       <div className="space-y-2">
-                        <h4 className="text-xs font-semibold text-gray-700 border-b border-gray-200 pb-1 uppercase tracking-wide">Immediate Home Needs</h4>
-                        <div className="flex justify-between text-sm"><span className="text-gray-600">Emergency Repairs Fund:</span><span className="font-semibold">{formatCurrency(affordability.maxPurchasePrice * 0.01)} (1%)</span></div>
-                        <div className="flex justify-between text-sm"><span className="text-gray-600">Basic Furnishing/Appliances:</span><span className="font-semibold">$2,500</span></div>
-                        <div className="flex justify-between text-sm"><span className="text-gray-600">Security System (optional):</span><span className="font-semibold text-gray-400">$600</span></div>
+                        <h4 className="text-xs font-semibold text-gray-700 border-b border-border pb-1 uppercase tracking-wide">Immediate Home Needs</h4>
+                        <div className="flex justify-between text-sm"><span className="text-muted-foreground">Emergency Repairs Fund:</span><span className="font-semibold">{formatCurrency(affordability.maxPurchasePrice * 0.01)} (1%)</span></div>
+                        <div className="flex justify-between text-sm"><span className="text-muted-foreground">Basic Furnishing/Appliances:</span><span className="font-semibold">$2,500</span></div>
+                        <div className="flex justify-between text-sm"><span className="text-muted-foreground">Security System (optional):</span><span className="font-semibold text-muted-foreground/70">$600</span></div>
                       </div>
                       <div className="flex justify-between items-center pt-3 border-t-2 border-gray-300">
-                        <span className="font-bold text-gray-900">Total Upfront Costs:</span>
-                        <span className="font-bold text-purple-900">
+                        <span className="font-bold text-foreground">Total Upfront Costs:</span>
+                        <span className="font-bold text-primary">
                           {formatCurrency(
                             affordability.maxPurchasePrice * (downPaymentPercentage / 100) +
                               affordability.maxPurchasePrice * 0.03 +
@@ -2390,7 +2390,7 @@ return (
                           )}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-500 p-3 bg-gray-50 rounded-md">
+                      <p className="text-xs text-muted-foreground p-3 bg-muted rounded-md">
                         <strong>Note:</strong> Estimates vary by location and personal choices. Emergency repairs fund (1% of home value) recommended for year-one surprises.
                       </p>
                     </div>
@@ -2414,7 +2414,7 @@ return (
               <span className="flex items-center gap-2">
                 <Home size={20} className="text-green-600" />
                 <span className="text-lg font-semibold text-green-900">Lifestyle costs</span>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-muted-foreground">
                   What you can live — your lifestyle costs, current and after the move.
                 </span>
               </span>
@@ -2426,12 +2426,12 @@ return (
                     return sum + (i.frequency === "annual" ? amt / 12 : amt)
                   }, 0)
                   return totalMonthly > 0 ? (
-                    <span className="text-sm font-medium text-gray-600">
+                    <span className="text-sm font-medium text-muted-foreground">
                       {formatCurrency(totalMonthly)}/mo tracked
                     </span>
                   ) : null
                 })()}
-                {isLivabilityOpen ? <ChevronUp size={16} className="text-gray-400" /> : <ChevronDown size={16} className="text-gray-400" />}
+                {isLivabilityOpen ? <ChevronUp size={16} className="text-muted-foreground/70" /> : <ChevronDown size={16} className="text-muted-foreground/70" />}
               </div>
             </CardTitle>
           </CardHeader>
@@ -2759,25 +2759,25 @@ return (
           <div className="space-y-6">
             {Object.entries(expenseIdeas).map(([lifeEvent, expenses]) => (
               <div key={lifeEvent} className="space-y-4">
-                <h3 className="font-semibold text-gray-900 text-lg border-b border-gray-200 pb-2">{lifeEvent}</h3>
+                <h3 className="font-semibold text-foreground text-lg border-b border-border pb-2">{lifeEvent}</h3>
 
                 {/* Monthly Expenses */}
                 {expenses.monthly.length > 0 && (
                   <div className="space-y-2">
                     <h4 className="font-medium text-gray-700 flex items-center gap-2">
-                      <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                      <span className="w-2 h-2 bg-primary/80 rounded-full"></span>
                       Monthly Expenses
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       {expenses.monthly.map((idea, index) => (
                         <div
                           key={`${lifeEvent}-monthly-${index}`}
-                          className="flex items-center justify-between p-3 bg-blue-50 rounded-lg hover:bg-blue-100 cursor-pointer transition-colors border border-blue-200"
+                          className="flex items-center justify-between p-3 bg-primary/8 rounded-lg hover:bg-primary/12 cursor-pointer transition-colors border border-primary/25"
                           onClick={() => handleAddExpenseIdea(idea, "current")}
                         >
                           <div>
-                            <p className="text-sm font-medium text-gray-900">{idea.label}</p>
-                            <p className="text-xs text-blue-600">{formatCurrency(idea.amount)}/mo</p>
+                            <p className="text-sm font-medium text-foreground">{idea.label}</p>
+                            <p className="text-xs text-primary">{formatCurrency(idea.amount)}/mo</p>
                           </div>
                           <Plus size={16} className="text-blue-500" />
                         </div>
@@ -2802,7 +2802,7 @@ return (
                         >
                           <div className="flex items-center gap-2">
                             <div>
-                              <p className="text-sm font-medium text-gray-900">{idea.label}</p>
+                              <p className="text-sm font-medium text-foreground">{idea.label}</p>
                               <p className="text-xs text-orange-600">{formatCurrency(idea.amount)}/yr</p>
                             </div>
                             <Calendar size={12} className="text-orange-500" />
@@ -2818,7 +2818,7 @@ return (
           </div>
         </div>
         <DialogFooter>
-          <p className="text-xs text-gray-500 text-left flex-1">
+          <p className="text-xs text-muted-foreground text-left flex-1">
             Click any expense to add it to your scenario. Organized by common life events that affect housing
             affordability.
           </p>

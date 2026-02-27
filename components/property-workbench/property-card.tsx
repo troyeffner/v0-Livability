@@ -30,7 +30,7 @@ export default function PropertyCard({
 }: PropertyCardProps) {
   const getAffordabilityColor = (score: number) => {
     if (score >= 80) return "bg-green-100 text-green-800 border-green-200"
-    if (score >= 60) return "bg-yellow-100 text-yellow-800 border-yellow-200"
+    if (score >= 60) return "bg-amber-100 text-amber-900 border-amber-200"
     return "bg-red-100 text-red-800 border-red-200"
   }
 
@@ -43,7 +43,7 @@ export default function PropertyCard({
   }
 
   return (
-    <Card className={`transition-all duration-200 hover:shadow-lg ${isSelected ? "ring-2 ring-blue-500" : ""}`}>
+    <Card className={`transition-all duration-200 hover:shadow-lg ${isSelected ? "ring-2 ring-primary" : ""}`}>
       <CardHeader className="p-0">
         <div className="relative">
           <img
@@ -56,7 +56,7 @@ export default function PropertyCard({
               variant="ghost"
               size="sm"
               onClick={onSave}
-              className={`bg-white/90 hover:bg-white ${isSaved ? "text-red-500" : "text-gray-600"}`}
+              className={`bg-white/90 hover:bg-white ${isSaved ? "text-red-500" : "text-muted-foreground"}`}
             >
               <Heart size={16} fill={isSaved ? "currentColor" : "none"} />
             </Button>
@@ -71,14 +71,14 @@ export default function PropertyCard({
         {/* Property Details */}
         <div>
           <div className="flex items-start gap-2 mb-2">
-            <MapPin size={16} className="text-gray-500 mt-0.5 flex-shrink-0" />
+            <MapPin size={16} className="text-primary mt-0.5 flex-shrink-0" />
             <div>
-              <h3 className="font-semibold text-gray-900">{property.address}</h3>
-              <p className="text-sm text-gray-600">{property.neighborhood}</p>
+              <h3 className="font-semibold text-foreground">{property.address}</h3>
+              <p className="text-sm text-muted-foreground">{property.neighborhood}</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 text-sm text-gray-600">
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
               <Bed size={16} />
               <span>{property.bedrooms} bed</span>

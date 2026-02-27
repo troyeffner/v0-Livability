@@ -13,6 +13,13 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        brand: {
+          teal:        '#2bbfa7',
+          'teal-dark': '#1f9f7b',
+          'teal-black':'#0f2320',
+          sage:        '#3f645c',
+          mint:        '#eaf7f1',
+        },
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {
@@ -65,9 +72,11 @@ const config: Config = {
         },
       },
       borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        lg:   'var(--radius)',
+        md:   'calc(var(--radius) - 2px)',
+        sm:   'calc(var(--radius) - 4px)',
+        xl:   '1rem',      // 16px — matches DR card radius
+        '2xl':'1.125rem',  // 18px — matches DR pattern cards
       },
       keyframes: {
         'accordion-down': {

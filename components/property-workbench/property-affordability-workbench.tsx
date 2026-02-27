@@ -181,14 +181,14 @@ export default function PropertyAffordabilityWorkbench() {
   )
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-background p-4">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm border p-6">
+        <div className="bg-card rounded-xl shadow-sm border p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Property Affordability Workbench</h1>
-              <p className="text-gray-600">Find and compare homes that fit your budget and lifestyle</p>
+              <h1 className="text-2xl font-bold text-foreground">Property Affordability Workbench</h1>
+              <p className="text-muted-foreground">Find and compare homes that fit your budget and lifestyle</p>
             </div>
             <div className="flex items-center gap-3">
               <Link
@@ -196,7 +196,7 @@ export default function PropertyAffordabilityWorkbench() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Button variant="outline" className="flex items-center gap-2">
+                <Button variant="outline" className="flex items-center gap-2 border-primary text-primary hover:bg-primary/10">
                   <Compass size={16} />
                   Decision Rehearsal
                 </Button>
