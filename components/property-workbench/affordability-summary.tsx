@@ -1494,9 +1494,9 @@ return (
                     </div>
                     <div className="space-y-1">
                       <div className="flex justify-between">
-                        <span className="text-primary">Available:</span>
+                        <span className="text-primary">Roof:</span>
                         <span className="font-medium text-primary">
-                          {formatCurrency(affordability.availableDownPayment)}
+                          {formatCurrency(affordability.maxPriceFromDownPayment)}
                         </span>
                       </div>
 
@@ -1675,9 +1675,8 @@ return (
 
                     {/* Live Purchase Price Calculation */}
                     <div className="mt-3 p-3 bg-white border border-border rounded-md">
-                      <p className="text-xs font-medium text-gray-700 mb-1">Purchase Power</p>
+                      <p className="text-xs font-medium text-muted-foreground mb-1">Purchase Roof</p>
                       <p className="text-sm font-semibold text-foreground">
-                        {formatCurrency(affordability.maxMonthlyPayment)}/month ={" "}
                         {formatCurrency(
                           (() => {
                             // Calculate what purchase price this monthly payment can afford
@@ -1723,11 +1722,10 @@ return (
 
                             return Math.max(0, purchasePrice)
                           })(),
-                        )}{" "}
-                        home purchase
+                        )}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Based on {downPaymentPercentage}% down payment, {displayInterestRate}% interest rate
+                        {formatCurrency(affordability.maxMonthlyPayment)}/mo · {downPaymentPercentage}% down · {displayInterestRate}%
                       </p>
                     </div>
 
@@ -1767,15 +1765,14 @@ return (
                       </Label>
                     </div>
 
-                    {/* Down Payment Purchase Power - Always Show */}
+                    {/* Down Payment Purchase Roof - Always Show */}
                     <div className="mb-3 p-3 bg-white border border-border rounded-md">
-                      <p className="text-xs font-medium text-gray-700 mb-1">Down Payment Power</p>
+                      <p className="text-xs font-medium text-muted-foreground mb-1">Purchase Roof</p>
                       <p className="text-sm font-semibold text-foreground">
-                        {formatCurrency(affordability.availableDownPayment)} ÷ {downPaymentPercentage}% ={" "}
-                        {formatCurrency(affordability.maxPriceFromDownPayment)} home purchase
+                        {formatCurrency(affordability.maxPriceFromDownPayment)}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Based on {downPaymentPercentage}% down payment requirement
+                        {formatCurrency(affordability.availableDownPayment)} at {downPaymentPercentage}% down
                       </p>
                     </div>
 
