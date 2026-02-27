@@ -3,9 +3,27 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Users, TrendingUp, User, Plus, Pencil, Trash2, Save, Copy } from "lucide-react"
+import {
+  Home,
+  Users,
+  TrendingUp,
+  MapPin,
+  Star,
+  Briefcase,
+  Plus,
+  Pencil,
+  Trash2,
+  Save,
+  Copy,
+} from "lucide-react"
 import type { Scenario } from "@/lib/property-types"
+
+const SCENARIO_ICONS = [Home, Users, TrendingUp, MapPin, Star, Briefcase]
+
+const formatCurrency = (n: number) =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n)
 
 interface ScenarioSelectorProps {
   scenarios: Scenario[]
@@ -32,19 +50,6 @@ export default function ScenarioSelector({
   const [renamingScenarioId, setRenamingScenarioId] = useState<string | null>(null)
   const [newScenarioName, setNewScenarioName] = useState("")
 
-  const getScenarioIcon = (scenarioId: string) => {
-    switch (scenarioId) {
-      case "current":
-        return <User size={16} />
-      case "with-roommate":
-        return <Users size={16} />
-      case "after-promotion":
-        return <TrendingUp size={16} />
-      default:
-        return <User size={16} />
-    }
-  }
-
   const handleRenameClick = (scenario: Scenario) => {
     setRenamingScenarioId(scenario.id)
     setNewScenarioName(scenario.name)
@@ -60,89 +65,111 @@ export default function ScenarioSelector({
     setNewScenarioName("")
   }
 
-  const activeScenario = scenarios.find((s) => s.id === activeScenarioId)
-
   return (
-    <div className="space-y-4">
-      {/* Active Scenario Display with Actions */}
-      <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            {getScenarioIcon(activeScenarioId)}
-            <h2 className="font-semibold text-lg text-blue-900">{activeScenario?.name || "Current Scenario"}</h2>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button onClick={onSaveScenario} size="sm" className="flex items-center gap-1">
-            <Save size={14} />
-            Save
-          </Button>
-          <Button
-            onClick={onSaveAsNewScenario}
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-1 bg-transparent"
-          >
-            <Copy size={14} />
-            Save as New
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-3">
+      {/* Scenario Cards */}
+      <div className="flex flex-wrap gap-3">
+        {scenarios.map((scenario, idx) => {
+          const isActive = scenario.id === activeScenarioId
+          const Icon = SCENARIO_ICONS[idx % SCENARIO_ICONS.length]
+          const fi = scenario.financialInputs
 
-      {/* Scenario Selection */}
-      <div className="flex items-center gap-3">
-        <span className="text-sm font-medium text-gray-700">Switch to:</span>
-        <div className="flex gap-2 flex-wrap">
-          {scenarios.map((scenario) => (
-            <div key={scenario.id} className="flex items-center gap-1 group">
-              <Button
-                variant={activeScenarioId === scenario.id ? "default" : "outline"}
-                size="sm"
-                onClick={() => onScenarioChange(scenario.id)}
-                className="flex items-center gap-2 pr-2"
-                disabled={activeScenarioId === scenario.id}
-              >
-                {getScenarioIcon(scenario.id)}
-                {scenario.name}
-              </Button>
+          return (
+            <div
+              key={scenario.id}
+              className={`relative group rounded-lg border-2 p-3 min-w-[180px] transition-all ${
+                isActive
+                  ? "border-blue-400 bg-blue-50 cursor-default"
+                  : "border-gray-200 bg-white hover:border-gray-300 cursor-pointer"
+              }`}
+              onClick={() => !isActive && onScenarioChange(scenario.id)}
+            >
+              {/* Header row */}
+              <div className="flex items-center gap-2 mb-1 pr-12">
+                <Icon size={14} className={isActive ? "text-blue-600" : "text-gray-400"} />
+                <span
+                  className={`font-semibold text-sm leading-tight ${
+                    isActive ? "text-blue-900" : "text-gray-700"
+                  }`}
+                >
+                  {scenario.name}
+                </span>
+                {isActive && (
+                  <Badge className="ml-auto text-xs bg-blue-100 text-blue-700 border-0 h-4 px-1.5 font-medium">
+                    active
+                  </Badge>
+                )}
+              </div>
 
-              {/* Pencil and Trash Icons */}
-              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              {/* Metrics summary */}
+              <p className="text-xs text-gray-400 leading-relaxed">
+                {formatCurrency(fi.annualIncome)}/yr
+                {fi.futureIncomeMonthly
+                  ? ` + ${formatCurrency(fi.futureIncomeMonthly)}/mo`
+                  : ""}
+                {" · "}
+                {formatCurrency(fi.downPaymentSources)} down
+              </p>
+
+              {/* Save actions — only on active card */}
+              {isActive && (
+                <div className="flex gap-1 mt-2 pt-2 border-t border-blue-200">
+                  <Button
+                    onClick={(e) => { e.stopPropagation(); onSaveScenario() }}
+                    size="sm"
+                    variant="ghost"
+                    className="h-6 text-xs px-2 text-blue-700 hover:bg-blue-100"
+                  >
+                    <Save size={11} className="mr-1" />
+                    Save
+                  </Button>
+                  <Button
+                    onClick={(e) => { e.stopPropagation(); onSaveAsNewScenario() }}
+                    size="sm"
+                    variant="ghost"
+                    className="h-6 text-xs px-2 text-gray-500 hover:bg-gray-100"
+                  >
+                    <Copy size={11} className="mr-1" />
+                    Duplicate
+                  </Button>
+                </div>
+              )}
+
+              {/* Hover actions (pencil + trash) */}
+              <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <Button
                   variant="ghost"
                   size="sm"
                   className="h-6 w-6 p-0 hover:bg-blue-100"
-                  onClick={() => handleRenameClick(scenario)}
+                  onClick={(e) => { e.stopPropagation(); handleRenameClick(scenario) }}
                   title="Rename scenario"
                 >
-                  <Pencil size={12} />
+                  <Pencil size={11} />
                 </Button>
                 {scenarios.length > 1 && (
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-6 w-6 p-0 hover:bg-red-100 text-red-600"
-                    onClick={() => onDeleteScenario(scenario.id)}
+                    className="h-6 w-6 p-0 hover:bg-red-100 text-red-500"
+                    onClick={(e) => { e.stopPropagation(); onDeleteScenario(scenario.id) }}
                     title="Delete scenario"
                   >
-                    <Trash2 size={12} />
+                    <Trash2 size={11} />
                   </Button>
                 )}
               </div>
             </div>
-          ))}
+          )
+        })}
 
-          {/* Add New Scenario Button */}
-          <Button
-            onClick={onAddScenario}
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2 border-dashed bg-transparent"
-          >
-            <Plus size={16} />
-            Add Scenario
-          </Button>
-        </div>
+        {/* Add New Scenario */}
+        <button
+          onClick={onAddScenario}
+          className="flex items-center gap-2 rounded-lg border-2 border-dashed border-gray-200 bg-transparent px-4 py-3 text-sm text-gray-400 hover:border-gray-300 hover:text-gray-500 transition-colors min-w-[120px] justify-center"
+        >
+          <Plus size={14} />
+          Add Scenario
+        </button>
       </div>
 
       {/* Rename Modal */}

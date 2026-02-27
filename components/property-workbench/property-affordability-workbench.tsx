@@ -3,19 +3,31 @@
 import { useState, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { MapPin, TrendingUp, Home, Target } from "lucide-react"
+import { MapPin, TrendingUp, Home, Target, Compass } from "lucide-react"
 import { sampleProperties, defaultUserProfile } from "@/lib/property-data"
 import { calculatePropertyAffordability } from "@/lib/affordability-calculations"
-import type { UserProfile, PropertyAffordability } from "@/lib/property-types"
+import type { UserProfile, PropertyAffordability, Scenario } from "@/lib/property-types"
 import PropertyCard from "./property-card"
 import ScenarioSelector from "./scenario-selector"
 import PropertyComparison from "./property-comparison"
 import AffordabilitySummary from "./affordability-summary"
 
+interface ActiveLocation {
+  zipCode: string
+  city: string
+  state: string
+  propertyTaxRate: number
+  schoolTaxRate: number
+}
+
 export default function PropertyAffordabilityWorkbench() {
   const [userProfile, setUserProfile] = useState<UserProfile>(defaultUserProfile)
   const [selectedProperties, setSelectedProperties] = useState<string[]>([])
   const [viewMode, setViewMode] = useState<"grid" | "comparison">("grid")
+  const [activeLocation, setActiveLocation] = useState<ActiveLocation | null>({
+    zipCode: "62701", city: "Springfield", state: "IL",
+    propertyTaxRate: 0.0060, schoolTaxRate: 0.0140,
+  })
 
   const activeScenario = useMemo(() => {
     return userProfile.scenarios.find((s) => s.id === userProfile.activeScenarioId) || userProfile.scenarios[0]
@@ -46,7 +58,7 @@ export default function PropertyAffordabilityWorkbench() {
     }))
   }
 
-  const handleScenarioUpdate = (updatedScenario: any) => {
+  const handleScenarioUpdate = (updatedScenario: Scenario) => {
     setUserProfile((prev) => ({
       ...prev,
       scenarios: prev.scenarios.map((s) => (s.id === updatedScenario.id ? updatedScenario : s)),
@@ -139,9 +151,30 @@ export default function PropertyAffordabilityWorkbench() {
     }))
   }
 
-  const affordableProperties = sampleProperties.filter((property) => propertyAffordabilities[property.id]?.canAfford)
+  // Filter properties by ZIP/city match when a location is set
+  const locationFilteredProperties = useMemo(() => {
+    if (!activeLocation) return sampleProperties
+    const matched = sampleProperties.filter(
+      (p) =>
+        p.zipCode === activeLocation.zipCode ||
+        (p.city?.toLowerCase() === activeLocation.city.toLowerCase() && p.state === activeLocation.state),
+    )
+    return matched.length > 0 ? matched : sampleProperties
+  }, [activeLocation])
 
-  const stretchProperties = sampleProperties.filter(
+  const noZipMatch =
+    activeLocation != null &&
+    sampleProperties.every(
+      (p) =>
+        p.zipCode !== activeLocation.zipCode &&
+        !(p.city?.toLowerCase() === activeLocation.city.toLowerCase() && p.state === activeLocation.state),
+    )
+
+  const affordableProperties = locationFilteredProperties.filter(
+    (property) => propertyAffordabilities[property.id]?.canAfford,
+  )
+
+  const stretchProperties = locationFilteredProperties.filter(
     (property) =>
       !propertyAffordabilities[property.id]?.canAfford && propertyAffordabilities[property.id]?.affordabilityScore > 30,
   )
@@ -157,6 +190,16 @@ export default function PropertyAffordabilityWorkbench() {
               <p className="text-gray-600">Find and compare homes that fit your budget and lifestyle</p>
             </div>
             <div className="flex items-center gap-3">
+              <a
+                href="/navigating-a-change-rehearsal.v9.html"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button variant="outline" className="flex items-center gap-2">
+                  <Compass size={16} />
+                  Decision Rehearsal
+                </Button>
+              </a>
               <Button
                 variant={viewMode === "comparison" ? "default" : "outline"}
                 onClick={() => setViewMode(viewMode === "grid" ? "comparison" : "grid")}
@@ -185,11 +228,26 @@ export default function PropertyAffordabilityWorkbench() {
         </div>
 
         {/* Financial Settings + Affordability Summary - with real-time updates */}
-        <AffordabilitySummary scenario={activeScenario} onScenarioUpdate={handleScenarioUpdate} />
+        <AffordabilitySummary
+          scenario={activeScenario}
+          onScenarioUpdate={handleScenarioUpdate}
+          onLocationChange={(loc) => setActiveLocation(loc ?? null)}
+        />
 
         {/* Main Content */}
         {viewMode === "grid" ? (
           <Tabs defaultValue="affordable" className="space-y-6">
+            {/* Location context label */}
+            {activeLocation && (
+              <div className="flex items-center gap-2 text-sm text-gray-500 px-1">
+                <MapPin size={13} className="text-purple-500 shrink-0" />
+                {noZipMatch ? (
+                  <span>No sample listings for <strong>{activeLocation.city}, {activeLocation.state}</strong> — showing all properties</span>
+                ) : (
+                  <span>Showing homes in <strong>{activeLocation.city}, {activeLocation.state}</strong> within your margins</span>
+                )}
+              </div>
+            )}
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="affordable" className="flex items-center gap-2">
                 <Home size={16} />
@@ -201,7 +259,7 @@ export default function PropertyAffordabilityWorkbench() {
               </TabsTrigger>
               <TabsTrigger value="all" className="flex items-center gap-2">
                 <MapPin size={16} />
-                All Properties ({sampleProperties.length})
+                All Properties ({locationFilteredProperties.length})
               </TabsTrigger>
             </TabsList>
 
@@ -250,7 +308,7 @@ export default function PropertyAffordabilityWorkbench() {
 
             <TabsContent value="all" className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {sampleProperties.map((property) => (
+                {locationFilteredProperties.map((property) => (
                   <PropertyCard
                     key={property.id}
                     property={property}

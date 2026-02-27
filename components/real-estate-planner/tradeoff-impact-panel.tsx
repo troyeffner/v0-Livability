@@ -2,138 +2,69 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { TrendingUp, TrendingDown, DollarSign, Home, AlertTriangle } from "lucide-react"
+import { TrendingUp, TrendingDown, DollarSign, Activity } from "lucide-react"
 import { formatCurrency } from "@/lib/real-estate-calculations"
+import type { TradeoffImpact } from "@/lib/real-estate-types"
 
 interface TradeoffImpactPanelProps {
-  currentAffordability: {
-    maxPurchasePrice: number
-    maxMonthlyPayment: number
-    remainingBudget: number
-    dtiRatio: number
-  }
-  currentFinancials: {
-    annualIncome: number
-    monthlyExpenses: number
-    fixedDebts: number
-    downPaymentSources: number
-    housingPercentage: number
-  }
+  tradeoffLog: TradeoffImpact[]
 }
 
-export default function TradeoffImpactPanel({ currentAffordability, currentFinancials }: TradeoffImpactPanelProps) {
-  // Calculate impact scenarios
-  const scenarios = [
-    {
-      title: "Increase Income by $10k",
-      icon: TrendingUp,
-      color: "text-green-600 bg-green-50",
-      changes: {
-        priceIncrease: 50000,
-        budgetIncrease: 583,
-      },
-    },
-    {
-      title: "Reduce Expenses by $500/mo",
-      icon: TrendingDown,
-      color: "text-blue-600 bg-blue-50",
-      changes: {
-        priceIncrease: 100000,
-        budgetIncrease: 500,
-      },
-    },
-    {
-      title: "Add $20k Down Payment",
-      icon: DollarSign,
-      color: "text-purple-600 bg-purple-50",
-      changes: {
-        priceIncrease: 25000,
-        budgetIncrease: 0,
-      },
-    },
-    {
-      title: "Accept Higher Payment (35%)",
-      icon: Home,
-      color: "text-orange-600 bg-orange-50",
-      changes: {
-        priceIncrease: 75000,
-        budgetIncrease: -200,
-      },
-    },
-  ]
+export default function TradeoffImpactPanel({ tradeoffLog }: TradeoffImpactPanelProps) {
+  const getIcon = (type: string) => {
+    if (type === "income") return TrendingUp
+    if (type === "expense") return TrendingDown
+    if (type === "info") return DollarSign
+    return Activity
+  }
+
+  const getImpactColor = (lppImpact: number) => {
+    if (lppImpact > 0) return "text-green-600 bg-green-50 border-green-200"
+    if (lppImpact < 0) return "text-red-600 bg-red-50 border-red-200"
+    return "text-gray-600 bg-gray-50 border-gray-200"
+  }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <AlertTriangle size={20} className="text-gray-600" />
-          Tradeoff Impact Analysis
+        <CardTitle className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+          <Activity size={16} className="text-gray-500" />
+          Tradeoff Log
         </CardTitle>
-        <p className="text-sm text-gray-600">See how different changes affect your home buying power</p>
+        <p className="text-xs text-gray-500">Recent changes and their impact on purchase price</p>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {scenarios.map((scenario, index) => {
-            const Icon = scenario.icon
-            const newPrice = currentAffordability.maxPurchasePrice + scenario.changes.priceIncrease
-            const newBudget = currentAffordability.remainingBudget + scenario.changes.budgetIncrease
-
-            return (
-              <div
-                key={index}
-                className={`p-4 rounded-lg border-2 ${scenario.color.replace("text-", "border-").replace("bg-", "border-").replace("-600", "-200").replace("-50", "-100")}`}
-              >
-                <div className="flex items-center gap-2 mb-3">
-                  <Icon size={16} className={scenario.color.split(" ")[0]} />
-                  <h3 className="font-semibold text-sm">{scenario.title}</h3>
-                </div>
-
-                <div className="space-y-2 text-xs">
-                  <div className="flex justify-between">
-                    <span>New Max Price:</span>
-                    <span className="font-semibold">{formatCurrency(newPrice)}</span>
+      <CardContent className="p-3">
+        {tradeoffLog.length === 0 ? (
+          <p className="text-xs text-gray-400 italic text-center py-4">
+            Toggle income and expense items to see how they affect your buying power.
+          </p>
+        ) : (
+          <div className="space-y-2 max-h-80 overflow-y-auto">
+            {tradeoffLog.map((entry) => {
+              const Icon = getIcon(entry.type)
+              return (
+                <div
+                  key={entry.id}
+                  className={`p-2 rounded border text-xs ${getImpactColor(entry.lppImpact)}`}
+                >
+                  <div className="flex items-start gap-1.5 mb-1">
+                    <Icon size={12} className="mt-0.5 flex-shrink-0" />
+                    <span className="font-medium leading-tight">{entry.itemLabel}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Price Increase:</span>
-                    <span
-                      className={`font-semibold ${scenario.changes.priceIncrease > 0 ? "text-green-600" : "text-red-600"}`}
-                    >
-                      {scenario.changes.priceIncrease > 0 ? "+" : ""}
-                      {formatCurrency(scenario.changes.priceIncrease)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Budget Impact:</span>
-                    <span
-                      className={`font-semibold ${scenario.changes.budgetIncrease >= 0 ? "text-green-600" : "text-red-600"}`}
-                    >
-                      {scenario.changes.budgetIncrease > 0 ? "+" : ""}
-                      {formatCurrency(scenario.changes.budgetIncrease)}/mo
+                  <div className="flex justify-between items-center mt-1">
+                    <Badge variant="outline" className="text-xs px-1 py-0">
+                      {entry.impactCategory}
+                    </Badge>
+                    <span className={`font-semibold ${entry.lppImpact >= 0 ? "text-green-700" : "text-red-700"}`}>
+                      {entry.lppImpact > 0 ? "+" : ""}
+                      {formatCurrency(entry.lppImpact)}
                     </span>
                   </div>
                 </div>
-
-                <div className="mt-3 pt-2 border-t border-gray-200">
-                  <Badge variant="outline" className="text-xs">
-                    {((scenario.changes.priceIncrease / currentAffordability.maxPurchasePrice) * 100).toFixed(0)}%
-                    increase
-                  </Badge>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-
-        {/* Summary */}
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-          <h4 className="font-semibold text-gray-900 mb-2">Key Insights</h4>
-          <div className="text-sm text-gray-700 space-y-1">
-            <p>• Reducing expenses has the biggest impact on buying power</p>
-            <p>• Income increases provide steady, long-term benefits</p>
-            <p>• Higher down payments reduce monthly costs but don't increase price range significantly</p>
-            <p>• Accepting higher payment percentages can be risky for long-term financial health</p>
+              )
+            })}
           </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   )

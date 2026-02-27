@@ -89,7 +89,7 @@ export default function PropertyCard({
             </div>
             <div className="flex items-center gap-1">
               <Square size={16} />
-              <span>{property.sqft.toLocaleString()} sqft</span>
+              <span>{property.squareFeet.toLocaleString()} sqft</span>
             </div>
           </div>
 
@@ -129,11 +129,11 @@ export default function PropertyCard({
               <span className="font-semibold">{formatCurrency(affordability.downPaymentNeeded)}</span>
             </div>
             <div className="flex justify-between">
-              <span>Remaining Budget:</span>
+              <span>Monthly Margin:</span>
               <span
-                className={`font-semibold ${affordability.remainingBudget >= 0 ? "text-green-600" : "text-red-600"}`}
+                className={`font-semibold ${affordability.monthlyMargin >= 0 ? "text-green-600" : "text-red-600"}`}
               >
-                {formatCurrency(affordability.remainingBudget)}
+                {formatCurrency(affordability.monthlyMargin)}
               </span>
             </div>
           </div>

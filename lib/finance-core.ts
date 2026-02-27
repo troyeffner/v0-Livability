@@ -17,6 +17,11 @@ export const DEFAULTS = {
   annualInsurance: 1800,
   monthlyHOA: 0,
   pmiAnnualRatePercent: 0.6, // 0.6% annual PMI default
+  // Default withholding percentages for gross income items
+  withholdingTaxPct: 25,         // federal + state taxes
+  withholding401kPct: 5,         // 401k / retirement contribution
+  withholdingHealthcarePct: 5,   // health insurance premium
+  withholdingHSAPct: 0,          // HSA contribution (off by default)
 }
 
 export function safeNumber(value: any, fallback = 0): number {

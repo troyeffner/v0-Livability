@@ -1,4 +1,6 @@
 // Core real estate calculation functions
+import type { FinancialItem } from "./real-estate-types"
+import { DEFAULTS } from "./finance-core"
 export interface MortgageCalculation {
   monthlyPayment: number
   totalInterest: number
@@ -203,19 +205,82 @@ export function formatPercentage(decimal: number): string {
 
 // Calculate gross annual income from active financial items
 export function calculateGrossAnnualIncome(
-  items: Array<{ amount: number; active: boolean; frequency?: string }>
+  items: Array<{ amount?: number; active: boolean; frequency?: string }>
 ): number {
   return items
     .filter((item) => item.active)
     .reduce((sum, item) => {
-      if (item.frequency === "monthly") return sum + item.amount * 12
-      return sum + item.amount // annual by default
+      const amount = item.amount ?? 0
+      if (item.frequency === "monthly") return sum + amount * 12
+      return sum + amount // annual by default
     }, 0)
 }
 
-// Calculate estimated annual take-home income (after taxes)
-export function calculateEstimatedAnnualTakeHomeIncome(grossAnnualIncome: number): number {
-  return safeNumber(grossAnnualIncome) * 0.7
+// Calculate estimated annual take-home income broken down by withholding category
+export function calculateEstimatedAnnualTakeHomeIncome(grossAnnualIncome: number): {
+  annualTakeHome: number
+  taxes: number
+  healthcare: number
+  retirement: number
+} {
+  const gross = safeNumber(grossAnnualIncome)
+  const taxes = Math.round(gross * 0.25)
+  const healthcare = Math.round(gross * 0.05)
+  const retirement = Math.round(gross * 0.05)
+  const annualTakeHome = gross - taxes - healthcare - retirement
+  return { annualTakeHome, taxes, healthcare, retirement }
+}
+
+// Calculate per-item take-home income — respects each item's incomeEntry (gross/net)
+// and individual withholding percentages, falling back to DEFAULTS for gross items.
+// Net items are passed through as-is. Used by the Real Estate Planner.
+export function calculateTakeHomeFromIncomeItems(incomeItems: FinancialItem[]): {
+  annualTakeHome: number
+  taxes: number
+  retirement: number
+  healthcare: number
+  hsa: number
+  other: number
+} {
+  let annualTakeHome = 0
+  let taxes = 0
+  let retirement = 0
+  let healthcare = 0
+  let hsa = 0
+  let other = 0
+
+  for (const item of incomeItems) {
+    if (!item.active) continue
+    const annualGross =
+      item.frequency === "monthly" ? (item.amount ?? 0) * 12 : (item.amount ?? 0)
+
+    if (item.incomeEntry === "net") {
+      // Net income — already take-home, no withholding applied
+      annualTakeHome += annualGross
+    } else {
+      // Gross income — apply per-item rates or fall back to DEFAULTS
+      const taxPct    = item.withholdingTaxPct        ?? DEFAULTS.withholdingTaxPct
+      const ret401Pct = item.withholding401kPct        ?? DEFAULTS.withholding401kPct
+      const hcPct     = item.withholdingHealthcarePct  ?? DEFAULTS.withholdingHealthcarePct
+      const hsaPct    = item.withholdingHSAPct         ?? DEFAULTS.withholdingHSAPct
+      const otherPct  = item.withholdingOtherPct       ?? 0
+
+      const itemTaxes = Math.round(annualGross * taxPct / 100)
+      const itemRet   = Math.round(annualGross * ret401Pct / 100)
+      const itemHC    = Math.round(annualGross * hcPct / 100)
+      const itemHSA   = Math.round(annualGross * hsaPct / 100)
+      const itemOther = Math.round(annualGross * otherPct / 100)
+
+      annualTakeHome += annualGross - itemTaxes - itemRet - itemHC - itemHSA - itemOther
+      taxes     += itemTaxes
+      retirement += itemRet
+      healthcare += itemHC
+      hsa       += itemHSA
+      other     += itemOther
+    }
+  }
+
+  return { annualTakeHome, taxes, retirement, healthcare, hsa, other }
 }
 
 // Calculate affordability analysis from user inputs
@@ -240,4 +305,151 @@ export function calculateAffordability(input: {
     input.housingPercentage / 100,
     0.43,
   )
+}
+
+// Monthly P&I payment for a given loan amount
+export function calculateMonthlyMortgagePaymentForPrice(
+  loanAmount: number,
+  interestRate: number,
+  termYears: number,
+): number {
+  const principal = safeNumber(loanAmount)
+  const monthlyRate = safeNumber(interestRate) / 12
+  const payments = safeNumber(termYears) * 12
+  if (principal <= 0 || payments <= 0) return 0
+  if (monthlyRate === 0) return principal / payments
+  return (principal * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -payments))
+}
+
+// Estimated transaction costs (closing costs + fees) for a purchase
+export function calculateTransactionCosts(purchasePrice: number): number {
+  // ~3% of purchase price covers closing costs, inspection, title, etc.
+  return Math.round(safeNumber(purchasePrice) * 0.03)
+}
+
+// Bank qualification purchase price (DTI method, 43% of gross income)
+export function calculateGrossPurchasePrice(
+  grossAnnualIncome: number,
+  fixedDebtsMonthly: number,
+  interestRate: number,
+  termYears: number,
+  propertyTaxRate: number,
+  homeownersInsuranceAnnual: number,
+): {
+  grossPurchasePrice: number
+  maxLoanAmount: number
+  requiredDownPayment: number
+} {
+  const grossMonthlyIncome = safeNumber(grossAnnualIncome) / 12
+  const maxMonthlyHousing = grossMonthlyIncome * 0.43 - safeNumber(fixedDebtsMonthly)
+
+  if (maxMonthlyHousing <= 0) {
+    return { grossPurchasePrice: 0, maxLoanAmount: 0, requiredDownPayment: 0 }
+  }
+
+  // Binary search for max purchase price
+  let lo = 0
+  let hi = 5000000
+  for (let i = 0; i < 50; i++) {
+    const mid = (lo + hi) / 2
+    const downPayment = mid * 0.2
+    const loanAmount = mid - downPayment
+    const pi = calculateMonthlyMortgagePaymentForPrice(loanAmount, interestRate, termYears)
+    const tax = (mid * safeNumber(propertyTaxRate)) / 12
+    const insurance = safeNumber(homeownersInsuranceAnnual) / 12
+    const totalPITI = pi + tax + insurance
+    if (totalPITI < maxMonthlyHousing) {
+      lo = mid
+    } else {
+      hi = mid
+    }
+    if (hi - lo < 100) break
+  }
+
+  const grossPurchasePrice = Math.round(lo)
+  const requiredDownPayment = Math.round(grossPurchasePrice * 0.2)
+  const maxLoanAmount = grossPurchasePrice - requiredDownPayment
+
+  return { grossPurchasePrice, maxLoanAmount, requiredDownPayment }
+}
+
+// Livability purchase price (based on take-home income and actual lifestyle budget)
+export function calculateLivabilityPurchasePrice(
+  monthlyTakeHomeIncome: number,
+  futureIncomeMonthly: number,
+  futureExpensesMonthly: number,
+  fixedDebtsMonthly: number,
+  lifestyleExpensesMonthly: number,
+  interestRate: number,
+  termYears: number,
+  availableDownPayment: number,
+  downPaymentPercentage: number,
+  propertyTaxRate: number,
+  homeownersInsuranceAnnual: number,
+  livabilityIncomePercentage: number,
+): {
+  livabilityPurchasePrice: number
+  maxLoanAmount: number
+  adjustedTakeHome: number
+  effectiveDownPaymentPercentage: number
+  excessDownPayment: number
+  excessApplication: string
+} {
+  const adjustedTakeHome =
+    safeNumber(monthlyTakeHomeIncome) + safeNumber(futureIncomeMonthly) - safeNumber(futureExpensesMonthly)
+
+  const maxMonthlyForHousing = adjustedTakeHome * safeNumber(livabilityIncomePercentage)
+
+  if (maxMonthlyForHousing <= 0 || adjustedTakeHome <= 0) {
+    return {
+      livabilityPurchasePrice: 0,
+      maxLoanAmount: 0,
+      adjustedTakeHome,
+      effectiveDownPaymentPercentage: safeNumber(downPaymentPercentage),
+      excessDownPayment: 0,
+      excessApplication: "None",
+    }
+  }
+
+  const downPct = safeNumber(downPaymentPercentage) / 100
+  const available = safeNumber(availableDownPayment)
+
+  // Binary search for purchase price where PITI ≈ maxMonthlyForHousing
+  let lo = 0
+  let hi = 5000000
+  for (let i = 0; i < 60; i++) {
+    const mid = (lo + hi) / 2
+    const requiredDown = mid * downPct
+    const actualDown = Math.min(available, requiredDown)
+    const loanAmount = mid - actualDown
+    const pi = calculateMonthlyMortgagePaymentForPrice(loanAmount, interestRate, termYears)
+    const tax = (mid * safeNumber(propertyTaxRate)) / 12
+    const insurance = safeNumber(homeownersInsuranceAnnual) / 12
+    const totalPITI = pi + tax + insurance
+    if (totalPITI < maxMonthlyForHousing) {
+      lo = mid
+    } else {
+      hi = mid
+    }
+    if (hi - lo < 100) break
+  }
+
+  const livabilityPurchasePrice = Math.round(lo)
+  const requiredDown = livabilityPurchasePrice * downPct
+  const actualDown = Math.min(available, requiredDown)
+  const excessDownPayment = Math.max(0, Math.round(available - requiredDown))
+  const maxLoanAmount = Math.max(0, livabilityPurchasePrice - actualDown)
+  const effectiveDownPaymentPercentage =
+    livabilityPurchasePrice > 0 ? (actualDown / livabilityPurchasePrice) * 100 : safeNumber(downPaymentPercentage)
+
+  const excessApplication = excessDownPayment > 0 ? "Reduces Loan" : "None"
+
+  return {
+    livabilityPurchasePrice,
+    maxLoanAmount,
+    adjustedTakeHome,
+    effectiveDownPaymentPercentage,
+    excessDownPayment,
+    excessApplication,
+  }
 }

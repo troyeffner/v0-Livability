@@ -111,7 +111,7 @@ export default function OptimizedRealEstatePlannerPage() {
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [editingItem, setEditingItem] = useState<Item | null>(null)
+  const [editingItem, setEditingItem] = useState<FinancialItem | null>(null)
   const [editingItemPath, setEditingItemPath] = useState<{
     panel: "personal" | "future" | "mortgage"
     categoryIndex: number
@@ -139,7 +139,7 @@ export default function OptimizedRealEstatePlannerPage() {
     futureIncomeMonthly,
     futureExpensesMonthly,
     selectedMortgageOptions,
-  } = useMemoizedCalculations(personalFinances, mortgageApplication, futureHome)
+  } = useMemoizedCalculations(personalFinances, futureHome, mortgageApplication)
 
   // Memoize complex calculations
   const purchasePriceCalculations = useMemo(() => {
@@ -249,12 +249,12 @@ export default function OptimizedRealEstatePlannerPage() {
         if (item.id.includes("downpayment-sources") || item.id.includes("dps-")) {
           message = `${item.label}: ${item.active ? "+" : "-"}$${Math.abs(item.amount || 0).toLocaleString()} → ${lppDiff > 0 ? "Increase" : "Decrease"} Livability Purchase Price by $${Math.abs(lppDiff).toLocaleString()}`
           impactCategory = "One-Time Cost"
-        } else if ((item as any).itemType === "income" && item.active) {
-          const incomeIncrease = (item as any).frequency === "annual" ? item.amount || 0 : (item.amount || 0) * 12
+        } else if (item.itemType === "income" && item.active) {
+          const incomeIncrease = item.frequency === "annual" ? item.amount || 0 : (item.amount || 0) * 12
           message = `💰 ${item.label}: +$${incomeIncrease.toLocaleString()}/year → Purchase price increased by $${Math.abs(lppDiff).toLocaleString()}`
-        } else if ((item as any).itemType === "expense" && item.active) {
+        } else if (item.itemType === "expense" && item.active) {
           const monthlyExpenseIncrease =
-            (item as any).frequency === "monthly" ? item.amount || 0 : (item.amount || 0) / 12
+            item.frequency === "monthly" ? item.amount || 0 : (item.amount || 0) / 12
           message = `💸 ${item.label}: +$${Math.round(monthlyExpenseIncrease).toLocaleString()}/month expenses → Purchase price reduced by $${Math.abs(lppDiff).toLocaleString()}`
         }
 
@@ -267,7 +267,7 @@ export default function OptimizedRealEstatePlannerPage() {
                 itemLabel: item.label || "",
                 gppImpact: gppDiff,
                 lppImpact: lppDiff,
-                type: (item as any).itemType || "info",
+                type: item.itemType || "info",
                 impactCategory,
               },
               ...prev,
@@ -320,7 +320,7 @@ export default function OptimizedRealEstatePlannerPage() {
       try {
         let toggledItem: Item | null = null
 
-        const findAndToggle = (items: any[]) =>
+        const findAndToggle = <T extends { id: string; items: Item[] }>(items: T[]) =>
           items.map((cat) => {
             if (cat.id === categoryId) {
               return {
@@ -394,7 +394,7 @@ export default function OptimizedRealEstatePlannerPage() {
         }
 
         // Handle regular editing for other items
-        let itemToEdit: Item | null = null
+        let itemToEdit: FinancialItem | null = null
         let catIndex = -1
         let itmIndex = -1
 
@@ -418,7 +418,7 @@ export default function OptimizedRealEstatePlannerPage() {
           catIndex = mortgageApplication.findIndex((c) => c.id === categoryId)
           if (catIndex !== -1) {
             itmIndex = mortgageApplication[catIndex].items.findIndex((i) => i.id === itemId)
-            if (itmIndex !== -1) itemToEdit = mortgageApplication[catIndex].items[itmIndex]
+            if (itmIndex !== -1) itemToEdit = mortgageApplication[catIndex].items[itmIndex] as FinancialItem
           }
           if (itemToEdit)
             setEditingItemPath({ panel: "mortgage", categoryIndex: catIndex, itemIndex: itmIndex, categoryId })
@@ -450,7 +450,7 @@ export default function OptimizedRealEstatePlannerPage() {
           if (catIndex !== -1) setEditingItemPath({ panel, categoryIndex: catIndex, categoryId })
         }
 
-        let category: any
+        let category: { id: string; items: Item[] } | undefined
         if (panel === "personal") {
           category = personalFinances[catIndex]
         } else if (panel === "future") {
@@ -552,8 +552,10 @@ export default function OptimizedRealEstatePlannerPage() {
         if (!editingItemPath || !editingItem) return
         const { panel, categoryIndex, itemIndex } = editingItemPath
 
-        const updateState = (setState: Function) => {
-          setState((prev: any[]) =>
+        const updateCategoryItems = <T extends { id: string; items: Item[] }>(
+          setState: React.Dispatch<React.SetStateAction<T[]>>,
+        ) => {
+          setState((prev) =>
             prev.map((cat, cIdx) => {
               if (cIdx === categoryIndex) {
                 if (itemIndex === undefined) {
@@ -561,20 +563,20 @@ export default function OptimizedRealEstatePlannerPage() {
                 }
                 return {
                   ...cat,
-                  items: cat.items.map((item: Item, iIdx: number) => (iIdx === itemIndex ? updatedItem : item)),
+                  items: cat.items.map((item, iIdx) => (iIdx === itemIndex ? updatedItem : item)),
                 }
               }
               return cat
-            }),
+            }) as T[],
           )
         }
 
         if (panel === "personal") {
-          updateState(setPersonalFinances)
+          updateCategoryItems(setPersonalFinances)
         } else if (panel === "future") {
-          updateState(setFutureHome)
+          updateCategoryItems(setFutureHome)
         } else if (panel === "mortgage") {
-          updateState(setMortgageApplication)
+          updateCategoryItems(setMortgageApplication)
         }
 
         setLastAction({ item: updatedItem, type: "edit" })
@@ -594,26 +596,28 @@ export default function OptimizedRealEstatePlannerPage() {
         if (!editingItemPath) return
         const { panel, categoryIndex, itemIndex } = editingItemPath
 
-        const updateState = (setState: Function) => {
-          setState((prev: any[]) =>
+        const removeItemFromCategory = <T extends { id: string; items: Item[] }>(
+          setState: React.Dispatch<React.SetStateAction<T[]>>,
+        ) => {
+          setState((prev) =>
             prev.map((cat, cIdx) => {
               if (cIdx === categoryIndex) {
                 return {
                   ...cat,
-                  items: cat.items.filter((item: Item, iIdx: number) => iIdx !== itemIndex),
+                  items: cat.items.filter((_item, iIdx) => iIdx !== itemIndex),
                 }
               }
               return cat
-            }),
+            }) as T[],
           )
         }
 
         if (panel === "personal") {
-          updateState(setPersonalFinances)
+          removeItemFromCategory(setPersonalFinances)
         } else if (panel === "future") {
-          updateState(setFutureHome)
+          removeItemFromCategory(setFutureHome)
         } else if (panel === "mortgage") {
-          updateState(setMortgageApplication)
+          removeItemFromCategory(setMortgageApplication)
         }
 
         setLastAction({ item: itemToDelete, type: "edit" })

@@ -94,7 +94,7 @@ export default function PropertyComparison({
                     </div>
                     <div className="flex items-center gap-1">
                       <Square size={14} />
-                      <span>{property.sqft.toLocaleString()} sqft</span>
+                      <span>{property.squareFeet.toLocaleString()} sqft</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Calendar size={14} />
@@ -128,11 +128,11 @@ export default function PropertyComparison({
                       <span className="font-semibold">{affordability.dtiRatio.toFixed(1)}%</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Remaining Budget:</span>
+                      <span>Monthly Margin:</span>
                       <span
-                        className={`font-semibold ${affordability.remainingBudget >= 0 ? "text-green-600" : "text-red-600"}`}
+                        className={`font-semibold ${affordability.monthlyMargin >= 0 ? "text-green-600" : "text-red-600"}`}
                       >
-                        {formatCurrency(affordability.remainingBudget)}
+                        {formatCurrency(affordability.monthlyMargin)}
                       </span>
                     </div>
                   </div>

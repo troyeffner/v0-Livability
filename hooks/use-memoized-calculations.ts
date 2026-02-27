@@ -1,9 +1,15 @@
 "use client"
 
 import { useMemo } from "react"
-import { calculateGrossAnnualIncome, calculateEstimatedAnnualTakeHomeIncome } from "@/lib/real-estate-calculations"
+import { calculateGrossAnnualIncome, calculateTakeHomeFromIncomeItems } from "@/lib/real-estate-calculations"
+import type { ItemCategory, FinancialItem, FutureItem, MortgageOptionGroup } from "@/lib/real-estate-types"
+import { DEFAULTS } from "@/lib/finance-core"
 
-export function useMemoizedCalculations(personalFinances: any[], futureHome: any[], mortgageApplication: any[]) {
+export function useMemoizedCalculations(
+  personalFinances: ItemCategory<FinancialItem>[],
+  futureHome: ItemCategory<FutureItem>[],
+  mortgageApplication: MortgageOptionGroup[],
+) {
   // Memoize active items to prevent recalculation
   const activePersonalFinanceItems = useMemo(() => {
     try {
@@ -24,14 +30,22 @@ export function useMemoizedCalculations(personalFinances: any[], futureHome: any
   }, [futureHome])
 
   // Memoize income calculations
+  // grossAnnualIncome — sums all active income items (used for bank DTI qualification, which uses gross)
   const grossAnnualIncome = useMemo(
-    () => calculateGrossAnnualIncome(activePersonalFinanceItems),
+    () => calculateGrossAnnualIncome(activePersonalFinanceItems.filter((item) => item.itemType === "income")),
     [activePersonalFinanceItems],
   )
 
-  const { annualTakeHome, taxes, healthcare, retirement } = useMemo(
-    () => calculateEstimatedAnnualTakeHomeIncome(grossAnnualIncome),
-    [grossAnnualIncome],
+  // activeIncomeItems — only income-type items, passed to per-item take-home calculation
+  const activeIncomeItems = useMemo(
+    () => activePersonalFinanceItems.filter((item) => item.itemType === "income"),
+    [activePersonalFinanceItems],
+  )
+
+  // Per-item take-home respects each item's gross/net setting and withholding percentages
+  const { annualTakeHome, taxes, healthcare, retirement, hsa, other } = useMemo(
+    () => calculateTakeHomeFromIncomeItems(activeIncomeItems),
+    [activeIncomeItems],
   )
 
   const monthlyTakeHomeIncome = useMemo(() => Math.max(0, Math.round(annualTakeHome / 12)), [annualTakeHome])
@@ -140,8 +154,8 @@ export function useMemoizedCalculations(personalFinances: any[], futureHome: any
           5,
           Math.min(50, typeof options["downpayment-percentage"] === "number" ? options["downpayment-percentage"] : 20),
         ),
-        propertyTaxRate: 0.0125,
-        homeownersInsuranceAnnual: 1200,
+        propertyTaxRate: DEFAULTS.propertyTaxRatePercent / 100,
+        homeownersInsuranceAnnual: DEFAULTS.annualInsurance,
       }
     } catch (error) {
       console.error("Error calculating selected mortgage options:", error)
@@ -151,8 +165,8 @@ export function useMemoizedCalculations(personalFinances: any[], futureHome: any
         termLength: 30,
         availableDownPayment: 0,
         downPaymentPercentage: 20,
-        propertyTaxRate: 0.0125,
-        homeownersInsuranceAnnual: 1200,
+        propertyTaxRate: DEFAULTS.propertyTaxRatePercent / 100,
+        homeownersInsuranceAnnual: DEFAULTS.annualInsurance,
       }
     }
   }, [mortgageApplication, personalFinances])
@@ -165,6 +179,8 @@ export function useMemoizedCalculations(personalFinances: any[], futureHome: any
     taxes,
     healthcare,
     retirement,
+    hsa,
+    other,
     monthlyTakeHomeIncome,
     ...expenseCalculations,
     selectedMortgageOptions,
