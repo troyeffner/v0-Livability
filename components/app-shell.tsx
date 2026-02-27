@@ -12,7 +12,7 @@ interface NavItem {
 
 const NAV: NavItem[] = [
   { label: 'Mortgage & Move',    href: '/' },
-  { label: 'Decision Rehearsal', href: '/navigating-a-change-rehearsal.v9.html', external: true },
+  { label: 'Decision Rehearsal', href: '/decision-rehearsal' },
   { label: 'Home Sale',          href: '/home-sale',      soon: true },
   { label: 'Ongoing Budget',     href: '/ongoing-budget', soon: true },
 ]
