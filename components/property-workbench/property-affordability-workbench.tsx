@@ -1,10 +1,9 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { MapPin, TrendingUp, Home, Target, Compass } from "lucide-react"
+import { MapPin, TrendingUp, Home, Target } from "lucide-react"
 import { sampleProperties, defaultUserProfile } from "@/lib/property-data"
 import { calculatePropertyAffordability } from "@/lib/affordability-calculations"
 import type { UserProfile, PropertyAffordability, Scenario } from "@/lib/property-types"
@@ -187,20 +186,10 @@ export default function PropertyAffordabilityWorkbench() {
         <div className="bg-card rounded-xl shadow-sm border p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Property Affordability Workbench</h1>
-              <p className="text-muted-foreground">Find and compare homes that fit your budget and lifestyle</p>
+              <h1 className="text-2xl font-bold text-foreground">Mortgage & Move Planner</h1>
+              <p className="text-muted-foreground">Explore affordability and tradeoffs. This is directional, not financial advice.</p>
             </div>
             <div className="flex items-center gap-3">
-              <Link
-                href="/navigating-a-change-rehearsal.v9.html"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Button variant="outline" className="flex items-center gap-2 border-primary text-primary hover:bg-primary/10">
-                  <Compass size={16} />
-                  Decision Rehearsal
-                </Button>
-              </Link>
               <Button
                 variant={viewMode === "comparison" ? "default" : "outline"}
                 onClick={() => setViewMode(viewMode === "grid" ? "comparison" : "grid")}

@@ -1,14 +1,15 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import AppShell from '@/components/app-shell'
 import './globals.css'
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Mortgage & Move Planner',
-  description: 'Plan your home purchase with confidence using real-time affordability calculations',
+  title: 'Livability',
+  description: 'A housing decision toolkit — affordability, transitions, and ongoing cashflow.',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -37,7 +38,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="font-sans antialiased">
-        {children}
+        <AppShell>{children}</AppShell>
         <Analytics />
       </body>
     </html>

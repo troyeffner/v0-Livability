@@ -1,30 +1,36 @@
-# Fork of Design By Model
+# Livability
 
-*Automatically synced with your [v0.app](https://v0.app) deployments*
+A housing decision toolkit: Mortgage & Move Planner, Decision Rehearsal, Home Sale, and Ongoing Budget.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/troys-projects-80c4684e/v0-expense-chagnes-budget)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.app-black?style=for-the-badge)](https://v0.app/chat/1xVdZwDPXiP)
+Live: **[https://troyeffner.github.io/v0-Livability/](https://troyeffner.github.io/v0-Livability/)**
 
-## Overview
+## Local development
 
-This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
+**Install dependencies:**
+```
+pnpm install
+```
 
-## Deployment
+**Dev server** (hot reload, no basePath — fastest for development):
+```
+pnpm dev
+```
+Open [http://localhost:3000](http://localhost:3000)
 
-Your project is live at:
+**Static preview** (matches production output exactly):
+```
+pnpm build && npx serve out -p 3010
+```
+Open [http://localhost:3010](http://localhost:3010)
 
-**[https://vercel.com/troys-projects-80c4684e/v0-expense-chagnes-budget](https://vercel.com/troys-projects-80c4684e/v0-expense-chagnes-budget)**
+Note: `pnpm build` produces `./out` (static export). The dev server does not use `./out`.
 
-## Build your app
+## How basePath works
 
-Continue building your app on:
+- **Locally** (`pnpm dev` or `pnpm build`): `GITHUB_ACTIONS` is not set, so `basePath` is empty. Assets resolve at the root.
+- **GitHub Actions CI**: `GITHUB_ACTIONS=true` is set automatically, so `basePath: '/v0-Livability'` is applied and assets resolve correctly on GitHub Pages.
+- The `configure-pages@v5` action validates the static export. Do not remove `output: 'export'` from `next.config.mjs`.
 
-**[https://v0.app/chat/1xVdZwDPXiP](https://v0.app/chat/1xVdZwDPXiP)**
+## Deploy
 
-## How It Works
-
-1. Create and modify your project using [v0.app](https://v0.app)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+Push to `main` — GitHub Actions builds and deploys to GitHub Pages automatically.
