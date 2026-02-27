@@ -97,6 +97,10 @@ const [homeBaths, setHomeBaths] = useState<number | undefined>()
 const [homeSqft, setHomeSqft] = useState<number | undefined>()
 const [homeNotes, setHomeNotes] = useState("")
 
+// Tax rate override state (UI only — not wired to calculations yet)
+const [useCustomTaxRate, setUseCustomTaxRate] = useState(false)
+const [customTaxRateInput, setCustomTaxRateInput] = useState("")
+
 // Expense ideas modal state
 const [isExpenseIdeasOpen, setIsExpenseIdeasOpen] = useState(false)
 
@@ -498,6 +502,11 @@ const zipInfo = zipCode.length === 5 ? ZIP_TAX_RATES[zipCode] : undefined
 const activePropertyTaxRate = zipInfo
   ? zipInfo.propertyTaxRate + zipInfo.schoolTaxRate
   : 0.0181
+
+// UI-only confidence signal for the tax rate row in Location costs
+type TaxConfidence = 'high' | 'missing'
+const taxConfidence: TaxConfidence | null =
+  zipCode.length === 5 ? (zipInfo ? 'high' : 'missing') : null
 
 // Notify parent whenever location changes
 useEffect(() => {
@@ -1406,13 +1415,23 @@ const modalEstimatedTakeHome = (() => {
   return Math.round((annualAmount * (1 - modalTotalWithholdingPct / 100)) / 12)
 })()
 
+// Sustainability + Location costs open/close together
+const handleSustainabilityToggle = (open: boolean) => {
+  setIsSustainabilityOpen(open)
+  setIsLocationOpen(open)
+}
+const handleLocationToggle = (open: boolean) => {
+  setIsLocationOpen(open)
+  setIsSustainabilityOpen(open)
+}
+
 return (
   <div className={`space-y-6 ${className}`}>
     {/* Scenario Builder - Collapsible */}
     <Card className="border-2 border-border">
       <Collapsible open={isScenarioBuilderOpen} onOpenChange={setIsScenarioBuilderOpen}>
         <CollapsibleTrigger asChild>
-          <CardHeader className="cursor-pointer hover:bg-muted transition-colors">
+          <CardHeader className="cursor-pointer">
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <TrendingUp size={20} className="text-primary" />
@@ -1951,9 +1970,9 @@ return (
 
     {/* Sustainability */}
     <Card className="border-2 border-primary/25">
-      <Collapsible open={isSustainabilityOpen} onOpenChange={setIsSustainabilityOpen}>
+      <Collapsible open={isSustainabilityOpen} onOpenChange={handleSustainabilityToggle}>
         <CollapsibleTrigger asChild>
-          <CardHeader className="pb-3 cursor-pointer hover:bg-primary/8/50 transition-colors">
+          <CardHeader className="pb-3 cursor-pointer">
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <DollarSign size={20} className="text-primary" />
@@ -1975,6 +1994,12 @@ return (
                 {isSustainabilityOpen ? <ChevronUp size={16} className="text-muted-foreground/70" /> : <ChevronDown size={16} className="text-muted-foreground/70" />}
               </div>
             </CardTitle>
+            {!isSustainabilityOpen && (
+              <p className="mt-1 text-xs text-muted-foreground font-normal leading-snug">
+                How durable this plan is.<br />
+                See how income, payment, taxes, and upfront costs interact over time.
+              </p>
+            )}
           </CardHeader>
         </CollapsibleTrigger>
         <CollapsibleContent>
@@ -2143,9 +2168,9 @@ return (
 
     {/* Location Panel */}
     <Card className="border-2 border-primary/25">
-      <Collapsible open={isLocationOpen} onOpenChange={setIsLocationOpen}>
+      <Collapsible open={isLocationOpen} onOpenChange={handleLocationToggle}>
         <CollapsibleTrigger asChild>
-          <CardHeader className="pb-3 cursor-pointer hover:bg-primary/8/50 transition-colors">
+          <CardHeader className="pb-3 cursor-pointer">
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <MapPin size={20} className="text-primary" />
@@ -2167,6 +2192,12 @@ return (
                 {isLocationOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </div>
             </CardTitle>
+            {!isLocationOpen && (
+              <p className="mt-1 text-xs text-muted-foreground font-normal leading-snug">
+                How the place reshapes the math.<br />
+                Property taxes, insurance, and local context can quietly change your real monthly picture.
+              </p>
+            )}
           </CardHeader>
         </CollapsibleTrigger>
         <CollapsibleContent>
@@ -2217,6 +2248,62 @@ return (
                     </p>
                   )}
                 </div>
+
+                {/* Tax rate confidence + override — shown once a 5-digit ZIP is entered */}
+                {taxConfidence && (
+                  <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
+                    {/* Status label */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-foreground">Tax rate</span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                        taxConfidence === 'high'
+                          ? 'bg-primary/10 text-primary'
+                          : 'bg-muted text-muted-foreground border border-border'
+                      }`}>
+                        {taxConfidence === 'high' ? 'High confidence (county)' : 'Missing'}
+                      </span>
+                    </div>
+
+                    {/* Missing state notice */}
+                    {taxConfidence === 'missing' && (
+                      <p className="text-sm text-muted-foreground leading-snug">
+                        Location cost data isn&apos;t available for this ZIP yet.<br />
+                        You can continue. If you have a tax rate estimate, enter it below.
+                      </p>
+                    )}
+
+                    {/* Override toggle */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">
+                        {(useCustomTaxRate || taxConfidence === 'missing') ? 'Using your entered rate' : 'Use estimate / Enter my own'}
+                      </span>
+                      <Switch
+                        checked={useCustomTaxRate || taxConfidence === 'missing'}
+                        onCheckedChange={taxConfidence === 'missing' ? undefined : setUseCustomTaxRate}
+                        disabled={taxConfidence === 'missing'}
+                        aria-label="Override tax rate"
+                      />
+                    </div>
+
+                    {/* Manual input — auto-shown when missing, toggled when high */}
+                    {(useCustomTaxRate || taxConfidence === 'missing') && (
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="number"
+                          min={0}
+                          max={10}
+                          step={0.01}
+                          value={customTaxRateInput}
+                          onChange={(e) => setCustomTaxRateInput(e.target.value)}
+                          placeholder="e.g. 1.80"
+                          className="h-8 text-sm w-28"
+                        />
+                        <span className="text-sm text-muted-foreground">% effective rate</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <div className="rounded-lg bg-primary/8 border border-purple-100 p-4">
                   <p className="text-sm font-medium text-primary mb-2">What ZIP code unlocks</p>
                   <ul className="space-y-1 text-xs text-primary list-disc list-inside">
@@ -2310,7 +2397,7 @@ return (
             <div className="bg-white border border-border rounded-lg">
               <Collapsible defaultOpen={false}>
                 <CollapsibleTrigger asChild>
-                  <div className="p-4 cursor-pointer hover:bg-muted transition-colors">
+                  <div className="p-4 cursor-pointer">
                     <div className="flex items-center justify-between">
                       <h3 className="text-base font-semibold text-foreground">One Time Upfront Costs</h3>
                       <div className="flex items-center gap-3">
@@ -2406,7 +2493,7 @@ return (
     <Card className="border-2 border-green-200">
       <Collapsible open={isLivabilityOpen} onOpenChange={setIsLivabilityOpen}>
         <CollapsibleTrigger asChild>
-          <CardHeader className="pb-3 cursor-pointer hover:bg-green-50/50 transition-colors">
+          <CardHeader className="pb-3 cursor-pointer">
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <Home size={20} className="text-green-600" />
