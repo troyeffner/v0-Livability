@@ -1,0 +1,40 @@
+{
+  "project": "LIVABILITY",
+  "updated_at": "2026-03-01T07:30:00Z",
+  "mode": "plan",
+  "health": "green",
+  "quarter": "2026-Q1",
+  "goals": [
+    {
+      "id": "g1",
+      "name": "Define and validate 0->1 concept",
+      "status": "in_progress",
+      "progress": 0.2
+    },
+    {
+      "id": "g2",
+      "name": "Instrument concept testing loop",
+      "status": "planned",
+      "progress": 0.0
+    }
+  ],
+  "blockers": [],
+  "next_actions": [
+    {
+      "id": "wq_501",
+      "title": "Audit current product goals vs QB plan model",
+      "priority": "high"
+    },
+    {
+      "id": "wq_502",
+      "title": "Create first repo-specific dispatch pack",
+      "priority": "med"
+    },
+    {
+      "id": "wq_503",
+      "title": "Establish release quality checklist",
+      "priority": "med"
+    }
+  ],
+  "marketing_surface_enabled": false
+}

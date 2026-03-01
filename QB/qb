@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+CMD="${1:-}"
+
+case "$CMD" in
+  check)
+    "$ROOT/QB/scripts/qb_check.sh"
+    ;;
+  plan)
+    "$ROOT/QB/scripts/qb_plan.sh"
+    ;;
+  report)
+    "$ROOT/QB/scripts/qb_report.sh"
+    ;;
+  sync)
+    "$ROOT/QB/scripts/qb_sync.sh"
+    ;;
+  *)
+    echo "Usage: ./QB/qb {check|plan|report|sync}"
+    exit 1
+    ;;
+esac

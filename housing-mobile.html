@@ -1,0 +1,983 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Housing Decision Mobile — Interactive Systems Diagram</title>
+  <style>
+    :root{
+      --bg:#0b0d12;
+      --panel:#121724;
+      --panel2:#0f1420;
+      --text:#e8ecf6;
+      --muted:#aab3c8;
+      --line:#2a3550;
+      --accent:#7aa2ff;
+      --good:#49d17a;
+      --warn:#ffcc66;
+      --bad:#ff6b6b;
+      --chip:#1a2133;
+      --shadow: 0 12px 30px rgba(0,0,0,.35);
+      --radius: 16px;
+    }
+
+    *{ box-sizing: border-box; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 20% -10%, #1a2450 0%, rgba(26,36,80,0) 55%) ,
+                  radial-gradient(1000px 700px at 100% 0%, #2a1450 0%, rgba(42,20,80,0) 52%) ,
+                  var(--bg);
+      color: var(--text);
+    }
+
+    header{
+      padding: 20px 18px 6px 18px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    header h1{
+      margin:0 0 6px 0;
+      font-size: 20px;
+      letter-spacing: .2px;
+      font-weight: 720;
+    }
+    header p{
+      margin: 0 0 12px 0;
+      color: var(--muted);
+      line-height: 1.4;
+      max-width: 900px;
+      font-size: 13.5px;
+    }
+
+    .layout{
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 14px;
+      padding: 12px 18px 20px 18px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 980px){
+      .layout{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.04) 0%, rgba(255,255,255,.02) 100%);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .controls{
+      padding: 14px;
+    }
+    .section-title{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap:10px;
+      margin: 4px 0 10px 0;
+    }
+    .section-title h2{
+      margin:0;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing:.15px;
+    }
+    .pill{
+      background: rgba(122,162,255,.12);
+      border: 1px solid rgba(122,162,255,.22);
+      color: #cfe0ff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .row{
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 14px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .row-top{
+      display:flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+    .label{
+      font-weight: 650;
+      font-size: 13px;
+    }
+    .value{
+      font-variant-numeric: tabular-nums;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    input[type="range"]{
+      width: 100%;
+      accent-color: var(--accent);
+    }
+    .hint{
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .toggle{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap:10px;
+      padding: 10px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 14px;
+    }
+    .toggle label{
+      font-size: 12.5px;
+      color: var(--text);
+      font-weight: 650;
+    }
+    .toggle small{
+      display:block;
+      color: var(--muted);
+      font-weight: 500;
+      margin-top: 2px;
+      line-height: 1.25;
+    }
+
+    .switch{
+      position: relative;
+      width: 44px; height: 26px;
+    }
+    .switch input{ display:none; }
+    .slider{
+      position:absolute; inset:0;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 999px;
+      cursor:pointer;
+      transition: .18s ease;
+    }
+    .slider::after{
+      content:"";
+      position:absolute;
+      width: 20px; height: 20px;
+      left: 3px; top: 2px;
+      background: rgba(255,255,255,.88);
+      border-radius: 999px;
+      transition: .18s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,.35);
+    }
+    .switch input:checked + .slider{
+      background: rgba(73,209,122,.22);
+      border-color: rgba(73,209,122,.30);
+    }
+    .switch input:checked + .slider::after{
+      transform: translateX(18px);
+      background: rgba(211,255,226,.95);
+    }
+
+    .viz{
+      padding: 12px;
+      display:flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .viz-top{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 10px 0 10px;
+    }
+
+    .kpi{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .kpi .box{
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 14px;
+      padding: 10px 12px;
+      min-width: 160px;
+    }
+    .kpi .box .k{
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+    .kpi .box .v{
+      font-size: 18px;
+      font-weight: 750;
+      font-variant-numeric: tabular-nums;
+      letter-spacing:.2px;
+    }
+
+    .legend{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 12px;
+      align-items: center;
+    }
+    .dot{
+      width: 10px; height: 10px; border-radius: 999px;
+      display:inline-block; margin-right: 6px;
+      background: var(--accent);
+    }
+
+    /* Mobile visualization */
+    .stage{
+      position: relative;
+      background: rgba(0,0,0,.20);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 16px;
+      padding: 14px;
+      overflow: hidden;
+      min-height: 520px;
+    }
+
+    svg{ width: 100%; height: 520px; display:block; }
+    .node{
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.35));
+    }
+    .node circle{
+      stroke: rgba(255,255,255,.22);
+      stroke-width: 1.2;
+    }
+    .node text{
+      fill: rgba(255,255,255,.92);
+      font-size: 12px;
+      font-weight: 700;
+      text-anchor: middle;
+      dominant-baseline: middle;
+      pointer-events:none;
+    }
+    .subtext{
+      fill: rgba(255,255,255,.75);
+      font-size: 10.5px;
+      font-weight: 600;
+    }
+
+    .wire{
+      stroke: rgba(255,255,255,.20);
+      stroke-width: 2;
+    }
+    .wire2{
+      stroke: rgba(122,162,255,.35);
+      stroke-width: 2.5;
+      stroke-dasharray: 5 6;
+    }
+    .arm{
+      stroke: rgba(255,255,255,.28);
+      stroke-width: 3.2;
+      stroke-linecap: round;
+    }
+    .pivot{
+      fill: rgba(255,255,255,.92);
+      opacity: .9;
+    }
+
+    .badge{
+      font-size: 11px;
+      font-weight: 800;
+      fill: rgba(0,0,0,.85);
+    }
+
+    .notes{
+      background: rgba(0,0,0,.20);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 16px;
+      padding: 12px 12px 10px 12px;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.45;
+    }
+    .notes strong{ color: var(--text); }
+
+    .chips{
+      display:flex; flex-wrap: wrap; gap: 8px;
+      margin-top: 8px;
+    }
+    .chip{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .btnrow{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    button{
+      background: rgba(122,162,255,.18);
+      border: 1px solid rgba(122,162,255,.26);
+      color: #dbe8ff;
+      padding: 9px 12px;
+      border-radius: 12px;
+      cursor:pointer;
+      font-weight: 700;
+      font-size: 12px;
+      transition: .15s ease;
+    }
+    button:hover{ transform: translateY(-1px); }
+    button.secondary{
+      background: rgba(255,255,255,.06);
+      border-color: rgba(255,255,255,.10);
+      color: rgba(255,255,255,.88);
+    }
+    button.danger{
+      background: rgba(255,107,107,.14);
+      border-color: rgba(255,107,107,.22);
+      color: #ffd0d0;
+    }
+
+    .smallprint{
+      margin-top: 8px;
+      color: rgba(170,179,200,.85);
+      font-size: 11.5px;
+      line-height: 1.35;
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <h1>Housing Decision Mobile — Interactive Systems Diagram</h1>
+  <p>
+    This page models a housing decision as a <strong>mobile</strong>: shifting one weight moves the whole system.
+    Use the sliders to adjust the five arms, toggle stress tests, and watch how <strong>Livability</strong> changes as interdependencies kick in.
+  </p>
+</header>
+
+<div class="layout">
+  <!-- Controls -->
+  <section class="card">
+    <div class="controls">
+      <div class="section-title">
+        <h2>Weights & Levers</h2>
+        <div class="pill" id="statusPill">Balanced</div>
+      </div>
+
+      <div class="row">
+        <div class="row-top">
+          <div class="label">Personal Stability</div>
+          <div class="value"><span id="v_stability">70</span>/100</div>
+        </div>
+        <input id="stability" type="range" min="0" max="100" value="70" />
+        <div class="hint">Income stability, fixed expenses, emergency reserves, debt load. Higher = more buffer.</div>
+      </div>
+
+      <div class="row">
+        <div class="row-top">
+          <div class="label">Lifestyle Fit</div>
+          <div class="value"><span id="v_lifestyle">55</span>/100</div>
+        </div>
+        <input id="lifestyle" type="range" min="0" max="100" value="55" />
+        <div class="hint">Location alignment, routine, space needs, support proximity. Higher = stronger pull toward “this is the life.”</div>
+      </div>
+
+      <div class="row">
+        <div class="row-top">
+          <div class="label">Property Risk</div>
+          <div class="value"><span id="v_risk">35</span>/100</div>
+        </div>
+        <input id="risk" type="range" min="0" max="100" value="35" />
+        <div class="hint">HOA + maintenance + inspection uncertainty + taxes/insurance volatility. Higher = more surprise cost exposure.</div>
+      </div>
+
+      <div class="row">
+        <div class="row-top">
+          <div class="label">Financing Strain</div>
+          <div class="value"><span id="v_finance">40</span>/100</div>
+        </div>
+        <input id="finance" type="range" min="0" max="100" value="40" />
+        <div class="hint">Rate/term/down payment/DTI pressure. Higher = tighter monthly breathing room.</div>
+      </div>
+
+      <div class="row">
+        <div class="row-top">
+          <div class="label">Contract Mitigation</div>
+          <div class="value"><span id="v_contract">45</span>/100</div>
+        </div>
+        <input id="contract" type="range" min="0" max="100" value="45" />
+        <div class="hint">Concessions, repair credits, contingencies, buy-downs. Higher = better counterweight against risk/strain.</div>
+      </div>
+
+      <div class="section-title" style="margin-top:14px;">
+        <h2>Stress Test Toggles</h2>
+        <div class="pill" id="stressPill">Off</div>
+      </div>
+
+      <div class="grid2">
+        <div class="toggle">
+          <div>
+            <label>Income dip</label>
+            <small>Simulate a temporary 20% drop.</small>
+          </div>
+          <div class="switch">
+            <input id="t_income" type="checkbox" />
+            <span class="slider"></span>
+          </div>
+        </div>
+        <div class="toggle">
+          <div>
+            <label>Big repair</label>
+            <small>Surprise $15k event.</small>
+          </div>
+          <div class="switch">
+            <input id="t_repair" type="checkbox" />
+            <span class="slider"></span>
+          </div>
+        </div>
+        <div class="toggle">
+          <div>
+            <label>Rate shock</label>
+            <small>Higher financing pressure.</small>
+          </div>
+          <div class="switch">
+            <input id="t_rate" type="checkbox" />
+            <span class="slider"></span>
+          </div>
+        </div>
+        <div class="toggle">
+          <div>
+            <label>Life event</label>
+            <small>Childcare / care burden.</small>
+          </div>
+          <div class="switch">
+            <input id="t_life" type="checkbox" />
+            <span class="slider"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="btnrow">
+        <button class="secondary" id="btnReset">Reset to baseline</button>
+        <button class="danger" id="btnMaxStress">Max stress</button>
+      </div>
+
+      <div class="smallprint">
+        This is a conceptual model. The “math” is intentionally simple so you can see directional effects and feedback loops.
+        If you want, we can re-map this into your preferred inputs (DTI, monthly capacity, reserves, HOA, etc.).
+      </div>
+    </div>
+  </section>
+
+  <!-- Visualization -->
+  <section class="card">
+    <div class="viz">
+      <div class="viz-top">
+        <div class="kpi">
+          <div class="box">
+            <div class="k">Livability score</div>
+            <div class="v" id="livabilityScore">—</div>
+          </div>
+          <div class="box">
+            <div class="k">Mobile tilt</div>
+            <div class="v" id="tiltValue">—</div>
+          </div>
+          <div class="box">
+            <div class="k">Volatility</div>
+            <div class="v" id="volValue">—</div>
+          </div>
+        </div>
+
+        <div class="legend">
+          <span><span class="dot" style="background:#7aa2ff"></span>Influence link</span>
+          <span><span class="dot" style="background:rgba(255,255,255,.30)"></span>Structural arm</span>
+        </div>
+      </div>
+
+      <div class="stage">
+        <svg id="svg" viewBox="0 0 900 520" aria-label="Systems diagram mobile">
+          <!-- Background faint grid -->
+          <defs>
+            <pattern id="grid" width="26" height="26" patternUnits="userSpaceOnUse">
+              <path d="M 26 0 L 0 0 0 26" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+            </pattern>
+          </defs>
+          <rect x="0" y="0" width="900" height="520" fill="url(#grid)" opacity=".7"></rect>
+
+          <!-- Mobile group (we rotate this to show 'tilt') -->
+          <g id="mobile" transform="translate(450 80) rotate(0)">
+            <!-- top hanger -->
+            <line class="arm" x1="0" y1="-40" x2="0" y2="0"></line>
+            <circle class="pivot" cx="0" cy="0" r="6"></circle>
+
+            <!-- crossbar -->
+            <line class="arm" x1="-280" y1="0" x2="280" y2="0"></line>
+
+            <!-- hang lines to nodes -->
+            <line class="wire" x1="-240" y1="0" x2="-240" y2="110"></line>
+            <line class="wire" x1="-80" y1="0" x2="-80" y2="140"></line>
+            <line class="wire" x1="80" y1="0" x2="80" y2="140"></line>
+            <line class="wire" x1="240" y1="0" x2="240" y2="110"></line>
+
+            <!-- central livability stem -->
+            <line class="wire" x1="0" y1="0" x2="0" y2="210"></line>
+
+            <!-- Nodes (positions will be adjusted by JS slightly to reflect tension) -->
+            <g class="node" id="node_stability" transform="translate(-240,110)">
+              <circle r="38" fill="rgba(73,209,122,.20)"></circle>
+              <text y="-2">Stability</text>
+              <text class="subtext" y="16" id="n_stability">—</text>
+            </g>
+
+            <g class="node" id="node_risk" transform="translate(-80,140)">
+              <circle r="38" fill="rgba(255,204,102,.20)"></circle>
+              <text y="-2">Risk</text>
+              <text class="subtext" y="16" id="n_risk">—</text>
+            </g>
+
+            <g class="node" id="node_finance" transform="translate(80,140)">
+              <circle r="38" fill="rgba(122,162,255,.18)"></circle>
+              <text y="-2">Finance</text>
+              <text class="subtext" y="16" id="n_finance">—</text>
+            </g>
+
+            <g class="node" id="node_lifestyle" transform="translate(240,110)">
+              <circle r="38" fill="rgba(191,141,255,.18)"></circle>
+              <text y="-2">Lifestyle</text>
+              <text class="subtext" y="16" id="n_lifestyle">—</text>
+            </g>
+
+            <g class="node" id="node_livability" transform="translate(0,230)">
+              <circle r="56" fill="rgba(255,255,255,.10)"></circle>
+              <text y="-6" style="font-size:13px">LIVABILITY</text>
+              <text class="subtext" y="14" id="n_livability">—</text>
+            </g>
+
+            <!-- Contract node as a "counterweight" below the bar -->
+            <line class="wire" x1="0" y1="0" x2="0" y2="110"></line>
+            <line class="wire" x1="0" y1="110" x2="0" y2="160"></line>
+            <g class="node" id="node_contract" transform="translate(0,160)">
+              <circle r="34" fill="rgba(255,107,107,.14)"></circle>
+              <text y="-2">Contract</text>
+              <text class="subtext" y="16" id="n_contract">—</text>
+            </g>
+          </g>
+
+          <!-- Influence links (dashed) drawn in fixed space; updated by JS as nodes move -->
+          <g id="links">
+            <path id="link_ls_to_fin" class="wire2" d=""></path>
+            <path id="link_fin_to_st" class="wire2" d=""></path>
+            <path id="link_risk_to_st" class="wire2" d=""></path>
+            <path id="link_contract_to_fin" class="wire2" d=""></path>
+            <path id="link_contract_to_risk" class="wire2" d=""></path>
+          </g>
+
+          <!-- Stress-test label -->
+          <g transform="translate(18,22)">
+            <rect x="0" y="0" width="165" height="34" rx="12" fill="rgba(0,0,0,.25)" stroke="rgba(255,255,255,.10)"></rect>
+            <text x="14" y="22" fill="rgba(255,255,255,.82)" font-size="12.5" font-weight="750">Stress Test</text>
+            <text x="98" y="22" id="stressLabel" fill="rgba(170,179,200,.95)" font-size="12" font-weight="700">Off</text>
+          </g>
+
+          <!-- Footer note -->
+          <text x="18" y="500" fill="rgba(170,179,200,.70)" font-size="11.5">
+            Tip: Raise Lifestyle or Risk and watch Finance & Stability react through the dashed influence links.
+          </text>
+        </svg>
+      </div>
+
+      <div class="notes" id="explain">
+        <strong>Interdependencies (live):</strong> Lifestyle pushes up financing strain; financing strain reduces stability;
+        property risk reduces stability; contract mitigation counterweights both risk and financing strain.
+        <div class="chips" id="chips"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  // --- Helpers ---
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const fmt = (x) => Math.round(x).toString();
+  const pct = (x) => `${Math.round(x)}%`;
+
+  // --- Controls ---
+  const el = {
+    stability: document.getElementById('stability'),
+    lifestyle: document.getElementById('lifestyle'),
+    risk: document.getElementById('risk'),
+    finance: document.getElementById('finance'),
+    contract: document.getElementById('contract'),
+
+    v_stability: document.getElementById('v_stability'),
+    v_lifestyle: document.getElementById('v_lifestyle'),
+    v_risk: document.getElementById('v_risk'),
+    v_finance: document.getElementById('v_finance'),
+    v_contract: document.getElementById('v_contract'),
+
+    t_income: document.getElementById('t_income'),
+    t_repair: document.getElementById('t_repair'),
+    t_rate: document.getElementById('t_rate'),
+    t_life: document.getElementById('t_life'),
+
+    statusPill: document.getElementById('statusPill'),
+    stressPill: document.getElementById('stressPill'),
+    stressLabel: document.getElementById('stressLabel'),
+
+    livabilityScore: document.getElementById('livabilityScore'),
+    tiltValue: document.getElementById('tiltValue'),
+    volValue: document.getElementById('volValue'),
+
+    n_stability: document.getElementById('n_stability'),
+    n_lifestyle: document.getElementById('n_lifestyle'),
+    n_risk: document.getElementById('n_risk'),
+    n_finance: document.getElementById('n_finance'),
+    n_contract: document.getElementById('n_contract'),
+    n_livability: document.getElementById('n_livability'),
+
+    mobile: document.getElementById('mobile'),
+
+    node_stability: document.getElementById('node_stability'),
+    node_lifestyle: document.getElementById('node_lifestyle'),
+    node_risk: document.getElementById('node_risk'),
+    node_finance: document.getElementById('node_finance'),
+    node_contract: document.getElementById('node_contract'),
+    node_livability: document.getElementById('node_livability'),
+
+    link_ls_to_fin: document.getElementById('link_ls_to_fin'),
+    link_fin_to_st: document.getElementById('link_fin_to_st'),
+    link_risk_to_st: document.getElementById('link_risk_to_st'),
+    link_contract_to_fin: document.getElementById('link_contract_to_fin'),
+    link_contract_to_risk: document.getElementById('link_contract_to_risk'),
+
+    chips: document.getElementById('chips'),
+
+    btnReset: document.getElementById('btnReset'),
+    btnMaxStress: document.getElementById('btnMaxStress')
+  };
+
+  const baseline = {
+    stability: 70,
+    lifestyle: 55,
+    risk: 35,
+    finance: 40,
+    contract: 45,
+    stress: { income:false, repair:false, rate:false, life:false }
+  };
+
+  function getState(){
+    return {
+      stability: +el.stability.value,
+      lifestyle: +el.lifestyle.value,
+      risk: +el.risk.value,
+      finance: +el.finance.value,
+      contract: +el.contract.value,
+      stress: {
+        income: el.t_income.checked,
+        repair: el.t_repair.checked,
+        rate: el.t_rate.checked,
+        life: el.t_life.checked
+      }
+    };
+  }
+
+  // --- Core model ---
+  // Goal: show directional interdependence + feedback loops.
+  // "Finance strain" is both an input (slider) and an output (adjusted by lifestyle + stress + contract).
+  // Same for stability: input slider, then adjusted by finance + risk + stress + contract.
+  function computeDerived(s){
+    // Stress impacts (conceptual):
+    // income dip lowers stability and increases finance strain,
+    // big repair increases risk (effective) and lowers stability,
+    // rate shock increases finance strain,
+    // life event increases finance strain and slightly increases risk (higher monthly volatility).
+    const stressFinance =
+      (s.stress.income ? 12 : 0) +
+      (s.stress.rate ? 16 : 0) +
+      (s.stress.life ? 10 : 0);
+
+    const stressStability =
+      (s.stress.income ? 14 : 0) +
+      (s.stress.repair ? 10 : 0) +
+      (s.stress.life ? 6 : 0);
+
+    const stressRisk =
+      (s.stress.repair ? 18 : 0) +
+      (s.stress.life ? 6 : 0);
+
+    // Lifestyle tends to raise price pressure -> raises financing strain (conceptually).
+    // Contract mitigation can reduce financing strain via concessions/buydowns and reduce risk via credits/contingencies.
+    const financeEff = clamp(
+      s.finance
+      + 0.28 * s.lifestyle
+      + stressFinance
+      - 0.35 * s.contract,
+      0, 100
+    );
+
+    const riskEff = clamp(
+      s.risk
+      + stressRisk
+      - 0.30 * s.contract,
+      0, 100
+    );
+
+    // Stability is an anchor: it is reduced by finance strain + risk + stress, improved by contract mitigation (some),
+    // and preserved by the baseline stability slider.
+    const stabilityEff = clamp(
+      s.stability
+      - 0.45 * financeEff
+      - 0.30 * riskEff
+      - stressStability
+      + 0.18 * s.contract,
+      0, 100
+    );
+
+    // Livability: blend of (positive) stability + lifestyle, minus (negative) risk + finance strain + volatility.
+    // Volatility grows as risk rises and stability falls.
+    const volatility = clamp(
+      0.55 * riskEff + 0.35 * financeEff - 0.50 * stabilityEff,
+      0, 100
+    );
+
+    let livability = clamp(
+      0.55 * stabilityEff
+      + 0.35 * s.lifestyle
+      - 0.30 * riskEff
+      - 0.25 * financeEff
+      - 0.20 * volatility,
+      0, 100
+    );
+
+    // Small nonlinearity: if volatility high, livability dips faster.
+    if (volatility > 60) livability = clamp(livability - (volatility - 60) * 0.35, 0, 100);
+
+    return { financeEff, riskEff, stabilityEff, volatility, livability };
+  }
+
+  function statusFrom(livability, volatility){
+    if (livability >= 65 && volatility <= 35) return { label:"Balanced", color:"rgba(73,209,122,.18)", border:"rgba(73,209,122,.30)" };
+    if (livability >= 45 && volatility <= 55) return { label:"Tense", color:"rgba(255,204,102,.18)", border:"rgba(255,204,102,.28)" };
+    return { label:"Unstable", color:"rgba(255,107,107,.18)", border:"rgba(255,107,107,.30)" };
+  }
+
+  // --- Mobile motion / geometry ---
+  // We render a "tilt" based on the net imbalance between sides:
+  // Left side: Stability (good) + Contract (good)
+  // Right side: Lifestyle (pull) + Finance strain (bad)
+  // Risk influences downwards (tends to pull to left-mid) by increasing volatility, but we keep tilt simple.
+  function computeTilt(s, d){
+    // convert to forces (0..1)
+    const stabilityForce = d.stabilityEff / 100;
+    const contractForce  = s.contract / 100;
+    const lifestyleForce = s.lifestyle / 100;
+    const financeForce   = d.financeEff / 100;
+    const riskForce      = d.riskEff / 100;
+
+    // net = right - left
+    const left  = 0.60*stabilityForce + 0.25*contractForce - 0.10*riskForce;
+    const right = 0.50*lifestyleForce + 0.50*financeForce + 0.10*riskForce;
+
+    const net = right - left; // positive => tilt right-down
+    const deg = clamp(net * 18, -18, 18);
+
+    return deg;
+  }
+
+  // node offsets to show "awkward balance": nodes shift slightly based on tensions
+  function computeNodeOffsets(s, d){
+    // Finance pulls Lifestyle node downward when strain is high (tightness felt).
+    const lifestyleY = lerp(0, 22, d.financeEff/100);
+
+    // Stability node rises when stabilityEff is strong and falls when strained.
+    const stabilityY = lerp(20, -10, d.stabilityEff/100);
+
+    // Risk node drops when riskEff high (heavier uncertainty).
+    const riskY = lerp(0, 26, d.riskEff/100);
+
+    // Finance node drops when financeEff high.
+    const financeY = lerp(0, 26, d.financeEff/100);
+
+    // Contract node rises when mitigation high (counterweight pulling up the strain).
+    const contractY = lerp(10, -16, s.contract/100);
+
+    return {
+      stability: { x: -240, y: 110 + stabilityY },
+      risk:      { x: -80,  y: 140 + riskY },
+      finance:   { x: 80,   y: 140 + financeY },
+      lifestyle: { x: 240,  y: 110 + lifestyleY },
+      contract:  { x: 0,    y: 160 + contractY },
+      livability:{ x: 0,    y: 230 }
+    };
+  }
+
+  function setNodeTransform(nodeEl, pos){
+    nodeEl.setAttribute('transform', `translate(${pos.x},${pos.y})`);
+  }
+
+  // Convert a node's position in the SVG space (not the mobile group's local space) to link paths.
+  // We approximate by using the mobile group's known transform:
+  // mobile is translate(450,80) then rotate(tilt), then local translate to node.
+  function localToWorld(x, y, tiltDeg){
+    const rad = tiltDeg * Math.PI / 180;
+    const cos = Math.cos(rad), sin = Math.sin(rad);
+    const xr = x*cos - y*sin;
+    const yr = x*sin + y*cos;
+    return { x: 450 + xr, y: 80 + yr };
+  }
+
+  function linkPath(a, b){
+    // a and b are world coords.
+    const mx = (a.x + b.x)/2;
+    const my = (a.y + b.y)/2 - 30; // curve up a bit
+    return `M ${a.x.toFixed(1)} ${a.y.toFixed(1)} Q ${mx.toFixed(1)} ${my.toFixed(1)} ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
+  }
+
+  function updateLinks(pos, tilt){
+    // Build world coords from local node centers
+    const L = localToWorld(pos.lifestyle.x, pos.lifestyle.y, tilt);
+    const F = localToWorld(pos.finance.x,   pos.finance.y,   tilt);
+    const S = localToWorld(pos.stability.x, pos.stability.y, tilt);
+    const R = localToWorld(pos.risk.x,      pos.risk.y,      tilt);
+    const C = localToWorld(pos.contract.x,  pos.contract.y,  tilt);
+
+    // Influence links
+    el.link_ls_to_fin.setAttribute('d', linkPath(L, F));      // Lifestyle -> Finance
+    el.link_fin_to_st.setAttribute('d', linkPath(F, S));      // Finance -> Stability
+    el.link_risk_to_st.setAttribute('d', linkPath(R, S));     // Risk -> Stability
+    el.link_contract_to_fin.setAttribute('d', linkPath(C, F));// Contract -> Finance
+    el.link_contract_to_risk.setAttribute('d', linkPath(C, R));// Contract -> Risk
+  }
+
+  function chipsFrom(s, d){
+    const chips = [];
+
+    // Most “load-bearing” live explanations, based on current values
+    if (d.financeEff > 65) chips.push(`Finance strain is high → stability gets squeezed.`);
+    if (d.riskEff > 60) chips.push(`Property risk is high → volatility rises and reserves matter more.`);
+    if (s.contract > 60) chips.push(`Contract mitigation is strong → offsets risk/finance pressure.`);
+    if (s.lifestyle > 70 && d.financeEff > 55) chips.push(`Lifestyle pull is pushing price/financing pressure.`);
+    if (d.stabilityEff < 30) chips.push(`Buffers are thin → stress tests will bite harder.`);
+    if (!chips.length) chips.push(`System is relatively calm → small changes won’t cascade as much.`);
+
+    return chips.slice(0, 5);
+  }
+
+  function updateUI(){
+    const s = getState();
+    const d = computeDerived(s);
+
+    // mirror control readouts
+    el.v_stability.textContent = s.stability;
+    el.v_lifestyle.textContent = s.lifestyle;
+    el.v_risk.textContent = s.risk;
+    el.v_finance.textContent = s.finance;
+    el.v_contract.textContent = s.contract;
+
+    // stress label/pill
+    const stressOn = Object.values(s.stress).some(Boolean);
+    el.stressPill.textContent = stressOn ? "On" : "Off";
+    el.stressLabel.textContent = stressOn ? "On" : "Off";
+
+    // computed values in nodes
+    el.n_stability.textContent = pct(d.stabilityEff);
+    el.n_lifestyle.textContent = pct(s.lifestyle);
+    el.n_risk.textContent = pct(d.riskEff);
+    el.n_finance.textContent = pct(d.financeEff);
+    el.n_contract.textContent = pct(s.contract);
+    el.n_livability.textContent = pct(d.livability);
+
+    // KPIs
+    el.livabilityScore.textContent = `${fmt(d.livability)}/100`;
+    const tilt = computeTilt(s, d);
+    el.tiltValue.textContent = `${tilt.toFixed(1)}°`;
+    el.volValue.textContent = `${fmt(d.volatility)}/100`;
+
+    // status pill styling
+    const st = statusFrom(d.livability, d.volatility);
+    el.statusPill.textContent = st.label;
+    el.statusPill.style.background = st.color;
+    el.statusPill.style.borderColor = st.border;
+
+    // rotate mobile
+    el.mobile.setAttribute('transform', `translate(450 80) rotate(${tilt.toFixed(2)})`);
+
+    // node positions
+    const pos = computeNodeOffsets(s, d);
+    setNodeTransform(el.node_stability, pos.stability);
+    setNodeTransform(el.node_lifestyle, pos.lifestyle);
+    setNodeTransform(el.node_risk, pos.risk);
+    setNodeTransform(el.node_finance, pos.finance);
+    setNodeTransform(el.node_contract, pos.contract);
+    setNodeTransform(el.node_livability, pos.livability);
+
+    // update links in world space
+    updateLinks(pos, tilt);
+
+    // chips
+    el.chips.innerHTML = "";
+    for (const c of chipsFrom(s, d)){
+      const span = document.createElement('div');
+      span.className = "chip";
+      span.textContent = c;
+      el.chips.appendChild(span);
+    }
+  }
+
+  // --- Events ---
+  const inputs = [el.stability, el.lifestyle, el.risk, el.finance, el.contract, el.t_income, el.t_repair, el.t_rate, el.t_life];
+  for (const i of inputs){
+    i.addEventListener('input', updateUI);
+    i.addEventListener('change', updateUI);
+  }
+
+  el.btnReset.addEventListener('click', () => {
+    el.stability.value = baseline.stability;
+    el.lifestyle.value = baseline.lifestyle;
+    el.risk.value = baseline.risk;
+    el.finance.value = baseline.finance;
+    el.contract.value = baseline.contract;
+    el.t_income.checked = baseline.stress.income;
+    el.t_repair.checked = baseline.stress.repair;
+    el.t_rate.checked = baseline.stress.rate;
+    el.t_life.checked = baseline.stress.life;
+    updateUI();
+  });
+
+  el.btnMaxStress.addEventListener('click', () => {
+    el.t_income.checked = true;
+    el.t_repair.checked = true;
+    el.t_rate.checked = true;
+    el.t_life.checked = true;
+    updateUI();
+  });
+
+  // Initial render
+  updateUI();
+</script>
+</body>
+</html>
