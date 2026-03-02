@@ -49,7 +49,7 @@ export const sampleProperties: Property[] = [
     mlsNumber: "ATX-2024-002",
     description:
       "Stylish townhouse in growing neighborhood. Low maintenance living with modern amenities and close to major employers. Perfect for first-time buyers.",
-    features: ["Open Floor Plan", "Granite Counters", "Stainless Appliances", "Covered Patio", "Master Suite"],
+    features: ["Open Floor Plan", "Granite Counters", "Stainless Appliances", "Covered Patio", "Primary Suite"],
     neighborhood: "Southeast Austin",
     schoolDistrict: "Austin ISD",
     hoaFees: 185,
