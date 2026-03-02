@@ -1,0 +1,11 @@
+{
+  "project": "Livability",
+  "project_slug": "livability",
+  "domain": "livability.localhost",
+  "gateway_port": 8080,
+  "base_url": "http://livability.localhost:8080",
+  "upstream_host": "127.0.0.1",
+  "upstream_port": 4104,
+  "updated_at": "2026-03-02T03:47:22.169Z",
+  "notes": "Managed by UXOS/scripts/local_domain_sync.mjs"
+}

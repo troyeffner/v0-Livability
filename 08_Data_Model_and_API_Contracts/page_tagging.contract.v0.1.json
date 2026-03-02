@@ -1,0 +1,16 @@
+{
+  "contract_id": "page_tagging_contract",
+  "version_id": "v0.1",
+  "status": "active",
+  "required_fields": [
+    "id",
+    "surface_id",
+    "assumption_ids",
+    "artifact_refs",
+    "tag_status",
+    "version_id",
+    "updated_at"
+  ],
+  "tag_status_allowed_values": ["draft", "active", "canon"],
+  "notes": "Pilot contract for linking FFA assumptions/artifacts to pages or surfaces."
+}

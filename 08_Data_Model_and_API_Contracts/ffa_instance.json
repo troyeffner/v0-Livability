@@ -1,0 +1,1700 @@
+{
+  "meta": {
+    "is_template_seed": false,
+    "instance_id": "livability_primary",
+    "version_id": "livability_ffa_v0.3",
+    "seed_state": "active_instance",
+    "template_source": "UXOS/templates/FFA/08_Data_Model_and_API_Contracts/ffa_instance.template.json",
+    "layer_type": "client_instance",
+    "template_id": "livability_ffa_instance",
+    "template_version_id": "livability_ffa_v0.2",
+    "parent_template_id": "smallbiz_ffa_domain_template",
+    "parent_version_id": "smallbiz_ffa_domain_v0.1",
+    "forked_from_layer": "domain_template",
+    "forked_at_version": "smallbiz_ffa_domain_v0.1",
+    "classification": "client_confidential",
+    "upgrade_strategy": "manual_merge",
+    "last_updated": "2026-03-02T06:12:13.943Z",
+    "notes": "Initialized from layered FFA inheritance policy. Updated via Claude migration reconciliation v0.2. Added final stabilized atomic homebuyer JTBD set v0.3.",
+    "epistemic_state_scale": [
+      "seed",
+      "hypothesis",
+      "stabilized"
+    ]
+  },
+  "framework_foundation": {
+    "taxonomy": {
+      "canonical_terms": {
+        "cognitive_frame": "user meaning-making frame/context for a job",
+        "execution_mode": "strategy/stance used to execute tasks under constraints",
+        "workflow_pattern": "reusable task composition pattern",
+        "task": "atomic verb-noun action unit"
+      },
+      "alias_map": {
+        "mental_space": "cognitive_frame",
+        "mode": "execution_mode",
+        "tower": "workflow_pattern",
+        "task_cluster": "workflow_pattern"
+      }
+    },
+    "assumptions": [
+      {
+        "id": "A-001",
+        "title": "Pressure-protection framing improves comprehension",
+        "description": "Users reason better with pressure-vs-protection framing than with a single composite score.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "dr_scoring_model",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Validate comprehension and confidence deltas in guided sessions."
+        },
+        "evidence_refs": [
+          "lib/decision-rehearsal-engine.ts::computeClarify",
+          "navigating-a-change-rehearsal.v9.js::compute"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "A-002",
+        "title": "Five-band interpretation is user-usable",
+        "description": "The fragile-reactive-managing-stable-resilient ladder is understandable and stable enough for repeated use.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "band_taxonomy",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Assess whether users can explain their own state using band language."
+        },
+        "evidence_refs": [
+          "lib/decision-rehearsal-engine.ts::bandFor",
+          "lib/decision-rehearsal-engine.ts::bandKeyFromScore"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "A-003",
+        "title": "Default proxy rates are directionally acceptable",
+        "description": "Default withholding, tax, insurance, and PMI assumptions are acceptable directional proxies for early-stage planning.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "default_finance_proxies",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Measure model sensitivity to defaults vs user-provided overrides."
+        },
+        "evidence_refs": [
+          "lib/finance-core.ts::DEFAULTS",
+          "lib/affordability-calculations.ts::calculateMaxAffordability"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "superseded",
+        "superseded_reason": "Default rate assumptions require reconciliation with active property-tax discrepancy and calibration backlog.",
+        "superseded_by": "RISK-004"
+      },
+      {
+        "id": "A-004",
+        "title": "Dual-constraint purchase roof is actionable",
+        "description": "Income-payment and down-payment constraints jointly define a useful purchase ceiling for users.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "purchase_roof_constraints",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Confirm users can identify and act on the limiting factor."
+        },
+        "evidence_refs": [
+          "lib/finance-core.ts::solvePurchasePriceForMonthlyBudget",
+          "lib/affordability-calculations.ts::calculateMaxAffordability"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      }
+    ],
+    "hypotheses": [
+      {
+        "id": "H-001",
+        "title": "Pattern narrative improves confidence",
+        "description": "Pattern output (tag, summary, drivers, try) improves user decision confidence compared with score-only output.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "pattern_panel_effect",
+          "evaluation_status": "research_needed",
+          "probe_intent": "A/B test score-only vs score+pattern guidance."
+        },
+        "evidence_refs": [
+          "lib/decision-rehearsal-engine.ts::detectPattern",
+          "navigating-a-change-rehearsal.v9.js::detectPattern"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "H-002",
+        "title": "Stress toggles increase realism",
+        "description": "Offer-mode stress toggles produce user states that better match perceived real-world pressure.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "stress_toggle_realism",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Compare perceived realism between toggle-enabled and static flows."
+        },
+        "evidence_refs": [
+          "lib/decision-rehearsal-engine.ts::STRESS_UI",
+          "lib/decision-rehearsal-engine.ts::computeOffer"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "H-003",
+        "title": "Limiting-factor clarity reduces confusion",
+        "description": "Explicitly labeling whether income or down payment is limiting reduces affordability interpretation errors.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "limiting_factor_explainability",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Track user correction rate after limiting-factor explanation."
+        },
+        "evidence_refs": [
+          "lib/affordability-calculations.ts::calculateMaxAffordability",
+          "CODEX_CONTEXT.md::Domain Glossary"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "H-004",
+        "title": "LEI predicts felt stability better than DTI-only",
+        "description": "LEI combined with clearing metrics predicts user-reported monthly stability better than DTI alone.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "lei_predictive_validity",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Correlate LEI outputs with user month-end stability ratings."
+        },
+        "evidence_refs": [
+          "lib/liquidity-engine.ts::liquidityElasticityIndex",
+          "lib/affordability-calculations.ts::calculatePropertyAffordability"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      }
+    ],
+    "experiments": [
+      {
+        "id": "X-001",
+        "title": "Pattern panel on/off test",
+        "description": "Measure confidence and completion effects when the pattern panel is present vs absent in Decision Rehearsal.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "pattern_panel_ab",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Collect completion and confidence deltas by variant."
+        },
+        "evidence_refs": [
+          "lib/decision-rehearsal-engine.ts::computeDecisionRehearsal",
+          "components/decision-rehearsal/dr-page.tsx"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "X-002",
+        "title": "Default slider personalization test",
+        "description": "Compare fixed defaults to mode-personalized defaults to evaluate faster user orientation and lower reset behavior.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "default_state_personalization",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Track first-adjustment latency and reset frequency."
+        },
+        "evidence_refs": [
+          "lib/decision-rehearsal-engine.ts::MODES",
+          "navigating-a-change-rehearsal.v9.js::applyDefaults"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "X-003",
+        "title": "Walk-away threshold prompt test",
+        "description": "Introduce an explicit walk-away threshold prompt in offer mode and measure impact on high-attachment/high-pressure outcomes.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "walk_away_prompt",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Measure changes in pattern distribution and self-reported regret risk."
+        },
+        "evidence_refs": [
+          "lib/decision-rehearsal-engine.ts::computeOffer",
+          "navigating-a-change-rehearsal.v9.js::detectPattern"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "X-004",
+        "title": "LEI diary validation",
+        "description": "Validate LEI and clearing metrics against user-labeled month-end stability diary outcomes.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "lei_diary_validation",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Establish practical thresholds for low/medium/high elasticity."
+        },
+        "evidence_refs": [
+          "lib/liquidity-engine.ts::liquidityElasticityIndex",
+          "lib/liquidity-engine.ts::clearingState"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      }
+    ],
+    "evidence": [],
+    "cognitive_frames": [
+      {
+        "id": "CF-001",
+        "title": "Steadiness under pressure",
+        "description": "A frame for evaluating whether current conditions support clear, non-reactive decisions.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "decision_steadiness",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Validate whether users can self-identify steadiness state."
+        },
+        "evidence_refs": [
+          "lib/decision-rehearsal-engine.ts::statusTextFor"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "CF-002",
+        "title": "Constraint balancing",
+        "description": "Purchase decisions should be framed as balancing income-payment and equity constraints, not maximizing one variable.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "constraint_balance",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Test whether users articulate both constraints in scenario reviews."
+        },
+        "evidence_refs": [
+          "lib/affordability-calculations.ts::calculateMaxAffordability",
+          "lib/finance-core.ts::solvePriceWithDynamicDownPayment"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "CF-003",
+        "title": "Liquidity as adaptability",
+        "description": "Liquidity is treated as the capacity to absorb volatility and reallocate, not merely a static cash surplus.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "liquidity_adaptability",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Evaluate whether LEI framing improves behavior under shocks."
+        },
+        "evidence_refs": [
+          "lib/liquidity-engine.ts::LEIBreakdown"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      }
+    ],
+    "execution_modes": [
+      {
+        "id": "EM-001",
+        "title": "Explore",
+        "description": "Clarify mode for understanding pressure, direction, and readiness before committing.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "mode_explore",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Confirm users stay in exploratory mode before narrowing."
+        },
+        "evidence_refs": [
+          "lib/decision-rehearsal-engine.ts::MODES.clarify"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "EM-002",
+        "title": "Compare",
+        "description": "Location mode for evaluating support-strain tradeoffs across options.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "mode_compare",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Measure option quality discrimination in compare mode."
+        },
+        "evidence_refs": [
+          "lib/decision-rehearsal-engine.ts::MODES.location"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "EM-003",
+        "title": "Commit with guardrails",
+        "description": "Offer mode for commitment decisions with explicit protections and walk-away power.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "mode_commit_guardrails",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Validate whether explicit safeguards reduce reactive commitments."
+        },
+        "evidence_refs": [
+          "lib/decision-rehearsal-engine.ts::MODES.offer"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "active"
+      }
+    ],
+    "workflow_patterns": [
+      {
+        "id": "WP-001",
+        "title": "Score-to-pattern decision loop",
+        "description": "Collect slider/toggle state, compute resource-demand score, map to band, then surface pattern guidance.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "dr_workflow",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Check whether guidance changes user follow-up actions."
+        },
+        "evidence_refs": [
+          "lib/decision-rehearsal-engine.ts::computeDecisionRehearsal"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "WP-002",
+        "title": "Budget-to-price bounded solve",
+        "description": "Use bounded binary search from monthly budget constraints to derive feasible purchase price.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "bounded_affordability_solver",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Verify convergence quality and user trust in outputs."
+        },
+        "evidence_refs": [
+          "lib/finance-core.ts::solvePurchasePriceForMonthlyBudget"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "WP-003",
+        "title": "Reserve-clearing elasticity loop",
+        "description": "Model reserves, charge clearing, and redistribution to derive liquidity elasticity as a stability signal.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "liquidity_loop",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Test actionable LEI-driven interventions."
+        },
+        "evidence_refs": [
+          "lib/liquidity-engine.ts::liquidityElasticityIndex",
+          "lib/liquidity-engine.ts::redistributionPlan"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "active"
+      }
+    ],
+    "tasks": [
+      {
+        "id": "T-001",
+        "title": "Unify DR canon between prototype and TS engine",
+        "description": "Eliminate drift risk between legacy v9 JavaScript logic and `lib/decision-rehearsal-engine.ts` contracts.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "dr_canon_unification",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Document and close any formula or threshold differences."
+        },
+        "evidence_refs": [
+          "navigating-a-change-rehearsal.v9.js",
+          "lib/decision-rehearsal-engine.ts"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "T-002",
+        "title": "Wire custom tax rate into active calculations",
+        "description": "Connect `customTaxRateInput` to the actual property-tax path in affordability calculations.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "tax_rate_wiring",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Ensure user tax overrides materially change outputs."
+        },
+        "evidence_refs": [
+          "components/property-workbench/affordability-summary.tsx",
+          "lib/affordability-calculations.ts"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "T-003",
+        "title": "Migrate income roof to finance-core solver",
+        "description": "Replace inline `incomeBasedRoof` logic with canonical solver calls from `finance-core.ts`.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "income_roof_migration",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Prove no behavioral regression across representative scenarios."
+        },
+        "evidence_refs": [
+          "components/property-workbench/affordability-summary.tsx",
+          "lib/finance-core.ts::solvePurchasePriceForMonthlyBudget"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "T-004",
+        "title": "Add manual regression fixtures for core decision math",
+        "description": "Create repeatable fixtures for DR band outputs and LEI sanity checks using existing script-based validation.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "manual_regression_fixtures",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Detect drift in formulas before release."
+        },
+        "evidence_refs": [
+          "scripts/regression-test.ts",
+          "lib/liquidity-engine.ts",
+          "lib/decision-rehearsal-engine.ts"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "JTBD-001",
+        "title": "Clarify readiness before commitment",
+        "description": "When facing a housing/life change, help the user assess if they are steady enough to explore without forcing commitment.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "jtbd_readiness_clarify",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Validate whether users defer commitment when readiness is low."
+        },
+        "evidence_refs": [
+          "lib/decision-rehearsal-engine.ts::MODES.clarify",
+          "components/decision-rehearsal/dr-page.tsx"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "superseded",
+        "job_statement": "When I am considering a housing/life change, help me know whether I am steady enough to explore before committing.",
+        "success_signal": "User can state current readiness band and one stabilizing next step before commitment.",
+        "superseded_reason": "Replaced by atomic final homebuyer JTBD set HB-JOB-001..HB-JOB-023.",
+        "superseded_by_set": "HB-JOB-001..HB-JOB-023"
+      },
+      {
+        "id": "JTBD-002",
+        "title": "Compare locations for sustainability",
+        "description": "When evaluating locations, help the user compare support, volatility, and cost strain rather than excitement alone.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "jtbd_location_sustainability",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Measure improvement in tradeoff clarity during location comparisons."
+        },
+        "evidence_refs": [
+          "lib/decision-rehearsal-engine.ts::MODES.location",
+          "navigating-a-change-rehearsal.v9.js::computeLocation"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "superseded",
+        "job_statement": "When I compare locations, help me weigh support, volatility, and cost strain rather than excitement alone.",
+        "success_signal": "User can explain location choice with explicit support/strain tradeoffs.",
+        "superseded_reason": "Replaced by atomic final homebuyer JTBD set HB-JOB-001..HB-JOB-023.",
+        "superseded_by_set": "HB-JOB-001..HB-JOB-023"
+      },
+      {
+        "id": "JTBD-003",
+        "title": "Prepare offers with guardrails",
+        "description": "When preparing an offer, help the user maintain boundaries under pressure with protections and walk-away power.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "jtbd_offer_guardrails",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Assess whether users retain safeguards under high-pressure conditions."
+        },
+        "evidence_refs": [
+          "lib/decision-rehearsal-engine.ts::MODES.offer",
+          "navigating-a-change-rehearsal.v9.js::detectPattern"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "superseded",
+        "job_statement": "When I prepare an offer, help me keep boundaries under pressure using protections and walk-away criteria.",
+        "success_signal": "User defines non-negotiable safeguards and walk-away threshold before offer submit.",
+        "superseded_reason": "Replaced by atomic final homebuyer JTBD set HB-JOB-001..HB-JOB-023.",
+        "superseded_by_set": "HB-JOB-001..HB-JOB-023"
+      },
+      {
+        "id": "JTBD-004",
+        "title": "Determine realistic purchase ceiling",
+        "description": "When planning a purchase, help the user identify real ceiling from both income-payment and down-payment constraints.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "jtbd_purchase_ceiling",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Check whether users correctly identify the limiting factor."
+        },
+        "evidence_refs": [
+          "components/property-workbench/affordability-summary.tsx",
+          "lib/finance-core.ts::solvePurchasePriceForMonthlyBudget"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "superseded",
+        "job_statement": "When I set a purchase target, help me identify the real ceiling from both income-payment and down-payment constraints.",
+        "success_signal": "User can identify limiting factor and real purchase roof without confusion.",
+        "superseded_reason": "Replaced by atomic final homebuyer JTBD set HB-JOB-001..HB-JOB-023.",
+        "superseded_by_set": "HB-JOB-001..HB-JOB-023"
+      },
+      {
+        "id": "JTBD-005",
+        "title": "Run scenario what-if planning",
+        "description": "When life inputs change, help the user model cashflow impacts across income, debts, expenses, and down payment sources.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "jtbd_what_if_modeling",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Measure scenario iteration frequency and decision confidence gains."
+        },
+        "evidence_refs": [
+          "components/property-workbench/affordability-summary.tsx",
+          "components/property-workbench/financial-input-panel.tsx"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "superseded",
+        "job_statement": "When life inputs shift, help me run what-if scenarios across income, debt, expense, and down-payment sources.",
+        "success_signal": "User runs at least two scenarios and compares resulting ceiling and margin.",
+        "superseded_reason": "Replaced by atomic final homebuyer JTBD set HB-JOB-001..HB-JOB-023.",
+        "superseded_by_set": "HB-JOB-001..HB-JOB-023"
+      },
+      {
+        "id": "JTBD-006",
+        "title": "Understand housing-system interdependencies",
+        "description": "When decision pressure feels ambiguous, help the user see how lifestyle, finance strain, risk, and stability influence each other.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "jtbd_interdependency_visibility",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Evaluate whether systems framing reduces confusion and reactive choices."
+        },
+        "evidence_refs": [
+          "housing-mobile.html::computeDerived",
+          "housing-mobile.html::chipsFrom"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "superseded",
+        "job_statement": "When pressure feels ambiguous, help me see interdependencies among lifestyle pull, risk, finance strain, and stability.",
+        "success_signal": "User can name key drivers and one leverage point for reducing instability.",
+        "superseded_reason": "Replaced by atomic final homebuyer JTBD set HB-JOB-001..HB-JOB-023.",
+        "superseded_by_set": "HB-JOB-001..HB-JOB-023"
+      },
+      {
+        "id": "JTBD-007",
+        "title": "Manage post-purchase liquidity resilience",
+        "description": "When ongoing obligations and volatility accumulate, help the user keep reserves, clearing, and reallocation healthy.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "jtbd_liquidity_resilience",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Validate LEI-driven interventions for monthly stability."
+        },
+        "evidence_refs": [
+          "lib/liquidity-engine.ts::liquidityElasticityIndex",
+          "lib/liquidity-engine.ts::clearingState"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "superseded",
+        "job_statement": "When post-purchase volatility rises, help me keep reserves, clearing integrity, and reallocation healthy.",
+        "success_signal": "LEI and clearing indicators remain above agreed threshold for consecutive periods.",
+        "superseded_reason": "Replaced by atomic final homebuyer JTBD set HB-JOB-001..HB-JOB-023.",
+        "superseded_by_set": "HB-JOB-001..HB-JOB-023"
+      },
+      {
+        "id": "HB-JOB-001",
+        "title": "Figure out what I can afford",
+        "description": "Homebuyer JTBD (final): Figure out what I can afford",
+        "atomic_element_type": "job_to_be_done",
+        "persona": "homebuyer",
+        "buyer_stage": "discover_homes_of_interest",
+        "buyer_stage_label": "Discover homes of interest",
+        "stage_order": 1,
+        "job_statement": "Figure out what I can afford",
+        "success_signal": "Job outcome reached and verified by buyer progression state.",
+        "is_final_job": true,
+        "job_set_status": "final",
+        "finalized_at": "2026-03-02",
+        "source_pack_ref": "user_provided_homebuyer_jtbd_board_20260302",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "research_backed",
+        "status": "final",
+        "epistemic_state": "stabilized"
+      },
+      {
+        "id": "HB-JOB-002",
+        "title": "Find specific homes I'm looking for",
+        "description": "Homebuyer JTBD (final): Find specific homes I'm looking for",
+        "atomic_element_type": "job_to_be_done",
+        "persona": "homebuyer",
+        "buyer_stage": "discover_homes_of_interest",
+        "buyer_stage_label": "Discover homes of interest",
+        "stage_order": 2,
+        "job_statement": "Find specific homes I'm looking for",
+        "success_signal": "Job outcome reached and verified by buyer progression state.",
+        "is_final_job": true,
+        "job_set_status": "final",
+        "finalized_at": "2026-03-02",
+        "source_pack_ref": "user_provided_homebuyer_jtbd_board_20260302",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "research_backed",
+        "status": "final",
+        "epistemic_state": "stabilized"
+      },
+      {
+        "id": "HB-JOB-003",
+        "title": "Find homes based on stated criteria",
+        "description": "Homebuyer JTBD (final): Find homes based on stated criteria",
+        "atomic_element_type": "job_to_be_done",
+        "persona": "homebuyer",
+        "buyer_stage": "discover_homes_of_interest",
+        "buyer_stage_label": "Discover homes of interest",
+        "stage_order": 3,
+        "job_statement": "Find homes based on stated criteria",
+        "success_signal": "Job outcome reached and verified by buyer progression state.",
+        "is_final_job": true,
+        "job_set_status": "final",
+        "finalized_at": "2026-03-02",
+        "source_pack_ref": "user_provided_homebuyer_jtbd_board_20260302",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "research_backed",
+        "status": "final",
+        "epistemic_state": "stabilized"
+      },
+      {
+        "id": "HB-JOB-004",
+        "title": "Introduce me to homes I'm not aware of",
+        "description": "Homebuyer JTBD (final): Introduce me to homes I'm not aware of",
+        "atomic_element_type": "job_to_be_done",
+        "persona": "homebuyer",
+        "buyer_stage": "discover_homes_of_interest",
+        "buyer_stage_label": "Discover homes of interest",
+        "stage_order": 4,
+        "job_statement": "Introduce me to homes I'm not aware of",
+        "success_signal": "Job outcome reached and verified by buyer progression state.",
+        "is_final_job": true,
+        "job_set_status": "final",
+        "finalized_at": "2026-03-02",
+        "source_pack_ref": "user_provided_homebuyer_jtbd_board_20260302",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "research_backed",
+        "status": "final",
+        "epistemic_state": "stabilized"
+      },
+      {
+        "id": "HB-JOB-005",
+        "title": "Understand if I can afford a specific home",
+        "description": "Homebuyer JTBD (final): Understand if I can afford a specific home",
+        "atomic_element_type": "job_to_be_done",
+        "persona": "homebuyer",
+        "buyer_stage": "get_deep_sense_for_specific_homes",
+        "buyer_stage_label": "Get a deep sense for specific homes",
+        "stage_order": 1,
+        "job_statement": "Understand if I can afford a specific home",
+        "success_signal": "Job outcome reached and verified by buyer progression state.",
+        "is_final_job": true,
+        "job_set_status": "final",
+        "finalized_at": "2026-03-02",
+        "source_pack_ref": "user_provided_homebuyer_jtbd_board_20260302",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "research_backed",
+        "status": "final",
+        "epistemic_state": "stabilized"
+      },
+      {
+        "id": "HB-JOB-006",
+        "title": "Introduce me to home info and insights I'm not aware of",
+        "description": "Homebuyer JTBD (final): Introduce me to home info and insights I'm not aware of",
+        "atomic_element_type": "job_to_be_done",
+        "persona": "homebuyer",
+        "buyer_stage": "get_deep_sense_for_specific_homes",
+        "buyer_stage_label": "Get a deep sense for specific homes",
+        "stage_order": 2,
+        "job_statement": "Introduce me to home info and insights I'm not aware of",
+        "success_signal": "Job outcome reached and verified by buyer progression state.",
+        "is_final_job": true,
+        "job_set_status": "final",
+        "finalized_at": "2026-03-02",
+        "source_pack_ref": "user_provided_homebuyer_jtbd_board_20260302",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "research_backed",
+        "status": "final",
+        "epistemic_state": "stabilized"
+      },
+      {
+        "id": "HB-JOB-007",
+        "title": "Get home info and insights I'm looking for",
+        "description": "Homebuyer JTBD (final): Get home info and insights I'm looking for",
+        "atomic_element_type": "job_to_be_done",
+        "persona": "homebuyer",
+        "buyer_stage": "get_deep_sense_for_specific_homes",
+        "buyer_stage_label": "Get a deep sense for specific homes",
+        "stage_order": 3,
+        "job_statement": "Get home info and insights I'm looking for",
+        "success_signal": "Job outcome reached and verified by buyer progression state.",
+        "is_final_job": true,
+        "job_set_status": "final",
+        "finalized_at": "2026-03-02",
+        "source_pack_ref": "user_provided_homebuyer_jtbd_board_20260302",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "research_backed",
+        "status": "final",
+        "epistemic_state": "stabilized"
+      },
+      {
+        "id": "HB-JOB-008",
+        "title": "Picture myself in the home",
+        "description": "Homebuyer JTBD (final): Picture myself in the home",
+        "atomic_element_type": "job_to_be_done",
+        "persona": "homebuyer",
+        "buyer_stage": "get_deep_sense_for_specific_homes",
+        "buyer_stage_label": "Get a deep sense for specific homes",
+        "stage_order": 4,
+        "job_statement": "Picture myself in the home",
+        "success_signal": "Job outcome reached and verified by buyer progression state.",
+        "is_final_job": true,
+        "job_set_status": "final",
+        "finalized_at": "2026-03-02",
+        "source_pack_ref": "user_provided_homebuyer_jtbd_board_20260302",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "research_backed",
+        "status": "final",
+        "epistemic_state": "stabilized"
+      },
+      {
+        "id": "HB-JOB-009",
+        "title": "Compare properties",
+        "description": "Homebuyer JTBD (final): Compare properties",
+        "atomic_element_type": "job_to_be_done",
+        "persona": "homebuyer",
+        "buyer_stage": "get_deep_sense_for_specific_homes",
+        "buyer_stage_label": "Get a deep sense for specific homes",
+        "stage_order": 5,
+        "job_statement": "Compare properties",
+        "success_signal": "Job outcome reached and verified by buyer progression state.",
+        "is_final_job": true,
+        "job_set_status": "final",
+        "finalized_at": "2026-03-02",
+        "source_pack_ref": "user_provided_homebuyer_jtbd_board_20260302",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "research_backed",
+        "status": "final",
+        "epistemic_state": "stabilized"
+      },
+      {
+        "id": "HB-JOB-010",
+        "title": "Assess the physical quality of a home",
+        "description": "Homebuyer JTBD (final): Assess the physical quality of a home",
+        "atomic_element_type": "job_to_be_done",
+        "persona": "homebuyer",
+        "buyer_stage": "get_deep_sense_for_specific_homes",
+        "buyer_stage_label": "Get a deep sense for specific homes",
+        "stage_order": 6,
+        "job_statement": "Assess the physical quality of a home",
+        "success_signal": "Job outcome reached and verified by buyer progression state.",
+        "is_final_job": true,
+        "job_set_status": "final",
+        "finalized_at": "2026-03-02",
+        "source_pack_ref": "user_provided_homebuyer_jtbd_board_20260302",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "research_backed",
+        "status": "final",
+        "epistemic_state": "stabilized"
+      },
+      {
+        "id": "HB-JOB-011",
+        "title": "Compare lenders and interest rates",
+        "description": "Homebuyer JTBD (final): Compare lenders and interest rates",
+        "atomic_element_type": "job_to_be_done",
+        "persona": "homebuyer",
+        "buyer_stage": "know_what_to_offer_on_a_home",
+        "buyer_stage_label": "Know what to offer on a home",
+        "stage_order": 1,
+        "job_statement": "Compare lenders and interest rates",
+        "success_signal": "Job outcome reached and verified by buyer progression state.",
+        "is_final_job": true,
+        "job_set_status": "final",
+        "finalized_at": "2026-03-02",
+        "source_pack_ref": "user_provided_homebuyer_jtbd_board_20260302",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "research_backed",
+        "status": "final",
+        "epistemic_state": "stabilized"
+      },
+      {
+        "id": "HB-JOB-012",
+        "title": "Figure out how I'll fund my purchase",
+        "description": "Homebuyer JTBD (final): Figure out how I'll fund my purchase",
+        "atomic_element_type": "job_to_be_done",
+        "persona": "homebuyer",
+        "buyer_stage": "know_what_to_offer_on_a_home",
+        "buyer_stage_label": "Know what to offer on a home",
+        "stage_order": 2,
+        "job_statement": "Figure out how I'll fund my purchase",
+        "success_signal": "Job outcome reached and verified by buyer progression state.",
+        "is_final_job": true,
+        "job_set_status": "final",
+        "finalized_at": "2026-03-02",
+        "source_pack_ref": "user_provided_homebuyer_jtbd_board_20260302",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "research_backed",
+        "status": "final",
+        "epistemic_state": "stabilized"
+      },
+      {
+        "id": "HB-JOB-013",
+        "title": "Assess the value of the home I'm offering on",
+        "description": "Homebuyer JTBD (final): Assess the value of the home I'm offering on",
+        "atomic_element_type": "job_to_be_done",
+        "persona": "homebuyer",
+        "buyer_stage": "know_what_to_offer_on_a_home",
+        "buyer_stage_label": "Know what to offer on a home",
+        "stage_order": 3,
+        "job_statement": "Assess the value of the home I'm offering on",
+        "success_signal": "Job outcome reached and verified by buyer progression state.",
+        "is_final_job": true,
+        "job_set_status": "final",
+        "finalized_at": "2026-03-02",
+        "source_pack_ref": "user_provided_homebuyer_jtbd_board_20260302",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "research_backed",
+        "status": "final",
+        "epistemic_state": "stabilized"
+      },
+      {
+        "id": "HB-JOB-014",
+        "title": "Understand the market conditions of the home I'm making an offer on",
+        "description": "Homebuyer JTBD (final): Understand the market conditions of the home I'm making an offer on",
+        "atomic_element_type": "job_to_be_done",
+        "persona": "homebuyer",
+        "buyer_stage": "know_what_to_offer_on_a_home",
+        "buyer_stage_label": "Know what to offer on a home",
+        "stage_order": 4,
+        "job_statement": "Understand the market conditions of the home I'm making an offer on",
+        "success_signal": "Job outcome reached and verified by buyer progression state.",
+        "is_final_job": true,
+        "job_set_status": "final",
+        "finalized_at": "2026-03-02",
+        "source_pack_ref": "user_provided_homebuyer_jtbd_board_20260302",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "research_backed",
+        "status": "final",
+        "epistemic_state": "stabilized"
+      },
+      {
+        "id": "HB-JOB-015",
+        "title": "Know what I can afford",
+        "description": "Homebuyer JTBD (final): Know what I can afford",
+        "atomic_element_type": "job_to_be_done",
+        "persona": "homebuyer",
+        "buyer_stage": "know_what_to_offer_on_a_home",
+        "buyer_stage_label": "Know what to offer on a home",
+        "stage_order": 5,
+        "job_statement": "Know what I can afford",
+        "success_signal": "Job outcome reached and verified by buyer progression state.",
+        "is_final_job": true,
+        "job_set_status": "final",
+        "finalized_at": "2026-03-02",
+        "source_pack_ref": "user_provided_homebuyer_jtbd_board_20260302",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "research_backed",
+        "status": "final",
+        "epistemic_state": "stabilized"
+      },
+      {
+        "id": "HB-JOB-016",
+        "title": "Negotiate and finalize offers",
+        "description": "Homebuyer JTBD (final): Negotiate and finalize offers",
+        "atomic_element_type": "job_to_be_done",
+        "persona": "homebuyer",
+        "buyer_stage": "get_offer_accepted",
+        "buyer_stage_label": "Get offer accepted",
+        "stage_order": 1,
+        "job_statement": "Negotiate and finalize offers",
+        "success_signal": "Job outcome reached and verified by buyer progression state.",
+        "is_final_job": true,
+        "job_set_status": "final",
+        "finalized_at": "2026-03-02",
+        "source_pack_ref": "user_provided_homebuyer_jtbd_board_20260302",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "research_backed",
+        "status": "final",
+        "epistemic_state": "stabilized"
+      },
+      {
+        "id": "HB-JOB-017",
+        "title": "Provide initial info to lender",
+        "description": "Homebuyer JTBD (final): Provide initial info to lender",
+        "atomic_element_type": "job_to_be_done",
+        "persona": "homebuyer",
+        "buyer_stage": "get_offer_accepted",
+        "buyer_stage_label": "Get offer accepted",
+        "stage_order": 2,
+        "job_statement": "Provide initial info to lender",
+        "success_signal": "Job outcome reached and verified by buyer progression state.",
+        "is_final_job": true,
+        "job_set_status": "final",
+        "finalized_at": "2026-03-02",
+        "source_pack_ref": "user_provided_homebuyer_jtbd_board_20260302",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "research_backed",
+        "status": "final",
+        "epistemic_state": "stabilized"
+      },
+      {
+        "id": "HB-JOB-018",
+        "title": "Secure funding",
+        "description": "Homebuyer JTBD (final): Secure funding",
+        "atomic_element_type": "job_to_be_done",
+        "persona": "homebuyer",
+        "buyer_stage": "close_on_offer",
+        "buyer_stage_label": "Close on offer",
+        "stage_order": 1,
+        "job_statement": "Secure funding",
+        "success_signal": "Job outcome reached and verified by buyer progression state.",
+        "is_final_job": true,
+        "job_set_status": "final",
+        "finalized_at": "2026-03-02",
+        "source_pack_ref": "user_provided_homebuyer_jtbd_board_20260302",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "research_backed",
+        "status": "final",
+        "epistemic_state": "stabilized"
+      },
+      {
+        "id": "HB-JOB-019",
+        "title": "Coordinate logistics",
+        "description": "Homebuyer JTBD (final): Coordinate logistics",
+        "atomic_element_type": "job_to_be_done",
+        "persona": "homebuyer",
+        "buyer_stage": "close_on_offer",
+        "buyer_stage_label": "Close on offer",
+        "stage_order": 2,
+        "job_statement": "Coordinate logistics",
+        "success_signal": "Job outcome reached and verified by buyer progression state.",
+        "is_final_job": true,
+        "job_set_status": "final",
+        "finalized_at": "2026-03-02",
+        "source_pack_ref": "user_provided_homebuyer_jtbd_board_20260302",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "research_backed",
+        "status": "final",
+        "epistemic_state": "stabilized"
+      },
+      {
+        "id": "HB-JOB-020",
+        "title": "Provide additional info to the lender",
+        "description": "Homebuyer JTBD (final): Provide additional info to the lender",
+        "atomic_element_type": "job_to_be_done",
+        "persona": "homebuyer",
+        "buyer_stage": "close_on_offer",
+        "buyer_stage_label": "Close on offer",
+        "stage_order": 3,
+        "job_statement": "Provide additional info to the lender",
+        "success_signal": "Job outcome reached and verified by buyer progression state.",
+        "is_final_job": true,
+        "job_set_status": "final",
+        "finalized_at": "2026-03-02",
+        "source_pack_ref": "user_provided_homebuyer_jtbd_board_20260302",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "research_backed",
+        "status": "final",
+        "epistemic_state": "stabilized"
+      },
+      {
+        "id": "HB-JOB-021",
+        "title": "Move belongings into home",
+        "description": "Homebuyer JTBD (final): Move belongings into home",
+        "atomic_element_type": "job_to_be_done",
+        "persona": "homebuyer",
+        "buyer_stage": "get_set_up_in_new_home",
+        "buyer_stage_label": "Get set up in new home",
+        "stage_order": 1,
+        "job_statement": "Move belongings into home",
+        "success_signal": "Job outcome reached and verified by buyer progression state.",
+        "is_final_job": true,
+        "job_set_status": "final",
+        "finalized_at": "2026-03-02",
+        "source_pack_ref": "user_provided_homebuyer_jtbd_board_20260302",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "research_backed",
+        "status": "final",
+        "epistemic_state": "stabilized"
+      },
+      {
+        "id": "HB-JOB-022",
+        "title": "Make home move-in ready",
+        "description": "Homebuyer JTBD (final): Make home move-in ready",
+        "atomic_element_type": "job_to_be_done",
+        "persona": "homebuyer",
+        "buyer_stage": "get_set_up_in_new_home",
+        "buyer_stage_label": "Get set up in new home",
+        "stage_order": 2,
+        "job_statement": "Make home move-in ready",
+        "success_signal": "Job outcome reached and verified by buyer progression state.",
+        "is_final_job": true,
+        "job_set_status": "final",
+        "finalized_at": "2026-03-02",
+        "source_pack_ref": "user_provided_homebuyer_jtbd_board_20260302",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "research_backed",
+        "status": "final",
+        "epistemic_state": "stabilized"
+      },
+      {
+        "id": "HB-JOB-023",
+        "title": "Make personalized changes to the home",
+        "description": "Homebuyer JTBD (final): Make personalized changes to the home",
+        "atomic_element_type": "job_to_be_done",
+        "persona": "homebuyer",
+        "buyer_stage": "get_set_up_in_new_home",
+        "buyer_stage_label": "Get set up in new home",
+        "stage_order": 3,
+        "job_statement": "Make personalized changes to the home",
+        "success_signal": "Job outcome reached and verified by buyer progression state.",
+        "is_final_job": true,
+        "job_set_status": "final",
+        "finalized_at": "2026-03-02",
+        "source_pack_ref": "user_provided_homebuyer_jtbd_board_20260302",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "research_backed",
+        "status": "final",
+        "epistemic_state": "stabilized"
+      }
+    ],
+    "metaphors": [],
+    "public_copy_atoms": [],
+    "alignment_issues": [
+      {
+        "id": "RISK-001",
+        "title": "Income roof canonical migration pending",
+        "description": "Inline income roof logic has not been fully migrated to canonical finance-core solver path.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "risk-001",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Track risk until explicit closure criteria is met."
+        },
+        "evidence_refs": [
+          "components/property-workbench/affordability-summary.tsx",
+          "lib/finance-core.ts::solvePurchasePriceForMonthlyBudget"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "RISK-002",
+        "title": "Custom tax rate wiring gap",
+        "description": "customTaxRateInput remains UI-level state and is not consistently bound to active affordability calculations.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "risk-002",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Track risk until explicit closure criteria is met."
+        },
+        "evidence_refs": [
+          "components/property-workbench/affordability-summary.tsx",
+          "lib/affordability-calculations.ts"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "RISK-003",
+        "title": "Type deduplication unresolved",
+        "description": "Shared type contracts remain split across property-types and real-estate-types with drift risk.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "risk-003",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Track risk until explicit closure criteria is met."
+        },
+        "evidence_refs": [
+          "lib/property-types.ts",
+          "lib/real-estate-types.ts"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "RISK-004",
+        "title": "Property-tax default discrepancy",
+        "description": "Default tax-rate references are not fully reconciled across canon/governance artifacts.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "risk-004",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Track risk until explicit closure criteria is met."
+        },
+        "evidence_refs": [
+          "lib/finance-core.ts::DEFAULTS",
+          "08_Data_Model_and_API_Contracts/codex_migration_checklist.md"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "RISK-005",
+        "title": "Real-estate-planner status ambiguity",
+        "description": "Disposition of real-estate-planner surface (active vs legacy) is unresolved and affects type/error remediation strategy.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "risk-005",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Track risk until explicit closure criteria is met."
+        },
+        "evidence_refs": [
+          "components/real-estate-planner/",
+          "CODEX_CONTEXT.md"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "RISK-006",
+        "title": "CI gate expansion pending",
+        "description": "Lint and strict TypeScript enforcement are not fully wired as mandatory CI merge gates.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "risk-006",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Track risk until explicit closure criteria is met."
+        },
+        "evidence_refs": [
+          ".github/workflows/nextjs.yml",
+          "next.config.mjs"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "RISK-007",
+        "title": "Memoization layer audit gap",
+        "description": "Large memoization layer has not been fully audited for logic placement and purity boundaries.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "risk-007",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Track risk until explicit closure criteria is met."
+        },
+        "evidence_refs": [
+          "hooks/use-memoized-calculations.ts",
+          "AGENTS.md"
+        ],
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      }
+    ],
+    "edges": [],
+    "epistemic_state_policy": {
+      "field_name": "epistemic_state",
+      "allowed_values": [
+        "seed",
+        "hypothesis",
+        "stabilized"
+      ],
+      "default_for_new_records": "seed",
+      "applies_to": "all_framework_foundation_records"
+    },
+    "desired_outcomes": [
+      {
+        "id": "DO-001",
+        "title": "Detect decision steadiness before commitment",
+        "description": "Users can identify whether current pressure/load state is steady enough to proceed.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "steadiness_detection",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Confirm users pause or proceed appropriately based on band/pattern output."
+        },
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "DO-002",
+        "title": "Differentiate ceiling from sustainability",
+        "description": "Users can distinguish affordability ceiling from ongoing monthly sustainability margin.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "ceiling_vs_margin",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Reduce misinterpretation of maximum price as recommended price."
+        },
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "DO-003",
+        "title": "Mitigate commitment pressure pre-offer",
+        "description": "Users can detect and mitigate attachment/urgency pressure before submitting offers.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "offer_pressure_mitigation",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Measure reduction in reactive offer behavior."
+        },
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      }
+    ],
+    "opportunities": [
+      {
+        "id": "OP-001",
+        "title": "Unify prototype and production scoring contracts",
+        "description": "Create single-source scoring contracts shared across prototype references and production engines.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "scoring_contract_unification",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Lower drift and maintenance overhead."
+        },
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "OP-002",
+        "title": "Surface LEI in Ongoing Budget UI",
+        "description": "Expose liquidity elasticity and clearing state in user-facing budgeting workflows.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "lei_ui_surface",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Test whether LEI visibility changes reserve behavior."
+        },
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "OP-003",
+        "title": "Add evidence capture loop for decision hypotheses",
+        "description": "Track decision mode, band, pattern, and outcomes to convert seeds into evidence-backed records.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "hypothesis_evidence_loop",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Improve speed of seed-to-stabilized promotion."
+        },
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      }
+    ],
+    "solutions": [
+      {
+        "id": "SO-001",
+        "title": "Decision telemetry schema",
+        "description": "Add schema for capturing mode, band, pattern tag, and follow-up outcomes in structured records.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "decision_telemetry_schema",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Enable analysis of intervention effectiveness."
+        },
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "SO-002",
+        "title": "Ongoing Budget UI on liquidity engine",
+        "description": "Implement Ongoing Budget page backed by reserve, clearing, and LEI functions.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "ongoing_budget_ui",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Deliver actionable monthly stability guidance."
+        },
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "SO-003",
+        "title": "Canonical limiting-factor explainer",
+        "description": "Render limiting-factor explanation directly from canonical affordability outputs.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "limiting_factor_component",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Reduce incorrect affordability interpretations."
+        },
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "medium",
+        "evidence_maturity": "none",
+        "status": "active"
+      }
+    ],
+    "ost_links": [
+      {
+        "id": "LINK-001",
+        "desired_outcome_id": "DO-001",
+        "opportunity_id": "OP-001",
+        "solution_id": "SO-001",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "ost_link_001",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Validate structured evidence flow for steadiness outcomes."
+        },
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "LINK-002",
+        "desired_outcome_id": "DO-002",
+        "opportunity_id": "OP-003",
+        "solution_id": "SO-003",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "ost_link_002",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Validate explainability impact on affordability interpretation."
+        },
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "LINK-003",
+        "desired_outcome_id": "DO-003",
+        "opportunity_id": "OP-002",
+        "solution_id": "SO-002",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "ost_link_003",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Validate pressure-mitigation impact from liquidity surface."
+        },
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "LINK-JTBD-001",
+        "jtbd_task_id": "JTBD-001",
+        "desired_outcome_id": "DO-001",
+        "opportunity_id": "OP-001",
+        "solution_id": "SO-001",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "ost_jtbd-001",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Bind JTBD records to OST pathways for traceable planning."
+        },
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "LINK-JTBD-002",
+        "jtbd_task_id": "JTBD-002",
+        "desired_outcome_id": "DO-002",
+        "opportunity_id": "OP-003",
+        "solution_id": "SO-003",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "ost_jtbd-002",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Bind JTBD records to OST pathways for traceable planning."
+        },
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "LINK-JTBD-003",
+        "jtbd_task_id": "JTBD-003",
+        "desired_outcome_id": "DO-003",
+        "opportunity_id": "OP-002",
+        "solution_id": "SO-002",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "ost_jtbd-003",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Bind JTBD records to OST pathways for traceable planning."
+        },
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "LINK-JTBD-004",
+        "jtbd_task_id": "JTBD-004",
+        "desired_outcome_id": "DO-002",
+        "opportunity_id": "OP-003",
+        "solution_id": "SO-003",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "ost_jtbd-004",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Bind JTBD records to OST pathways for traceable planning."
+        },
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "LINK-JTBD-005",
+        "jtbd_task_id": "JTBD-005",
+        "desired_outcome_id": "DO-002",
+        "opportunity_id": "OP-003",
+        "solution_id": "SO-003",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "ost_jtbd-005",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Bind JTBD records to OST pathways for traceable planning."
+        },
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "LINK-JTBD-006",
+        "jtbd_task_id": "JTBD-006",
+        "desired_outcome_id": "DO-001",
+        "opportunity_id": "OP-001",
+        "solution_id": "SO-001",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "ost_jtbd-006",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Bind JTBD records to OST pathways for traceable planning."
+        },
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "active"
+      },
+      {
+        "id": "LINK-JTBD-007",
+        "jtbd_task_id": "JTBD-007",
+        "desired_outcome_id": "DO-003",
+        "opportunity_id": "OP-002",
+        "solution_id": "SO-002",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "ost_jtbd-007",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Bind JTBD records to OST pathways for traceable planning."
+        },
+        "source_pack_ref": "07_Strategy_Canon_Artifacts/migration_inputs/CLAUDE_FINAL_KNOWLEDGE_PACK_20260302.md",
+        "reconciled_by": "codex_gpt5",
+        "confidence": "high",
+        "evidence_maturity": "none",
+        "status": "active"
+      }
+    ],
+    "seed_data_policy": {
+      "seed_is_exploratory": true,
+      "required_seed_metadata_fields": [
+        "seed_label",
+        "evaluation_status",
+        "probe_intent"
+      ],
+      "evaluation_status_allowed_values": [
+        "research_backed",
+        "research_needed"
+      ],
+      "promotion_rule": "seed_items_require_evidence_before_stabilized"
+    }
+  }
+}

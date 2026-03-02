@@ -1,4 +1,4 @@
-# PM Hybrid Update Policy
+# QB Hybrid Update Policy
 
 ## Source of Truth
 - `QB/status.json` is the canonical project state.
@@ -28,6 +28,11 @@ Every dispatch prompt must include:
 - return format
 - constraints
 - validation commands
+
+## QB-to-QB Requirement
+- QB-to-QB requests are valid only as QB dispatch artifacts.
+- Receiver must update `QB/status.json` and `QB/DECISION_LOG.md`.
+- Escalate to Coach before execution if scope/contracts/architecture are impacted.
 
 ## Changelog Sync Rule
 - Use `./QB/qb sync` to collect recent git changes into a sync note.

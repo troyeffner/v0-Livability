@@ -1,0 +1,16 @@
+{
+  "last_synced_at": "2026-03-02T06:20:01Z",
+  "last_ffa_hash": "9327f45d546f41b8d5b464389bd02d2e7e36828163c20be89be9e919bf8921f3",
+  "alignment_status": "aligned",
+  "active_queue_items_missing_ffa_binding": [],
+  "notes": "Every active work queue row requires ffa_ref or no_ffa_impact_reason.",
+  "last_ffa_reconcile_at": "2026-03-02T06:20:01Z",
+  "last_ffa_reconcile_scope": "full",
+  "ffa_reconcile": {
+    "blocking": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 4,
+    "status": "aligned"
+  }
+}

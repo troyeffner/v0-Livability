@@ -1,0 +1,25 @@
+{
+  "project": "Livability",
+  "contract_ref": "08_Data_Model_and_API_Contracts/page_tagging.contract.v0.1.json",
+  "version_id": "livability_page_tagging_v0.1",
+  "updated_at": "2026-03-01T23:30:00Z",
+  "metadata": {
+    "coverage_target_pages": ["decision_rehearsal", "affordability"],
+    "owner": "00_QB"
+  },
+  "entries": [
+    {
+      "id": "pt_001",
+      "surface_id": "decision_rehearsal",
+      "assumption_ids": ["A-001", "A-002"],
+      "artifact_refs": [
+        "framework_foundation.assumptions.A-001",
+        "framework_foundation.hypotheses.H-001"
+      ],
+      "tag_status": "active",
+      "version_id": "livability_ffa_v0.1",
+      "updated_at": "2026-03-01T23:30:00Z",
+      "notes": "Pilot seed mapping for page-level traceability."
+    }
+  ]
+}

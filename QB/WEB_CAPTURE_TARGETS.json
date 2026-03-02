@@ -1,0 +1,16 @@
+{
+  "targets": [
+    {
+      "id": "home",
+      "url": "http://livability.localhost:8080/",
+      "viewport": "desktop",
+      "required": true
+    },
+    {
+      "id": "marketing",
+      "url": "http://livability.localhost:8080/marketing",
+      "viewport": "desktop",
+      "required": false
+    }
+  ]
+}
