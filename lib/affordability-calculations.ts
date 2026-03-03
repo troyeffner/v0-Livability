@@ -160,10 +160,12 @@ export function calculateMaxAffordability(
   const maxTotalDebtPayment = grossMonthlyIncome * maxDTI
   const maxHousingPaymentFromDTI = maxTotalDebtPayment - fixedDebts
 
-  const maxLivabilityPayment = takeHomeIncome * (housingPercentage / 100)
+  // Debts reduce effective income before housing % applied
+  const effectiveIncome = Math.max(0, takeHomeIncome - fixedDebts)
+  const maxLivabilityPayment = effectiveIncome * (housingPercentage / 100)
   const availableForHousing = takeHomeIncome - totalMonthlyExpenses - fixedDebts
 
-  // Ceiling is income-based only (DTI constraint + housing % of take-home).
+  // Ceiling is income-based only (DTI constraint + budget % of effective take-home).
   // Lifestyle expenses (utilities, transit, etc.) affect sustainability but do NOT cap the ceiling.
   const maxMonthlyPayment = Math.max(
     0,
@@ -174,6 +176,46 @@ export function calculateMaxAffordability(
   const numPayments = financialInputs.loanTerm * 12
   const propertyTaxRate = (annualPropertyTaxRate ?? 0.0181) / 12
   const insuranceRate = DEFAULTS.annualInsurance / 12
+  const availableDownPayment = financialInputs.downPaymentSources
+  const isCashPurchase = maxMonthlyPayment <= 0 && availableDownPayment > 0
+
+  // Cash purchase: no mortgage, roof = available cash
+  if (isCashPurchase) {
+    const cashPrice = availableDownPayment
+    const monthlyPropertyTax = cashPrice * propertyTaxRate
+    const monthlyInsurance = insuranceRate
+    const ongoingMonthlyCost = monthlyPropertyTax + monthlyInsurance
+    const dtiRatio = grossMonthlyIncome > 0
+      ? ((ongoingMonthlyCost + fixedDebts) / grossMonthlyIncome) * 100
+      : 0
+    const monthlyMargin =
+      takeHomeIncome - ongoingMonthlyCost - totalMonthlyExpenses - fixedDebts - (financialInputs.futureExpensesMonthly || 0)
+
+    return {
+      maxPurchasePrice: cashPrice,
+      maxMonthlyPayment: 0,
+      actualMonthlyPayment: ongoingMonthlyCost,
+      availableDownPayment,
+      requiredDownPayment: cashPrice,
+      maxPriceFromDownPayment: availableDownPayment,
+      loanAmount: 0,
+      dtiRatio,
+      monthlyIncome: grossMonthlyIncome,
+      takeHomeIncome,
+      monthlyMargin,
+      constraints: [],
+      opportunities: monthlyMargin > 0 ? ["No mortgage — only tax and insurance costs"] : [],
+      housingPercentage,
+      downPaymentPercentage,
+      monthlyPrincipalInterest: 0,
+      monthlyPropertyTax,
+      monthlyInsurance,
+      downPaymentStatus: "on-target" as const,
+      maxHousingPaymentFromDTI: Math.max(0, maxHousingPaymentFromDTI),
+      maxBudgetPayment: Math.max(0, maxLivabilityPayment),
+      bindingConstraint: "cash" as const,
+    }
+  }
 
   let idealHousePrice = 0
   let estimate = 400000
@@ -205,7 +247,6 @@ export function calculateMaxAffordability(
   }
 
   const requiredDownPayment = (idealHousePrice * downPaymentPercentage) / 100
-  const availableDownPayment = financialInputs.downPaymentSources
 
   let downPaymentStatus: "on-target" | "excess" | "shortfall"
   let excessAmount: number | undefined
@@ -281,7 +322,9 @@ export function calculateMaxAffordability(
       ? (loanAmount * interestRate) / (1 - Math.pow(1 + interestRate, -numPayments))
       : loanAmount / numPayments
 
-  const dtiRatio = ((actualMonthlyPayment + fixedDebts) / grossMonthlyIncome) * 100
+  const dtiRatio = grossMonthlyIncome > 0
+    ? ((actualMonthlyPayment + fixedDebts) / grossMonthlyIncome) * 100
+    : 0
   const monthlyMargin =
     takeHomeIncome -
     actualMonthlyPayment -
@@ -342,5 +385,8 @@ export function calculateMaxAffordability(
     downPaymentStatus,
     excessAmount,
     shortfallAmount,
+    maxHousingPaymentFromDTI: Math.max(0, maxHousingPaymentFromDTI),
+    maxBudgetPayment: Math.max(0, maxLivabilityPayment),
+    bindingConstraint: maxHousingPaymentFromDTI <= maxLivabilityPayment ? "dti" as const : "budget" as const,
   }
 }

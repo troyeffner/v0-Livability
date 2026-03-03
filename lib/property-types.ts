@@ -113,4 +113,7 @@ export interface AffordabilityCalculation {
   downPaymentStatus: "on-target" | "excess" | "shortfall"
   excessAmount?: number
   shortfallAmount?: number
+  maxHousingPaymentFromDTI: number
+  maxBudgetPayment: number
+  bindingConstraint: "dti" | "budget" | "cash"
 }

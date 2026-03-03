@@ -4,8 +4,8 @@
     {
       "name": "Livability",
       "cwd": "/Users/troyeffner/Dropbox/DEV/Livability",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["serve", "out", "-p", "3010"],
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["dev", "--port", "3010"],
       "port": 3010
     }
   ]

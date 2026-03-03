@@ -82,7 +82,7 @@ const housingPercentage = scenario.financialInputs.housingPercentage || 30
 const downPaymentPercentage = scenario.financialInputs.downPaymentPercentage || 20
 
 // Scenario management state
-const [isScenarioBuilderOpen, setIsScenarioBuilderOpen] = useState(false)
+const [isScenarioBuilderOpen, setIsScenarioBuilderOpen] = useState(true)
 const [isSustainabilityOpen, setIsSustainabilityOpen] = useState(false)
 const [isLivabilityOpen, setIsLivabilityOpen] = useState(false)
 const [isLocationOpen, setIsLocationOpen] = useState(false)
@@ -106,52 +106,68 @@ const [isExpenseIdeasOpen, setIsExpenseIdeasOpen] = useState(false)
 
 // Financial settings state
 const [financialItems, setFinancialItems] = useState<FinancialItem[]>([
-  // Income items
+  // Income items — Springfield dual-income household with side gigs
   {
-    id: "base-income",
-    label: "Base Salary",
-    amount: scenario.financialInputs.annualIncome * 0.6,
-    type: "income",
-    frequency: "annual",
-    timing: "current",
-    active: true,
-    editable: true,
-    incomeEntry: "gross" as const,
-    withholdingTaxPct: 25,
-    withholding401kPct: 5,
-    withholdingHealthcarePct: 5,
-    withholdingHSAPct: 0,
-    withholdingOtherPct: 0,
-  },
-  {
-    id: "partner-income",
-    label: "Partner Income",
-    amount: scenario.financialInputs.annualIncome * 0.4,
-    type: "income",
-    frequency: "annual",
-    timing: "current",
-    active: true,
-    editable: true,
-    incomeEntry: "gross" as const,
-    withholdingTaxPct: 25,
-    withholding401kPct: 5,
-    withholdingHealthcarePct: 5,
-    withholdingHSAPct: 0,
-    withholdingOtherPct: 0,
-  },
-  {
-    id: "side-income",
-    label: "Side Hustle",
-    amount: scenario.financialInputs.futureIncomeMonthly || 500,
+    id: "gig-income",
+    label: "Drive Uber",
+    amount: 600,
     type: "income",
     frequency: "monthly",
-    timing: "future",
-    active: !!scenario.financialInputs.futureIncomeMonthly,
+    timing: "current",
+    active: true,
     editable: true,
-    incomeEntry: "gross" as const,
-    withholdingTaxPct: 25,
+    incomeEntry: "net" as const,
+    withholdingTaxPct: 0,
     withholding401kPct: 0,
     withholdingHealthcarePct: 0,
+    withholdingHSAPct: 0,
+    withholdingOtherPct: 0,
+  },
+  {
+    id: "rental-income",
+    label: "Rental Unit",
+    amount: 950,
+    type: "income",
+    frequency: "monthly",
+    timing: "current",
+    active: true,
+    editable: true,
+    incomeEntry: "net" as const,
+    withholdingTaxPct: 0,
+    withholding401kPct: 0,
+    withholdingHealthcarePct: 0,
+    withholdingHSAPct: 0,
+    withholdingOtherPct: 0,
+  },
+  {
+    id: "pat-income",
+    label: "Pat",
+    amount: 35000,
+    type: "income",
+    frequency: "annual",
+    timing: "current",
+    active: false,
+    editable: true,
+    incomeEntry: "gross" as const,
+    withholdingTaxPct: 22,
+    withholding401kPct: 4,
+    withholdingHealthcarePct: 3,
+    withholdingHSAPct: 0,
+    withholdingOtherPct: 0,
+  },
+  {
+    id: "jamie-income",
+    label: "Jamie",
+    amount: 50000,
+    type: "income",
+    frequency: "annual",
+    timing: "current",
+    active: true,
+    editable: true,
+    incomeEntry: "gross" as const,
+    withholdingTaxPct: 22,
+    withholding401kPct: 5,
+    withholdingHealthcarePct: 4,
     withholdingHSAPct: 0,
     withholdingOtherPct: 0,
   },
@@ -302,34 +318,34 @@ const [financialItems, setFinancialItems] = useState<FinancialItem[]>([
     active: false,
     editable: true,
   },
-  // Debt items
+  // Debt items — typical Springfield household
   {
     id: "credit-card",
     label: "Credit Card Payment",
-    amount: Math.floor(scenario.financialInputs.fixedDebts * 0.4),
-    balance: 8400,
+    amount: 175,
+    balance: 6200,
     type: "debt",
     frequency: "monthly",
     timing: "current",
-    active: scenario.financialInputs.fixedDebts > 0,
+    active: true,
     editable: true,
   },
   {
     id: "auto-loan",
     label: "Auto Loan",
-    amount: Math.floor(scenario.financialInputs.fixedDebts * 0.6),
-    balance: 14200,
+    amount: 285,
+    balance: 12800,
     type: "debt",
     frequency: "monthly",
     timing: "current",
-    active: scenario.financialInputs.fixedDebts > 0,
+    active: true,
     editable: true,
   },
   // Down payment sources
   {
     id: "savings",
     label: "Savings Account",
-    amount: Math.floor(scenario.financialInputs.downPaymentSources * 0.5),
+    amount: 18000,
     type: "downpayment",
     frequency: "one-time",
     timing: "current",
@@ -339,7 +355,7 @@ const [financialItems, setFinancialItems] = useState<FinancialItem[]>([
   {
     id: "gift",
     label: "Family Gift",
-    amount: Math.floor(scenario.financialInputs.downPaymentSources * 0.3),
+    amount: 20000,
     type: "downpayment",
     frequency: "one-time",
     timing: "current",
@@ -349,11 +365,11 @@ const [financialItems, setFinancialItems] = useState<FinancialItem[]>([
   {
     id: "stocks",
     label: "Sell Investments",
-    amount: Math.floor(scenario.financialInputs.downPaymentSources * 0.2),
+    amount: 7000,
     type: "downpayment",
     frequency: "one-time",
     timing: "current",
-    active: true,
+    active: false,
     editable: true,
   },
 ])
@@ -513,6 +529,11 @@ useEffect(() => {
   onLocationChange?.(zipInfo ? { zipCode, ...zipInfo } : null)
 }, [zipCode]) // eslint-disable-line react-hooks/exhaustive-deps
 
+// Sync financial items → scenario on mount so fixedDebts/income match item state
+useEffect(() => {
+  updateScenarioFromItems(financialItems)
+}, []) // eslint-disable-line react-hooks/exhaustive-deps
+
 const affordability = calculateMaxAffordability(scenario, housingPercentage, downPaymentPercentage, activePropertyTaxRate)
 
 // Safe display values
@@ -520,39 +541,36 @@ const displayInterestRate = (scenario.financialInputs.interestRate ?? 6.85).toFi
 const displayLoanTerm = scenario.financialInputs.loanTerm ?? 30
 const displayCreditScore = scenario.financialInputs.creditScore ?? 680
 
-// Income-based Purchase Roof — extracted from inline IIFE for reuse in relational UI
-const incomeBasedRoof = (() => {
-  const maxPayment = affordability.maxMonthlyPayment
-  const interestRate = (scenario.financialInputs.interestRate ?? 6.85) / 100 / 12
-  const numPayments = (scenario.financialInputs.loanTerm ?? 30) * 12
-  const propertyTaxRate = activePropertyTaxRate / 12
-  const insuranceRate = 1800 / 12
+// Debt impact — computed at component scope for use in both roof subtext and mortgage details
+const debtItems = financialItems.filter((item) => item.type === "debt" && item.timing === "current")
+const activeDebtTotal = debtItems
+  .filter((item) => item.active)
+  .reduce((sum, item) => sum + (item.frequency === "annual" ? item.amount / 12 : item.amount), 0)
+const scenarioNoDebts = { ...scenario, financialInputs: { ...scenario.financialInputs, fixedDebts: 0 } }
+const affordabilityNoDebts = calculateMaxAffordability(scenarioNoDebts, housingPercentage, downPaymentPercentage, activePropertyTaxRate)
+const debtPriceDelta = Math.round((affordabilityNoDebts.maxPurchasePrice - affordability.maxPurchasePrice) / 1000) * 1000
 
-  let purchasePrice = 0
-  let estimate = 400000
-  for (let i = 0; i < 50; i++) {
-    const propertyTax = estimate * propertyTaxRate
-    const insurance = insuranceRate
-    const availableForPI = maxPayment - propertyTax - insurance
-    if (availableForPI <= 0) { estimate *= 0.8; continue }
-    const maxLoanFromPayment =
-      availableForPI > 0 && interestRate > 0
-        ? (availableForPI * (1 - Math.pow(1 + interestRate, -numPayments))) / interestRate
-        : availableForPI * numPayments
-    const purchasePriceFromLoan = maxLoanFromPayment / (1 - downPaymentPercentage / 100)
-    if (Math.abs(purchasePriceFromLoan - estimate) < 1000) { purchasePrice = purchasePriceFromLoan; break }
-    estimate = purchasePriceFromLoan
-    purchasePrice = purchasePriceFromLoan
+// Real Purchase Roof — driven by the engine which handles all constraints
+// (DTI ceiling, budget ceiling, DP shortfall/excess strategies, cash purchase)
+const actualRoof = affordability.maxPurchasePrice
+const incomeBasedRoof = affordability.maxPurchasePrice // for downstream column references
+const isIncomeRoofLimiting = affordability.bindingConstraint !== "cash"
+  ? actualRoof < affordability.maxPriceFromDownPayment * 0.95
+  : false
+const realRoofSubtext = (() => {
+  if (affordability.bindingConstraint === "cash") {
+    return `Cash purchase — your ${formatCurrency(affordability.availableDownPayment)} down payment is your roof.`
   }
-  return Math.max(0, purchasePrice)
+  const dpRoof = affordability.maxPriceFromDownPayment
+  const isIncomeBinding = actualRoof < dpRoof * 0.95
+  if (isIncomeBinding) {
+    return `Down payment supports ${formatCurrency(dpRoof)}, but income limits you to ${formatCurrency(actualRoof)}.`
+  }
+  if (dpRoof < actualRoof * 0.95) {
+    return `Income supports more, but ${formatCurrency(affordability.availableDownPayment)} at ${downPaymentPercentage}% down caps you at ${formatCurrency(actualRoof)}.`
+  }
+  return `Income and down payment are well-matched at ${formatCurrency(actualRoof)}.`
 })()
-
-// Relational ceiling — which constraint is active?
-const actualRoof = Math.min(incomeBasedRoof, affordability.maxPriceFromDownPayment)
-const isIncomeRoofLimiting = incomeBasedRoof <= affordability.maxPriceFromDownPayment
-const realRoofSubtext = isIncomeRoofLimiting
-  ? `Down payment supports ${formatCurrency(affordability.maxPriceFromDownPayment)}, but income limits you to ${formatCurrency(actualRoof)}.`
-  : `Income supports ${formatCurrency(incomeBasedRoof)}, but ${formatCurrency(affordability.availableDownPayment)} at ${downPaymentPercentage}% down caps you at ${formatCurrency(actualRoof)}.`
 
 const handleHousingPercentageChange = (newPercentage: number) => {
   onScenarioUpdate({
@@ -1031,6 +1049,9 @@ const renderItemGroup = (
           </div>
         ))}
 
+        {/* Quick Add Row */}
+        {renderQuickAdd(type, timingOrExpenseTiming === "new" ? "future" : "current")}
+
         {/* Income Math Summary — shows gross → withholdings → net → housing target */}
         {type === "income" && (() => {
           const activeIncomeItems = financialItems.filter((i) => i.type === "income" && i.active)
@@ -1067,10 +1088,36 @@ const renderItemGroup = (
                 <span>= Net Take-Home</span>
                 <span>{formatCurrency(totalNetMonthly)}/mo</span>
               </div>
+              {activeDebtTotal > 0 && (
+                <>
+                  <div className="flex justify-between text-muted-foreground/70">
+                    <span>(-) Debt Obligations</span>
+                    <span>−{formatCurrency(activeDebtTotal)}/mo</span>
+                  </div>
+                  <div className="flex justify-between font-semibold text-green-700 pt-1 border-t border-border">
+                    <span>= Available Income</span>
+                    <span>{formatCurrency(totalNetMonthly - activeDebtTotal)}/mo</span>
+                  </div>
+                </>
+              )}
               <div className="flex justify-between text-primary font-medium">
                 <span>× {housingPercentage}% Housing Target</span>
-                <span>= {formatCurrency(housingTarget)}/mo</span>
+                <span>= {formatCurrency((totalNetMonthly - activeDebtTotal) * (housingPercentage / 100))}/mo</span>
               </div>
+              {(() => {
+                const debtTotal = financialItems
+                  .filter((i) => i.type === "debt" && i.active)
+                  .reduce((sum, i) => sum + (i.frequency === "annual" ? i.amount / 12 : i.amount), 0)
+                const housingPayment = affordability.actualMonthlyPayment
+                const frontEnd = totalGrossMonthly > 0 ? Math.round((housingPayment / totalGrossMonthly) * 100) : 0
+                const backEnd = totalGrossMonthly > 0 ? Math.round(((housingPayment + debtTotal) / totalGrossMonthly) * 100) : 0
+                return (
+                  <div className="flex justify-between text-muted-foreground/70 pt-1 border-t border-border/50">
+                    <span>DTI Ratio</span>
+                    <span>{frontEnd}% front · {backEnd}% back{backEnd > 40 ? " ⚠" : ""} <span className="text-muted-foreground/50">(43% max)</span></span>
+                  </div>
+                )
+              })()}
               {hasNetItems && (
                 <p className="text-xs text-muted-foreground/70 italic pt-1">
                   One or more sources entered as net — withholding row reflects gross items only.
@@ -1079,9 +1126,6 @@ const renderItemGroup = (
             </div>
           )
         })()}
-
-        {/* Quick Add Row */}
-        {renderQuickAdd(type, timingOrExpenseTiming === "new" ? "future" : "current")}
       </div>
     </div>
   )
@@ -1137,16 +1181,7 @@ const renderMortgageDetailsGroup = () => {
     }
   }
 
-  // Debt items
-  const debtItems = financialItems.filter((item) => item.type === "debt" && item.timing === "current")
-  const activeDebtTotal = debtItems
-    .filter((item) => item.active)
-    .reduce((sum, item) => sum + (item.frequency === "annual" ? item.amount / 12 : item.amount), 0)
-
-  // Debt impact on purchase ceiling
-  const scenarioNoDebts = { ...scenario, financialInputs: { ...scenario.financialInputs, fixedDebts: 0 } }
-  const affordabilityNoDebts = calculateMaxAffordability(scenarioNoDebts, housingPercentage, downPaymentPercentage, activePropertyTaxRate)
-  const debtPriceDelta = Math.round((affordabilityNoDebts.maxPurchasePrice - affordability.maxPurchasePrice) / 1000) * 1000
+  // Debt items — debtItems, activeDebtTotal, debtPriceDelta hoisted to component scope
 
   // Radio circle indicator (replaces Switch readOnly)
   const RadioCircle = ({ active }: { active: boolean }) => (
@@ -1337,8 +1372,21 @@ const renderMortgageDetailsGroup = () => {
         {/* 5. Debt Obligations — affects DTI qualification */}
         <div className="space-y-2 pt-2 border-t border-border/60">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium text-muted-foreground">Debt Obligations</p>
-            <span className="text-xs text-muted-foreground/70 italic">affects your DTI ratio</span>
+            <p className="text-xs font-medium text-muted-foreground">
+              Debt Obligations
+              {(() => {
+                const grossMonthly = financialItems
+                  .filter((i) => i.type === "income" && i.active)
+                  .reduce((sum, i) => sum + (i.frequency === "annual" ? i.amount / 12 : i.amount), 0)
+                const backEnd = grossMonthly > 0
+                  ? Math.round(((affordability.actualMonthlyPayment + activeDebtTotal) / grossMonthly) * 100)
+                  : 0
+                return backEnd > 0 ? ` · ${backEnd}% DTI` : ""
+              })()}
+            </p>
+            <span className="text-xs text-muted-foreground/70 italic">
+              {activeDebtTotal > 0 ? `affects your housing ceiling` : ""}
+            </span>
           </div>
           {debtItems.length === 0 ? (
             <p className="text-xs text-muted-foreground/70 italic">No debts added yet</p>
@@ -1406,14 +1454,7 @@ const renderMortgageDetailsGroup = () => {
               Total: {formatCurrency(activeDebtTotal)}/mo in minimum payments
             </div>
           )}
-          {/* Debt impact on purchase ceiling */}
-          {activeDebtTotal > 0 && debtPriceDelta > 0 && (
-            <div className="mt-1 p-2 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
-              Your {formatCurrency(activeDebtTotal)}/mo in debt minimums reduces your purchase ceiling by{" "}
-              <span className="font-semibold">~{formatCurrency(debtPriceDelta)}</span>.
-              Toggle a debt off above to see your ceiling change.
-            </div>
-          )}
+          {/* Debt impact moved to Real Purchase Roof subtext */}
           {/* Quick-add debt row */}
           <div className="flex gap-2 mt-2">
             <Input
@@ -1480,209 +1521,37 @@ return (
               )}
             </CardTitle>
             {!isScenarioBuilderOpen && (
-              <div className="mt-4 space-y-4">
-                {/* Detailed Breakdown */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
-                  {/* Income Summary */}
-                  <div className="p-3 bg-green-50 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="font-semibold text-green-800">Income</span>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex justify-between">
-                        <span className="text-green-700">Annual:</span>
-                        <span className="font-medium text-green-900">
-                          {formatCurrency(scenario.financialInputs.annualIncome)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-green-700">Take-home:</span>
-                        <span className="font-medium text-green-900">
-                          {formatCurrency(affordability.takeHomeIncome)}/mo
-                        </span>
-                      </div>
-                      {(scenario.financialInputs.futureIncomeMonthly || 0) > 0 && (
-                        <div className="flex justify-between">
-                          <span className="text-green-700">Future:</span>
-                          <span className="font-medium text-green-900">
-                            +{formatCurrency(scenario.financialInputs.futureIncomeMonthly || 0)}/mo
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Monthly Payment Details */}
-                  <div className="p-3 bg-primary/8 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-2 h-2 bg-primary/80 rounded-full"></div>
-                      <span className="font-semibold text-foreground">Housing Payment</span>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex justify-between">
-                        <span className="text-primary">Payment Ceiling:</span>
-                        <span className="font-medium text-foreground">
-                          {formatCurrency(affordability.maxMonthlyPayment)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-primary">Actual:</span>
-                        <span className="font-medium text-foreground">
-                          {formatCurrency(affordability.actualMonthlyPayment)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-primary">% of Income:</span>
-                        <span className="font-medium text-foreground">{housingPercentage}%</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Down Payment & Opportunity */}
-                  <div className="p-3 bg-primary/8 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-2 h-2 bg-primary/80 rounded-full"></div>
-                      <span className="font-semibold text-primary">Down Payment</span>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex justify-between">
-                        <span className="text-primary">Roof:</span>
-                        <span className="font-medium text-primary">
-                          {formatCurrency(affordability.maxPriceFromDownPayment)}
-                        </span>
-                      </div>
-
-                      {/* Actionable suggestions based on down payment status */}
-                      {affordability.downPaymentStatus === "shortfall" && (
-                        <>
-                          <div className="text-xs text-primary mt-2">
-                            💡 Maximize your monthly budget to{" "}
-                            {formatCurrency(affordability.maxMonthlyPayment + affordability.shortfallAmount! / 200)}
-                          </div>
-                          <div className="text-xs text-primary">
-                            🏠 Increase home price to {formatCurrency(affordability.maxPriceFromDownPayment)}
-                          </div>
-                          <div className="text-xs text-primary">
-                            💰 Add {formatCurrency(affordability.shortfallAmount!)} to down payment
-                          </div>
-                        </>
-                      )}
-
-                      {affordability.downPaymentStatus === "excess" && (
-                        <>
-                          <div className="text-xs text-primary mt-2">
-                            🎯 Use excess {formatCurrency(affordability.excessAmount!)} strategically
-                          </div>
-                          <div className="text-xs text-primary">
-                            🏠 Buy {formatCurrency(affordability.maxPurchasePrice + affordability.excessAmount!)} home
-                          </div>
-                          <div className="text-xs text-primary">
-                            💰 Or reduce monthly payment by{" "}
-                            {formatCurrency(
-                              (() => {
-                                const excessAmount = affordability.excessAmount!
-                                const interestRate = (scenario.financialInputs.interestRate ?? 6.85) / 100 / 12
-                                const numPayments = (scenario.financialInputs.loanTerm ?? 30) * 12
-                                return interestRate > 0
-                                  ? (excessAmount * interestRate) / (1 - Math.pow(1 + interestRate, -numPayments))
-                                  : excessAmount / numPayments
-                              })(),
-                            )}
-                          </div>
-                        </>
-                      )}
-
-                      {affordability.downPaymentStatus === "on-target" && (
-                        <>
-                          <div className="text-xs text-green-700 mt-2">✅ Perfect balance achieved</div>
-                          <div className="text-xs text-primary">
-                            🏠 Target home: {formatCurrency(affordability.maxPurchasePrice)}
-                          </div>
-                          <div className="text-xs text-primary">
-                            💰 Monthly payment: {formatCurrency(affordability.actualMonthlyPayment)}
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Mortgage Details */}
-                  <div className="p-3 bg-orange-50 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                      <span className="font-semibold text-orange-800">Mortgage</span>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex justify-between">
-                        <span className="text-orange-700">Rate:</span>
-                        <span className="font-medium text-orange-900">{displayInterestRate}%</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-orange-700">Term:</span>
-                        <span className="font-medium text-orange-900">{displayLoanTerm} years</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-orange-700">Loan Amount:</span>
-                        <span className="font-medium text-orange-900">
-                          {formatCurrency(affordability.loanAmount)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Opportunities & Constraints */}
-                {(affordability.opportunities.length > 0 || affordability.constraints.length > 0) && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                    {/* Opportunities */}
-                    {affordability.opportunities.length > 0 && (
-                      <div className="p-3 bg-green-50 rounded-lg border border-green-200">
-                        <div className="flex items-center gap-2 mb-2">
-                          <CheckCircle size={12} className="text-green-600" />
-                          <span className="font-semibold text-green-800">Opportunities</span>
-                        </div>
-                        <div className="space-y-1">
-                          {affordability.opportunities.slice(0, 2).map((opportunity, index) => (
-                            <div key={index} className="text-green-700 text-xs">
-                              • {opportunity}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Constraints */}
-                    {affordability.constraints.length > 0 && (
-                      <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                        <div className="flex items-center gap-2 mb-2">
-                          <AlertTriangle size={12} className="text-yellow-600" />
-                          <span className="font-semibold text-yellow-800">Considerations</span>
-                        </div>
-                        <div className="space-y-1">
-                          {affordability.constraints.slice(0, 2).map((constraint, index) => (
-                            <div key={index} className="text-yellow-700 text-xs">
-                              • {constraint}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Quick Action Hint */}
-                <div className="text-center">
-                  <p className="text-xs text-muted-foreground">
-                    Click to expand and adjust income, expenses, down payment, and mortgage settings
-                  </p>
-                </div>
+              <div className="mt-3 flex items-center gap-4 text-sm text-muted-foreground">
+                <span>Real Purchase Roof: <span className="font-semibold text-foreground">{formatCurrency(actualRoof)}</span></span>
+                <span className="text-muted-foreground/40">|</span>
+                <span>Take-home: {formatCurrency(affordability.takeHomeIncome)}/mo</span>
+                <span className="text-muted-foreground/40">|</span>
+                <span>Down: {formatCurrency(affordability.availableDownPayment)}</span>
+                <span className="text-muted-foreground/40">|</span>
+                <span>{displayLoanTerm}yr · {downPaymentPercentage}% · {displayInterestRate}%</span>
               </div>
             )}
           </CardHeader>
         </CollapsibleTrigger>
         <CollapsibleContent>
           <CardContent className="pt-0 space-y-6">
+            {/* Real Purchase Roof — synthesis headline */}
+            <div className="rounded-t-lg border-b-2 border-primary/30 bg-gradient-to-r from-primary/8 to-primary/4 px-5 py-4 -mx-6 -mt-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Home size={18} className="text-primary" />
+                  <h3 className="text-base font-bold text-foreground">Real Purchase Roof</h3>
+                </div>
+                <span className="text-2xl font-bold text-foreground tracking-tight">{formatCurrency(actualRoof)}</span>
+              </div>
+              <p className="text-sm text-muted-foreground mt-1 leading-snug">{realRoofSubtext}</p>
+              {activeDebtTotal > 0 && debtPriceDelta > 0 && (
+                <p className="text-sm text-muted-foreground mt-0.5 leading-snug">
+                  {formatCurrency(activeDebtTotal)}/mo in debt obligations reduces your ceiling by ~{formatCurrency(debtPriceDelta)}.
+                </p>
+              )}
+            </div>
+
             {/* Aligned Financial Controls */}
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1700,7 +1569,7 @@ return (
                       </Label>
                       <div className="text-sm text-muted-foreground text-right">
                         <div className="font-semibold">{formatCurrency(affordability.maxMonthlyPayment)}</div>
-                        <div className="text-xs">({housingPercentage}% of take-home)</div>
+                        <div className="text-xs">{formatCurrency(affordability.monthlyPrincipalInterest)} P&I + {formatCurrency(affordability.monthlyPropertyTax + affordability.monthlyInsurance)} escrow</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -1772,7 +1641,6 @@ return (
                     {renderItemGroup("downpayment", "current", "Down Payment Sources", "text-primary bg-primary/8")}
                   </div>
 
-                  {/* Down Payment Control - With Status-Based Strategy */}
                   {/* Down Payment Control - With Purchase Power Display */}
                   <div className="bg-muted rounded-lg p-4">
                     <div className="flex items-center justify-between mb-3">
@@ -1968,14 +1836,6 @@ return (
               </div>
             </div>
 
-            {/* Real Purchase Roof — synthesis of both ceilings */}
-            <div className="rounded-md bg-muted/40 px-3 py-2.5">
-              <div className="flex items-baseline justify-between">
-                <span className="text-xs font-medium text-foreground">Real Purchase Roof</span>
-                <span className="text-sm font-semibold text-foreground">{formatCurrency(actualRoof)}</span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{realRoofSubtext}</p>
-            </div>
           </CardContent>
         </CollapsibleContent>
       </Collapsible>
@@ -2003,10 +1863,6 @@ return (
                     {formatCurrency(affordability.maxPurchasePrice)} home · {formatCurrency(affordability.actualMonthlyPayment)}/mo
                   </span>
                 )}
-                <Badge className={affordabilityLevel.color}>
-                  <AffordabilityIcon size={14} className="mr-1" />
-                  {affordabilityLevel.level}
-                </Badge>
                 {isSustainabilityOpen ? <ChevronUp size={16} className="text-muted-foreground/70" /> : <ChevronDown size={16} className="text-muted-foreground/70" />}
               </div>
             </CardTitle>
