@@ -12,6 +12,7 @@ interface NavItem {
 
 const NAV: NavItem[] = [
   { label: 'Mortgage & Move',    href: '/' },
+  { label: 'Compare',            href: '/compare' },
   { label: 'Decision Rehearsal', href: '/decision-rehearsal' },
   { label: 'Home Sale',          href: '/home-sale',      soon: true },
   { label: 'Ongoing Budget',     href: '/ongoing-budget', soon: true },

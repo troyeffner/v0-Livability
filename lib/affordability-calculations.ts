@@ -10,6 +10,18 @@ export const formatCurrency = (amount: number): string => {
   }).format(amount)
 }
 
+// Credit score tiers — shared between affordability-summary and scenario-comparison
+export const CREDIT_TIERS = [
+  { label: "Very Poor",   range: "<620",     score: 580 },
+  { label: "Poor",        range: "620–639",  score: 629 },
+  { label: "Fair",        range: "640–679",  score: 659 },
+  { label: "Good",        range: "680–719",  score: 699 },
+  { label: "Very Good",   range: "720–759",  score: 739 },
+  { label: "Exceptional", range: "760+",     score: 780 },
+] as const
+
+export type CreditTier = typeof CREDIT_TIERS[number]
+
 /**
  * Estimate a realistic interest rate based on credit profile and market conditions.
  *

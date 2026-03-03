@@ -13,7 +13,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { TrendingUp, TrendingDown, Home, DollarSign, AlertTriangle, CheckCircle, Settings, ChevronDown, ChevronUp, Plus, Pencil, Trash2, Calendar, Info, MapPin } from 'lucide-react'
-import { formatCurrency, calculateMaxAffordability, estimateInterestRate } from "@/lib/affordability-calculations"
+import { formatCurrency, calculateMaxAffordability, estimateInterestRate, CREDIT_TIERS } from "@/lib/affordability-calculations"
 import type { Scenario } from "@/lib/property-types"
 
 interface ZipData {
@@ -550,6 +550,13 @@ const scenarioNoDebts = { ...scenario, financialInputs: { ...scenario.financialI
 const affordabilityNoDebts = calculateMaxAffordability(scenarioNoDebts, housingPercentage, downPaymentPercentage, activePropertyTaxRate)
 const debtPriceDelta = Math.round((affordabilityNoDebts.maxPurchasePrice - affordability.maxPurchasePrice) / 1000) * 1000
 
+// Rate sensitivity — what would 1% lower rate do to the roof?
+const currentRate = scenario.financialInputs.interestRate ?? 6.85
+const lowerRate = Math.max(0.5, currentRate - 1)
+const scenarioLowerRate = { ...scenario, financialInputs: { ...scenario.financialInputs, interestRate: lowerRate } }
+const affordabilityLowerRate = calculateMaxAffordability(scenarioLowerRate, housingPercentage, downPaymentPercentage, activePropertyTaxRate)
+const ratePriceDelta = Math.round((affordabilityLowerRate.maxPurchasePrice - affordability.maxPurchasePrice) / 1000) * 1000
+
 // Real Purchase Roof — driven by the engine which handles all constraints
 // (DTI ceiling, budget ceiling, DP shortfall/excess strategies, cash purchase)
 const actualRoof = affordability.maxPurchasePrice
@@ -564,7 +571,11 @@ const realRoofSubtext = (() => {
   const dpRoof = affordability.maxPriceFromDownPayment
   const isIncomeBinding = actualRoof < dpRoof * 0.95
   if (isIncomeBinding) {
-    return `Down payment supports ${formatCurrency(dpRoof)}, but income limits you to ${formatCurrency(actualRoof)}.`
+    const base = `Down payment supports ${formatCurrency(dpRoof)}, but income limits you to ${formatCurrency(actualRoof)}.`
+    if (affordability.downPaymentStatus === "excess" && affordability.excessAmount) {
+      return `${base}\nUse your ${formatCurrency(affordability.excessAmount)} excess down payment — choose a strategy below.`
+    }
+    return base
   }
   if (dpRoof < actualRoof * 0.95) {
     return `Income supports more, but ${formatCurrency(affordability.availableDownPayment)} at ${downPaymentPercentage}% down caps you at ${formatCurrency(actualRoof)}.`
@@ -1088,34 +1099,34 @@ const renderItemGroup = (
                 <span>= Net Take-Home</span>
                 <span>{formatCurrency(totalNetMonthly)}/mo</span>
               </div>
-              {activeDebtTotal > 0 && (
-                <>
-                  <div className="flex justify-between text-muted-foreground/70">
-                    <span>(-) Debt Obligations</span>
-                    <span>−{formatCurrency(activeDebtTotal)}/mo</span>
-                  </div>
-                  <div className="flex justify-between font-semibold text-green-700 pt-1 border-t border-border">
-                    <span>= Available Income</span>
-                    <span>{formatCurrency(totalNetMonthly - activeDebtTotal)}/mo</span>
-                  </div>
-                </>
-              )}
-              <div className="flex justify-between text-primary font-medium">
-                <span>× {housingPercentage}% Housing Target</span>
-                <span>= {formatCurrency((totalNetMonthly - activeDebtTotal) * (housingPercentage / 100))}/mo</span>
-              </div>
               {(() => {
-                const debtTotal = financialItems
-                  .filter((i) => i.type === "debt" && i.active)
-                  .reduce((sum, i) => sum + (i.frequency === "annual" ? i.amount / 12 : i.amount), 0)
-                const housingPayment = affordability.actualMonthlyPayment
-                const frontEnd = totalGrossMonthly > 0 ? Math.round((housingPayment / totalGrossMonthly) * 100) : 0
-                const backEnd = totalGrossMonthly > 0 ? Math.round(((housingPayment + debtTotal) / totalGrossMonthly) * 100) : 0
+                const housingPayment = affordability.maxMonthlyPayment
+                const debtDTI = totalGrossMonthly > 0 ? Math.round((activeDebtTotal / totalGrossMonthly) * 100) : 0
+                const housingDTI = totalGrossMonthly > 0 ? Math.round((housingPayment / totalGrossMonthly) * 100) : 0
+                const backEnd = debtDTI + housingDTI
+                const totalObligations = activeDebtTotal + housingPayment
+                const lifestyleIncome = totalNetMonthly - totalObligations
                 return (
-                  <div className="flex justify-between text-muted-foreground/70 pt-1 border-t border-border/50">
-                    <span>DTI Ratio</span>
-                    <span>{frontEnd}% front · {backEnd}% back{backEnd > 40 ? " ⚠" : ""} <span className="text-muted-foreground/50">(43% max)</span></span>
-                  </div>
+                  <>
+                    {activeDebtTotal > 0 && (
+                      <div className="flex justify-between text-muted-foreground/70">
+                        <span>(-) Existing Debt Obligations</span>
+                        <span>−{formatCurrency(activeDebtTotal)}/mo</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-muted-foreground/70">
+                      <span>(-) Payment Ceiling (P+E)</span>
+                      <span>−{formatCurrency(housingPayment)}/mo</span>
+                    </div>
+                    <div className="flex justify-between text-muted-foreground/70 pt-1 border-t border-border/50">
+                      <span>= {backEnd}% DTI</span>
+                      <span className="text-muted-foreground/50">(43% max){backEnd > 40 ? " ⚠" : ""}</span>
+                    </div>
+                    <div className="flex justify-between font-semibold text-green-700 pt-1 border-t border-border/50">
+                      <span>Resulting Lifestyle Income</span>
+                      <span>{formatCurrency(lifestyleIncome)}/mo</span>
+                    </div>
+                  </>
                 )
               })()}
               {hasNetItems && (
@@ -1147,15 +1158,7 @@ const renderMortgageDetailsGroup = () => {
   const currentCreditScore = scenario.financialInputs.creditScore ?? 699
   const currentMarketRate = scenario.financialInputs.marketReferenceRate ?? 6.85
 
-  // Credit score tiers
-  const CREDIT_TIERS = [
-    { label: "Very Poor",  range: "<620",     score: 580 },
-    { label: "Poor",       range: "620–639",  score: 629 },
-    { label: "Fair",       range: "640–679",  score: 659 },
-    { label: "Good",       range: "680–719",  score: 699 },
-    { label: "Very Good",  range: "720–759",  score: 739 },
-    { label: "Exceptional",range: "760+",     score: 780 },
-  ]
+  // Credit score tiers — imported from lib/affordability-calculations
   const activeTier = CREDIT_TIERS.slice().reverse().find((t) => currentCreditScore >= t.score) ?? CREDIT_TIERS[3]
 
   // Estimated rate for current profile
@@ -1381,12 +1384,9 @@ const renderMortgageDetailsGroup = () => {
                 const backEnd = grossMonthly > 0
                   ? Math.round(((affordability.actualMonthlyPayment + activeDebtTotal) / grossMonthly) * 100)
                   : 0
-                return backEnd > 0 ? ` · ${backEnd}% DTI` : ""
+                return backEnd > 0 ? ` · ${backEnd}% DTI (43% Max)` : ""
               })()}
             </p>
-            <span className="text-xs text-muted-foreground/70 italic">
-              {activeDebtTotal > 0 ? `affects your housing ceiling` : ""}
-            </span>
           </div>
           {debtItems.length === 0 ? (
             <p className="text-xs text-muted-foreground/70 italic">No debts added yet</p>
@@ -1544,10 +1544,15 @@ return (
                 </div>
                 <span className="text-2xl font-bold text-foreground tracking-tight">{formatCurrency(actualRoof)}</span>
               </div>
-              <p className="text-sm text-muted-foreground mt-1 leading-snug">{realRoofSubtext}</p>
+              <p className="text-sm text-muted-foreground mt-1 leading-snug whitespace-pre-line">{realRoofSubtext}</p>
               {activeDebtTotal > 0 && debtPriceDelta > 0 && (
                 <p className="text-sm text-muted-foreground mt-0.5 leading-snug">
-                  {formatCurrency(activeDebtTotal)}/mo in debt obligations reduces your ceiling by ~{formatCurrency(debtPriceDelta)}.
+                  {formatCurrency(activeDebtTotal)}/mo in debt obligations reduces your roof by ~{formatCurrency(debtPriceDelta)}.
+                </p>
+              )}
+              {affordability.bindingConstraint !== "cash" && ratePriceDelta > 0 && (
+                <p className="text-sm text-muted-foreground mt-0.5 leading-snug">
+                  Each 1% lower rate raises your roof by ~{formatCurrency(ratePriceDelta)}.
                 </p>
               )}
             </div>
