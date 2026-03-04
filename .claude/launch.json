@@ -3,7 +3,6 @@
   "configurations": [
     {
       "name": "Livability",
-      "cwd": "/Users/troyeffner/Dropbox/DEV/Livability",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["dev", "--port", "3010"],
       "port": 3010

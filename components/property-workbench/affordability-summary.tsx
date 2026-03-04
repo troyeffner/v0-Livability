@@ -2537,6 +2537,22 @@ return (
                 </SelectContent>
               </Select>
             </div>
+            {/* Nudge: >$10k monthly → did you mean annual? */}
+            {modalFrequency === "monthly" && modalAmount > 10000 && (
+              <div className="col-span-4 flex items-center gap-2 p-2 bg-amber-50 border border-amber-200 rounded-md">
+                <AlertTriangle size={14} className="text-amber-600 shrink-0" />
+                <p className="text-xs text-amber-700">
+                  ${modalAmount.toLocaleString()}/mo is {formatCurrency(modalAmount * 12)}/yr — did you mean annual?
+                </p>
+                <button
+                  type="button"
+                  className="ml-auto text-xs font-medium text-amber-700 underline underline-offset-2 hover:text-amber-900 whitespace-nowrap"
+                  onClick={() => setModalFrequency("annual")}
+                >
+                  Switch to annual
+                </button>
+              </div>
+            )}
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="type" className="text-right">
