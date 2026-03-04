@@ -13,7 +13,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { TrendingUp, TrendingDown, Home, DollarSign, AlertTriangle, CheckCircle, Settings, ChevronDown, ChevronUp, Plus, Pencil, Trash2, Calendar, Info, MapPin } from 'lucide-react'
-import { formatCurrency, calculateMaxAffordability, estimateInterestRate, CREDIT_TIERS } from "@/lib/affordability-calculations"
+import { formatCurrency, calculateMaxAffordability, estimateInterestRate, CREDIT_TIERS, UPFRONT_COSTS } from "@/lib/affordability-calculations"
 import type { Scenario } from "@/lib/property-types"
 
 interface ZipData {
@@ -573,12 +573,12 @@ const realRoofSubtext = (() => {
   if (isIncomeBinding) {
     const base = `Down payment supports ${formatCurrency(dpRoof)}, but income limits you to ${formatCurrency(actualRoof)}.`
     if (affordability.downPaymentStatus === "excess" && affordability.excessAmount) {
-      return `${base}\nUse your ${formatCurrency(affordability.excessAmount)} excess down payment — choose a strategy below.`
+      return `${base}\n${formatCurrency(affordability.excessAmount)} remaining after all upfront costs — choose a strategy below.`
     }
     return base
   }
   if (dpRoof < actualRoof * 0.95) {
-    return `Income supports more, but ${formatCurrency(affordability.availableDownPayment)} at ${downPaymentPercentage}% down caps you at ${formatCurrency(actualRoof)}.`
+    return `Income supports more, but your ${formatCurrency(affordability.availableDownPayment)} sources cover DP + closing + moving up to ${formatCurrency(actualRoof)}.`
   }
   return `Income and down payment are well-matched at ${formatCurrency(actualRoof)}.`
 })()
@@ -1381,10 +1381,10 @@ const renderMortgageDetailsGroup = () => {
                 const grossMonthly = financialItems
                   .filter((i) => i.type === "income" && i.active)
                   .reduce((sum, i) => sum + (i.frequency === "annual" ? i.amount / 12 : i.amount), 0)
-                const backEnd = grossMonthly > 0
-                  ? Math.round(((affordability.actualMonthlyPayment + activeDebtTotal) / grossMonthly) * 100)
+                const debtDTI = grossMonthly > 0
+                  ? Math.round((activeDebtTotal / grossMonthly) * 100)
                   : 0
-                return backEnd > 0 ? ` · ${backEnd}% DTI (43% Max)` : ""
+                return debtDTI > 0 ? ` · ${debtDTI}% DTI (43% Max)` : ""
               })()}
             </p>
           </div>
@@ -1606,7 +1606,7 @@ return (
                         <p className="text-xs font-medium text-muted-foreground">Purchase Roof</p>
                         <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${
                           isIncomeRoofLimiting
-                            ? 'bg-primary/10 text-primary'
+                            ? 'bg-amber-100 text-amber-700 border border-amber-300'
                             : 'bg-muted text-muted-foreground'
                         }`}>
                           {isIncomeRoofLimiting ? 'Limiting factor' : 'Not limiting'}
@@ -1641,9 +1641,68 @@ return (
 
                 {/* Middle Column: Down Payment & Percentage */}
                 <div className="space-y-4">
-                  {/* Down Payment Sources */}
+                  {/* Upfront Cash Sources */}
                   <div>
-                    {renderItemGroup("downpayment", "current", "Down Payment Sources", "text-primary bg-primary/8")}
+                    {renderItemGroup("downpayment", "current", "Upfront Cash Sources", "text-primary bg-primary/8")}
+                    {/* Cash allocation breakdown */}
+                    {(() => {
+                      const totalCash = financialItems
+                        .filter((i) => i.type === "downpayment" && i.active)
+                        .reduce((sum, i) => sum + i.amount, 0)
+                      const purchasePrice = affordability.maxPurchasePrice
+                      // DP needed = purchase price × DP% (not full sources — income may limit the roof)
+                      const dpNeeded = Math.round(purchasePrice * (downPaymentPercentage / 100))
+                      const estimatedClosingCosts = Math.round(purchasePrice * UPFRONT_COSTS.closingCostRate)
+                      const preCloseCosts = UPFRONT_COSTS.preCloseCosts
+                      const movingSetup = UPFRONT_COSTS.movingSetup
+                      const totalNeeded = dpNeeded + estimatedClosingCosts + preCloseCosts + movingSetup
+                      const remaining = totalCash - totalNeeded
+                      return totalCash > 0 ? (
+                        <div className="mt-2 mx-1 p-3 bg-muted/50 rounded-md space-y-1.5">
+                          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">Where your cash goes</p>
+
+                          {/* Before closing */}
+                          <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wide pt-1">Before closing</p>
+                          <div className="flex justify-between text-xs text-muted-foreground">
+                            <span>Pre-Close (inspection, appraisal)</span>
+                            <span className="font-medium text-foreground">{formatCurrency(preCloseCosts)}</span>
+                          </div>
+
+                          {/* At closing */}
+                          <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wide pt-2">At closing</p>
+                          <div className="flex justify-between text-xs text-muted-foreground">
+                            <span>Down Payment ({downPaymentPercentage}%)</span>
+                            <span className="font-medium text-foreground">{formatCurrency(dpNeeded)}</span>
+                          </div>
+                          <div className="flex justify-between text-xs text-muted-foreground">
+                            <span>Closing Costs (~3%)</span>
+                            <span className="font-medium text-foreground">{formatCurrency(estimatedClosingCosts)}</span>
+                          </div>
+
+                          {/* After closing */}
+                          <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wide pt-2">After closing</p>
+                          <div className="flex justify-between text-xs text-muted-foreground">
+                            <span>Moving & Setup</span>
+                            <span className="font-medium text-foreground">{formatCurrency(movingSetup)}</span>
+                          </div>
+
+                          {/* Total */}
+                          <div className="border-t border-border/50 pt-1.5 flex justify-between text-xs">
+                            <span className="font-medium text-muted-foreground">Total Cash Needed</span>
+                            <span className="font-semibold text-foreground">{formatCurrency(totalNeeded)}</span>
+                          </div>
+                          {remaining >= 0 ? (
+                            <p className="text-[10px] text-green-600 mt-1">
+                              {formatCurrency(remaining)} remaining from your {formatCurrency(totalCash)} sources
+                            </p>
+                          ) : (
+                            <p className="text-[10px] text-amber-600 mt-1">
+                              {formatCurrency(Math.abs(remaining))} gap — your sources cover {formatCurrency(totalCash)}
+                            </p>
+                          )}
+                        </div>
+                      ) : null
+                    })()}
                   </div>
 
                   {/* Down Payment Control - With Purchase Power Display */}
@@ -1651,7 +1710,7 @@ return (
                     <div className="flex items-center justify-between mb-3">
                       <Label htmlFor="downPaymentPercentage" className="text-sm font-medium flex items-center gap-2">
                         <DollarSign size={16} />
-                        Down Payment Ceiling
+                        Purchase Roof
                       </Label>
                     </div>
 
@@ -1661,7 +1720,7 @@ return (
                         <p className="text-xs font-medium text-muted-foreground">Purchase Roof</p>
                         <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${
                           !isIncomeRoofLimiting
-                            ? 'bg-primary/10 text-primary'
+                            ? 'bg-amber-100 text-amber-700 border border-amber-300'
                             : 'bg-muted text-muted-foreground'
                         }`}>
                           {!isIncomeRoofLimiting ? 'Limiting factor' : 'Not limiting'}
@@ -1699,15 +1758,23 @@ return (
                       </div>
                     )}
 
-                    {/* Down Payment Status: Excess */}
-                    {affordability.downPaymentStatus === "excess" && (
+                    {/* Down Payment Status: Excess — use real remaining after all costs */}
+                    {affordability.downPaymentStatus === "excess" && (() => {
+                      const totalCash = financialItems
+                        .filter((i) => i.type === "downpayment" && i.active)
+                        .reduce((sum, i) => sum + i.amount, 0)
+                      const purchasePrice = affordability.maxPurchasePrice
+                      const dpNeeded = Math.round(purchasePrice * (downPaymentPercentage / 100))
+                      const otherCosts = Math.round(purchasePrice * UPFRONT_COSTS.closingCostRate) + UPFRONT_COSTS.preCloseCosts + UPFRONT_COSTS.movingSetup
+                      const realExcess = totalCash - dpNeeded - otherCosts
+                      if (realExcess <= 0) return null
+                      return (
                       <div className="space-y-3">
                         <div className="p-3 bg-green-50 border border-green-200 rounded-md">
                           <div className="flex items-center gap-2 text-green-700 mb-2">
                             <CheckCircle size={14} />
                             <span className="text-xs font-medium">
-                              💰 Opportunity: Use your {formatCurrency(affordability.excessAmount!)} excess down
-                              payment strategically
+                              💰 {formatCurrency(realExcess)} remaining after all costs — use it strategically
                             </span>
                           </div>
 
@@ -1739,9 +1806,9 @@ return (
                                   className="text-green-600"
                                 />
                                 <div>
-                                  <p className="text-xs font-medium text-green-800">💰 Save the excess</p>
+                                  <p className="text-xs font-medium text-green-800">💰 Save it</p>
                                   <p className="text-xs text-green-600">
-                                    Keep {formatCurrency(affordability.excessAmount!)} for emergencies or other goals
+                                    Keep {formatCurrency(realExcess)} for emergencies or other goals
                                   </p>
                                 </div>
                               </div>
@@ -1774,17 +1841,16 @@ return (
                                 <div>
                                   <p className="text-xs font-medium text-green-800">📉 Reduce loan amount</p>
                                   <p className="text-xs text-green-600">
-                                    Apply excess to down payment → Lower loan amount → Save ~
+                                    Apply {formatCurrency(realExcess)} extra to down payment → Lower loan amount → Save ~
                                     {formatCurrency(
                                       (() => {
-                                        const excessAmount = affordability.excessAmount!
                                         const interestRate =
                                           (scenario.financialInputs.interestRate ?? 6.85) / 100 / 12
                                         const numPayments = (scenario.financialInputs.loanTerm ?? 30) * 12
                                         return interestRate > 0
-                                          ? (excessAmount * interestRate) /
+                                          ? (realExcess * interestRate) /
                                               (1 - Math.pow(1 + interestRate, -numPayments))
-                                          : excessAmount / numPayments
+                                          : realExcess / numPayments
                                       })(),
                                     )}
                                     /month
@@ -1826,10 +1892,12 @@ return (
                                 </div>
                               </div>
                             </div>
+
                           </div>
                         </div>
                       </div>
-                    )}
+                      )
+                    })()}
                   </div>
                 </div>
 

@@ -201,6 +201,73 @@
         "confidence": "medium",
         "evidence_maturity": "none",
         "status": "active"
+      },
+      {
+        "id": "H-005",
+        "title": "Users confuse down payment with total cash needed to buy a home",
+        "description": "Buyers conflate 'down payment' with the total cash required. The real picture has two timing layers: (1) Cash at closing = down payment + closing costs (lender fees, title, appraisal, attorney — typically 2-5% of purchase price). (2) Cash before closing = earnest money deposit, inspection fees, appraisal deposit, rate lock fees, and other incentives or pre-close costs that come due during the contract period (often 30-90 days before close). The total cash outlay and its timing are both sources of confusion. A buyer liquidating assets (e.g., selling stock) needs to know not just the total amount but when each piece is needed. Current UI only shows 'Down Payment Sources' — missing closing costs, prepaids, and the pre-close cash timeline entirely.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "dp_vs_total_cash_timeline_confusion",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Test whether a cash timeline view (what's needed and when) reduces surprise and improves liquidity planning for buyers who need to convert assets to cash.",
+          "user_story": "Troy's experience: closing took two months, needed to sell stock to fund purchase, didn't know when each cash amount was due. The total number wasn't enough — timing mattered."
+        },
+        "evidence_refs": [
+          "lib/affordability-calculations.ts::calculateMaxAffordability",
+          "components/property-workbench/affordability-summary.tsx::downPaymentSources"
+        ],
+        "source_pack_ref": "user_session_20260303",
+        "reconciled_by": "claude_qb",
+        "confidence": "high",
+        "evidence_maturity": "anecdotal_firsthand",
+        "status": "active"
+      },
+      {
+        "id": "H-006",
+        "title": "Showing closing cost funding alongside down payment sources clarifies total cash picture",
+        "description": "Placing a 'Closing Cost Funding' section directly next to 'Down Payment Sources' may naturally educate buyers that down payment ≠ total cash needed. By making closing costs visible in the same UI context, users discover the distinction through the interface rather than through surprise at the closing table. Additionally, excess down payment (when income-limited) should list 'cover closing costs' as one of the strategy options — it's a natural use of surplus cash that reduces total out-of-pocket at close.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "closing_costs_adjacency_test",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Test whether placing closing cost funding adjacent to down payment sources reduces the down-payment-equals-total-cash misconception. Secondary: does adding 'cover closing costs' as an excess DP strategy option increase perceived usefulness of the excess DP guidance?",
+          "design_implication": "Excess DP strategy radios should include an option like 'Apply to closing costs' alongside existing options (reduce loan, increase reserves, etc.)."
+        },
+        "evidence_refs": [
+          "components/property-workbench/affordability-summary.tsx::downPaymentSources",
+          "components/property-workbench/affordability-summary.tsx::excessDownPayment"
+        ],
+        "linked_hypotheses": ["H-005"],
+        "linked_jobs": ["HB-JOB-012"],
+        "source_pack_ref": "user_session_20260303",
+        "reconciled_by": "claude_qb",
+        "confidence": "high",
+        "evidence_maturity": "anecdotal_firsthand",
+        "status": "active"
+      },
+      {
+        "id": "H-007",
+        "title": "Reframe 'Down Payment Sources' as 'Upfront Cash Sources' with itemized breakdown",
+        "description": "Instead of treating down payment and closing costs as separate concepts the user has to reconcile, reframe the entire section as 'Upfront Cash Sources' — the total pool of liquid cash available for the purchase. The breakdown in the description shows where it goes: down payment, closing costs (2-5%), prepaid escrow, and pre-close costs (earnest money, inspections, etc.). The engine then computes a 'down payment ceiling' from this total pool after subtracting estimated closing costs and prepaids. When upfront cash exceeds what's needed, the overflow is visible. When it falls short, the user sees exactly which component is underfunded. This reframe means the user enters one honest number — 'how much cash can I bring?' — and the system allocates it, rather than asking the user to mentally separate down payment from everything else.",
+        "epistemic_state": "seed",
+        "seed_metadata": {
+          "seed_label": "upfront_cash_reframe",
+          "evaluation_status": "research_needed",
+          "probe_intent": "Test whether a single 'Upfront Cash Sources' input with system-allocated breakdown produces better cash planning accuracy than separate down payment + closing cost inputs.",
+          "design_implication": "UI section becomes 'Upfront Cash Sources' with itemized allocation: Down Payment ($X), Closing Costs (~$Y), Prepaids (~$Z), Pre-Close Costs (~$W). The down payment ceiling is derived, not entered. Excess/shortfall is shown against the full picture, not just down payment."
+        },
+        "evidence_refs": [
+          "components/property-workbench/affordability-summary.tsx::downPaymentSources",
+          "lib/affordability-calculations.ts::calculateMaxAffordability"
+        ],
+        "linked_hypotheses": ["H-005", "H-006"],
+        "linked_jobs": ["HB-JOB-012", "HB-JOB-015"],
+        "source_pack_ref": "user_session_20260303",
+        "reconciled_by": "claude_qb",
+        "confidence": "high",
+        "evidence_maturity": "anecdotal_firsthand",
+        "status": "active"
       }
     ],
     "experiments": [

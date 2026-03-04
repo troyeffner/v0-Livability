@@ -150,6 +150,13 @@ export const calculatePropertyAffordability = (property: Property, scenario: Sce
   }
 }
 
+// Upfront cost constants — shared between engine and UI
+export const UPFRONT_COSTS = {
+  closingCostRate: 0.03,   // 3% of purchase price
+  preCloseCosts: 950,      // inspection + appraisal estimates
+  movingSetup: 2500,       // moving & initial setup estimate
+}
+
 export function calculateMaxAffordability(
   scenario: Scenario,
   housingPercentage: number,
@@ -260,18 +267,25 @@ export function calculateMaxAffordability(
 
   const requiredDownPayment = (idealHousePrice * downPaymentPercentage) / 100
 
+  // Total upfront cash needed = DP + closing costs (% of price) + fixed pre-close + moving
+  const totalUpfrontForIdeal =
+    requiredDownPayment +
+    idealHousePrice * UPFRONT_COSTS.closingCostRate +
+    UPFRONT_COSTS.preCloseCosts +
+    UPFRONT_COSTS.movingSetup
+
   let downPaymentStatus: "on-target" | "excess" | "shortfall"
   let excessAmount: number | undefined
   let shortfallAmount: number | undefined
 
-  const tolerance = requiredDownPayment * 0.05
+  const tolerance = totalUpfrontForIdeal * 0.05
 
-  if (availableDownPayment < requiredDownPayment - tolerance) {
+  if (availableDownPayment < totalUpfrontForIdeal - tolerance) {
     downPaymentStatus = "shortfall"
-    shortfallAmount = requiredDownPayment - availableDownPayment
-  } else if (availableDownPayment > requiredDownPayment + tolerance) {
+    shortfallAmount = totalUpfrontForIdeal - availableDownPayment
+  } else if (availableDownPayment > totalUpfrontForIdeal + tolerance) {
     downPaymentStatus = "excess"
-    excessAmount = availableDownPayment - requiredDownPayment
+    excessAmount = availableDownPayment - totalUpfrontForIdeal
   } else {
     downPaymentStatus = "on-target"
   }
@@ -282,8 +296,10 @@ export function calculateMaxAffordability(
   let actualMonthlyPayment: number
 
   if (downPaymentStatus === "shortfall") {
-    finalMaxPurchasePrice = availableDownPayment / (downPaymentPercentage / 100)
-    actualDownPaymentUsed = availableDownPayment
+    // Cash-adjusted roof: P = (Sources - fixedCosts) / (DP% + closingCostRate)
+    const cashForPriceScaled = Math.max(0, availableDownPayment - UPFRONT_COSTS.preCloseCosts - UPFRONT_COSTS.movingSetup)
+    finalMaxPurchasePrice = cashForPriceScaled / (downPaymentPercentage / 100 + UPFRONT_COSTS.closingCostRate)
+    actualDownPaymentUsed = finalMaxPurchasePrice * (downPaymentPercentage / 100)
     const loanAmount = Math.max(0, finalMaxPurchasePrice - actualDownPaymentUsed)
     const monthlyPropertyTax = finalMaxPurchasePrice * propertyTaxRate
     const monthlyInsurance = insuranceRate
@@ -349,7 +365,7 @@ export function calculateMaxAffordability(
 
   if (downPaymentStatus === "shortfall") {
     constraints.push(
-      `Need ${formatCurrency(shortfallAmount!)} more down payment to afford your ideal ${formatCurrency(idealHousePrice)} house`,
+      `Need ${formatCurrency(shortfallAmount!)} more upfront cash to afford your ideal ${formatCurrency(idealHousePrice)} house`,
     )
   }
 
@@ -381,7 +397,7 @@ export function calculateMaxAffordability(
     actualMonthlyPayment: Math.max(0, actualMonthlyPayment),
     availableDownPayment,
     requiredDownPayment: Math.max(0, requiredDownPayment),
-    maxPriceFromDownPayment: availableDownPayment / (downPaymentPercentage / 100),
+    maxPriceFromDownPayment: Math.max(0, availableDownPayment - UPFRONT_COSTS.preCloseCosts - UPFRONT_COSTS.movingSetup) / (downPaymentPercentage / 100 + UPFRONT_COSTS.closingCostRate),
     loanAmount: Math.max(0, loanAmount),
     dtiRatio,
     monthlyIncome: grossMonthlyIncome,
